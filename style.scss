@@ -1,0 +1,110 @@
+$bg-color: rgba(17, 17, 27, 0.85);
+$border-color: rgba(255, 255, 255, 0.1);
+$text-color: #ffffff;
+$accent-color: #89b4fa;
+$hover-color: rgba(255, 255, 255, 0.1);
+
+* {
+  selection {
+    background-color: $accent-color;
+    color: #1e1e2e;
+  }
+}
+
+window.Bar {
+  background-color: transparent;
+  color: $text-color;
+  font-weight: bold;
+
+  > centerbox {
+    background: transparent;
+  }
+}
+
+window.Calendar {
+  background-color: transparent;
+
+  > box > menubutton > button {
+    background-image: none;
+    background-color: $bg-color;
+    color: $text-color;
+    border: 1px solid $border-color;
+    border-radius: 12px;
+    padding: 6px 14px;
+    margin: 0;
+    box-shadow: none;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background-color: rgba(30, 30, 46, 0.9);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+
+  }
+}
+
+popover {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+
+  arrow { background: $bg-color; border: none; }
+
+  > contents {
+    background-color: $bg-color;
+    border-radius: 20px;
+    padding: 12px;
+    border: 1px solid $border-color;
+    box-shadow: 0 4px 15px rgba(0,0,0, 0.5);
+  }
+
+  calendar {
+    background-color: transparent;
+    color: $text-color;
+    border: none;
+    &.view {
+      background-color: transparent;
+    }
+
+    header {
+      background: transparent;
+      border: none;
+
+      button {
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        color: $text-color;
+        font-weight: bold;
+        &:hover { background-color: $hover-color; }
+      }
+    }
+
+    grid {
+      background: transparent;
+
+      label {
+        background: transparent;
+
+        &.today {
+          background-color: $accent-color;
+          color: #1e1e2e;
+          border-radius: 50%;
+          font-weight: bold;
+        }
+      }
+
+      &:selected {
+        background-color: $accent-color;
+        color: #1e1e2e;
+        border-radius: 50%;
+      }
+
+      label:hover {
+        background-color: $hover-color;
+        border-radius: 5px;
+      }
+    }
+  }
+}

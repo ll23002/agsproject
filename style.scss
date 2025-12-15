@@ -118,10 +118,33 @@ popover {
     border-bottom: 1px solid $border-color;
     margin-bottom: 8px;
 
+    .clear-button {
+      margin-left: 8px;
+    }
+
     label {
       font-weight: bold;
       color: $text-color;
     }
+  }
+
+  .clear-button {
+    background: transparent;
+    border: 1px solid $border-color;
+    color: $text-color;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background-color: $hover-color;
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+  }
+
+  .empty-notifications {
+    color: $text-color;
+    padding: 12px;
   }
 
   .notification {
@@ -155,5 +178,64 @@ popover {
   scrolledwindow {
     background: transparent;
     border: none;
+  }
+}
+
+window.ControlPanel {
+  background-color: transparent;
+
+  > box > menubutton > button {
+    background-image: none;
+    background-color: $bg-color;
+    color: $text-color;
+    border: 1px solid $border-color;
+    border-radius: 12px;
+    padding: 6px 14px;
+    margin: 0;
+    box-shadow: none;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background-color: rgba(30, 30, 46, 0.9);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+  }
+}
+
+
+.panel-container {
+  label {
+    color: $text-color;
+  }
+
+  button {
+    background-color: rgba(30, 30, 46, 0.6);
+    color: $text-color;
+    border: 1px solid $border-color;
+    border-radius: 8px;
+    padding: 8px;
+    transition: all 0.2s ease;
+
+    &:hover {
+        background-color: rgba(30, 30, 46, 0.8);
+        border-color: rgba(255, 255, 255, 0.2);
+    }
+  }
+
+
+  levelbar {
+    trough {
+        background-color: rgba(255, 255, 255, 0.6);
+        border-radius: 8px;
+    }
+
+    block.filled {
+        background-color: $accent-color;
+        border-radius: 4px;
+    }
+  }
+
+  separator {
+  background-color: $border-color;
   }
 }

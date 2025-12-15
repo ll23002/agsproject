@@ -43,7 +43,16 @@ export default function Calendar(gdkmonitor: Gdk.Monitor) {
                         <Gtk.Calendar showDayNames showHeading />
                         <box orientation={Gtk.Orientation.VERTICAL} spacing={8} class="notification-center">
                             <box class="notification-header">
-                                <label label={notifications((n) => `Notificaciones (${n.length})`)} />
+                                <label label={notifications((n) => `Notificaciones (${n.length})`)} hexpand />
+                                <button
+                                    class="clear-button"
+                                    onClicked={ () => {
+                                        notifd.get_notifications().forEach( (n: any) => n.dismiss());
+                                    }}
+                                >
+                                    <Gtk.Image iconName="user-trash-symbolic"/>
+
+                                </button>
                             </box>
                             <Gtk.ScrolledWindow
                                 vexpand
@@ -54,13 +63,13 @@ export default function Calendar(gdkmonitor: Gdk.Monitor) {
                                     {(notifs) => (
                                         <box orientation={Gtk.Orientation.VERTICAL} spacing={4}>
                                             {notifs.length === 0 ? (
-                                                <label label="No hay notificaciones" />
+                                                <label label="No hay notificaciones" class="empty-notifications"/>
                                             ) : (
                                                 // @ts-ignore
                                                 notifs.map(notification => (
                                                     <box class="notification" spacing={8}>
                                                         {notification.appIcon && (
-                                                            <icon icon={notification.appIcon} />
+                                                            <Gtk.Image iconName={notification.appIcon} />
                                                         )}
                                                         <box orientation={Gtk.Orientation.VERTICAL}>
                                                             <label label={notification.summary} halign={Gtk.Align.START} />

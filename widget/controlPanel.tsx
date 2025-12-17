@@ -11,6 +11,7 @@ import GLib from "gi://GLib"
 import Cairo from "cairo"
 // @ts-ignore
 import Battery from "gi://AstalBattery";
+import WifiPanel from "./wifiPanel";
 
 
 function sys(cmd: string) {
@@ -193,17 +194,7 @@ export default function ControlPanel(gdkmonitor: Gdk.Monitor){
 
                         <box class="controls-grid" orientation={Gtk.Orientation.VERTICAL} spacing={10}>
                             <box spacing={10}>
-                                <button
-                                    hexpand
-                                    widthRequest={145}
-                                    heightRequest={60}
-                                    onClicked={ () => network.wifi.enabled = !network.wifi.enabled}
-                                    >
-                                    <box spacing={8}>
-                                        <label label={wifiBinding(e => e ? "󰤨" : "󰤭")}/>
-                                        <label label={wifiSsid(s => s || "Desconectado")}/>
-                                    </box>
-                                </button>
+                                <WifiPanel/>
 
                                 <button
                                     hexpand

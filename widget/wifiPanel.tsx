@@ -1,0 +1,69 @@
+import { createBinding, With} from "ags"
+import { Astal, Gtk, Gdk } from "ags/gtk4"
+// @ts-ignore
+import Network from "gi://AstalNetwork"
+
+
+
+
+export default function WifiPanel() {
+    const network = Network.get_default();
+    const wifiBinding = createBinding(network.wifi, "enabled");
+    const wifiSsid = createBinding(network.wifi, "ssid");
+    const accessPoints = createBinding(network.wifi, "accessPoints");
+
+    return (
+        <menubutton hexpand widthRequest={145} heightRequest={60} direction={Gtk.ArrowType.LEFT}>
+            <box spacing={8}>
+                <label label={wifiBinding(e => e ? "󰤨" : "󰤭")}/>
+                <label label={wifiSsid(s => s || "Desconectado")}/>
+            </box>
+            <popover>
+                <box orientation={Gtk.Orientation.VERTICAL} spacing={8} widthRequest={350}>
+                    <box class="wifi-header">
+                        <label label="Redes WiFi" hexpand halign={Gtk.Align.START}/>
+                        <Gtk.Switch
+                            active={wifiBinding(e => e)}
+                            onStateSet={(_, state) => {
+                                network.wifi.enabled = state;
+                                return false;
+                            }}
+
+                        />
+                    </box>
+
+                    <Gtk.Separator/>
+
+                    <Gtk.ScrolledWindow
+                        vexpand
+                        maxContentHeight={300}
+                        propagateNaturalHeight
+                    >
+                        <With value={accessPoints}>
+                            {(aps) => (
+                                <box orientation={Gtk.Orientation.VERTICAL} spacing={4}>
+                                    {aps.length === 0 ? (
+                                        <label label="No hay redes disponibles" class="empty-networks"/>
+                                    ) : (
+                                        aps.map((ap: any) => (
+                                            <button
+                                                class="network-item"
+                                                onClicked={() => network.wifi.connect(ap)}
+                                            >
+                                                <box spacing={8}>
+                                                    <label label={ap.ssid === network.wifi.ssid ? "󰤨" : "󰤯"}/>
+                                                    <label label={ap.ssid} hexpand halign={Gtk.Align.START}/>
+                                                    <label label={`${Math.round(ap.strength)}%`}/>
+                                                </box>
+                                            </button>
+                                        ))
+                                    )}
+                                </box>
+                            )}
+                        </With>
+                    </Gtk.ScrolledWindow>
+                </box>
+            </popover>
+        </menubutton>
+    );
+}

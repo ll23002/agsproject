@@ -195,6 +195,8 @@ export default function ControlPanel(gdkmonitor: Gdk.Monitor){
                             <box spacing={10}>
                                 <button
                                     hexpand
+                                    widthRequest={145}
+                                    heightRequest={60}
                                     onClicked={ () => network.wifi.enabled = !network.wifi.enabled}
                                     >
                                     <box spacing={8}>
@@ -202,25 +204,25 @@ export default function ControlPanel(gdkmonitor: Gdk.Monitor){
                                         <label label={wifiSsid(s => s || "Desconectado")}/>
                                     </box>
                                 </button>
-                            </box>
 
-
-                            <box spacing={10}>
                                 <button
                                     hexpand
+                                    widthRequest={145}
+                                    heightRequest={60}
                                     onClicked={() => bluetooth.toggle()}
-                                    >
+                                >
                                     <box spacing={8}>
                                         <label label={btBinding(p => p ? "󰂯" : "󰂲")}/>
-                                        <label label={btBinding(p => p ? "Bluetooth On" : "Bluetooth Off")}/>
+                                        <label label={btBinding(p => p ? "Bluetooth\nOn" : "Bluetooth\nOff")}/>
                                     </box>
                                 </button>
-
                             </box>
 
                             <box spacing={10}>
                                 <button
                                     hexpand
+                                    widthRequest={145}
+                                    heightRequest={60}
                                     css={dndBinding(d => d ? "background-color: #f38ba8; color: black;" : "")}
                                     onClicked={() => notifd.set_dont_disturb(!notifd.dontDisturb)}
                                     >
@@ -231,12 +233,12 @@ export default function ControlPanel(gdkmonitor: Gdk.Monitor){
                                     </box>
                                 </button>
 
-                            </box>
 
-
-                            <box spacing={10}>
                                 <button
-                                    hexpand>
+                                    hexpand
+                                    widthRequest={145}
+                                    heightRequest={60}
+                                >
 
                                     <box spacing={8}>
                                         <Gtk.Image iconName={batIconBinding(i => i)} />
@@ -250,6 +252,7 @@ export default function ControlPanel(gdkmonitor: Gdk.Monitor){
                                         </box>
                                     </box>
                                 </button>
+
                             </box>
 
                         </box>

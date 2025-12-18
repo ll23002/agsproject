@@ -12,6 +12,7 @@ import Cairo from "cairo"
 // @ts-ignore
 import Battery from "gi://AstalBattery";
 import WifiPanel from "./wifiPanel";
+import { execAsync } from "ags/process";
 
 
 function sys(cmd: string) {
@@ -200,7 +201,19 @@ export default function ControlPanel(gdkmonitor: Gdk.Monitor){
                                     hexpand
                                     widthRequest={145}
                                     heightRequest={60}
-                                    onClicked={() => bluetooth.toggle()}
+                                    onClicked={ async () => {
+                                        try {
+                                            if (bluetooth.adapter && bluetooth.adapter.powered) {
+                                                bluetooth.toggle();
+                                            } else {
+                                                await execAsync("rfkill unblock bluetooth");
+                                                await new Promise(resolve => setTimeout(resolve, 500));
+                                                await execAsync("bluetoothctl power on");
+                                            }
+                                        } catch (e) {
+                                            console.error(e);
+                                        }
+                                    }}
                                 >
                                     <box spacing={8}>
                                         <label label={btBinding(p => p ? "󰂯" : "󰂲")}/>

@@ -12,6 +12,7 @@ import Cairo from "cairo"
 // @ts-ignore
 import Battery from "gi://AstalBattery";
 import WifiPanel from "./wifiPanel";
+import BluetoothPanel from "./bluetoothPanel";
 import { execAsync } from "ags/process";
 
 
@@ -196,30 +197,7 @@ export default function ControlPanel(gdkmonitor: Gdk.Monitor){
                         <box class="controls-grid" orientation={Gtk.Orientation.VERTICAL} spacing={10}>
                             <box spacing={10}>
                                 <WifiPanel/>
-
-                                <button
-                                    hexpand
-                                    widthRequest={145}
-                                    heightRequest={60}
-                                    onClicked={ async () => {
-                                        try {
-                                            if (bluetooth.adapter && bluetooth.adapter.powered) {
-                                                bluetooth.toggle();
-                                            } else {
-                                                await execAsync("rfkill unblock bluetooth");
-                                                await new Promise(resolve => setTimeout(resolve, 500));
-                                                await execAsync("bluetoothctl power on");
-                                            }
-                                        } catch (e) {
-                                            console.error(e);
-                                        }
-                                    }}
-                                >
-                                    <box spacing={8}>
-                                        <label label={btBinding(p => p ? "󰂯" : "󰂲")}/>
-                                        <label label={btBinding(p => p ? "Bluetooth\nOn" : "Bluetooth\nOff")}/>
-                                    </box>
-                                </button>
+                                <BluetoothPanel/>
                             </box>
 
                             <box spacing={10}>

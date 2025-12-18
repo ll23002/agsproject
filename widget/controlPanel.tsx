@@ -13,7 +13,6 @@ import Cairo from "cairo"
 import Battery from "gi://AstalBattery";
 import WifiPanel from "./wifiPanel";
 import BluetoothPanel from "./bluetoothPanel";
-import { execAsync } from "ags/process";
 
 
 function sys(cmd: string) {

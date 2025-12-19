@@ -1,4 +1,4 @@
-import { createBinding, With } from "ags";
+import { createBinding, With, createMemo } from "ags";
 import { Gtk } from "ags/gtk4"
 // @ts-ignore
 import Bluetooth from "gi://AstalBluetooth";
@@ -9,6 +9,12 @@ export default function BluetoothPanel() {
     const bluetooth = Bluetooth.get_default();
     const btBinding = createBinding(bluetooth, "isPowered");
     const devices = createBinding(bluetooth, "devices");
+
+    // Crea un binding derivado que combina ambos valores
+    const combinedBinding = createMemo(() => ({
+        powered: btBinding(),
+        devs: devices()
+    }));
 
     const connectToDevice = async (device: any) => {
         try {
@@ -34,7 +40,6 @@ export default function BluetoothPanel() {
         }
     }
 
-
     const toggleBluetooth = async (state: boolean) => {
         try {
             if (state) {
@@ -48,7 +53,6 @@ export default function BluetoothPanel() {
             console.error("Error al cambiar el estado del Bluetooth: ", e);
         }
     }
-
 
     return (
         <menubutton hexpand widthRequest={145} heightRequest={60} direction={Gtk.ArrowType.LEFT}>
@@ -73,15 +77,14 @@ export default function BluetoothPanel() {
                         />
                     </box>
 
-
                     <Gtk.Separator/>
 
-                  <Gtk.ScrolledWindow
+                    <Gtk.ScrolledWindow
                         vexpand
                         maxContentHeight={300}
                         propagateNaturalHeight
                     >
-                        <With value={() => ({ powered: btBinding(), devs: devices() })}>
+                        <With value={combinedBinding}>
                             {({ powered, devs }) => (
                                 <box orientation={Gtk.Orientation.VERTICAL} spacing={4}>
                                     {!powered ? (
@@ -117,6 +120,4 @@ export default function BluetoothPanel() {
             </popover>
         </menubutton>
     )
-
-
 }

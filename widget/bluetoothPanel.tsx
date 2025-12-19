@@ -1,8 +1,9 @@
-import { createBinding, With } from "ags"
+import { createBinding, With } from "ags";
 import { Gtk } from "ags/gtk4"
 // @ts-ignore
-import Bluetooth from "gi://AstalBluetooth"
-import { execAsync } from "ags/process"
+import Bluetooth from "gi://AstalBluetooth";
+import {execAsync} from "ags/process";
+
 
 export default function BluetoothPanel() {
     const bluetooth = Bluetooth.get_default();
@@ -11,10 +12,9 @@ export default function BluetoothPanel() {
 
     const connectToDevice = async (device: any) => {
         try {
-            if (device.connected) {
+            if (device.connected){
                 await execAsync(`bluetoothctl disconnect ${device.address}`);
             } else {
-                // Asegurarse de que el bluetooth esté encendido
                 if (!bluetooth.isPowered) {
                     await execAsync("rfkill unblock bluetooth");
                     await new Promise(resolve => setTimeout(resolve, 500));
@@ -22,19 +22,18 @@ export default function BluetoothPanel() {
                     await new Promise(resolve => setTimeout(resolve, 1000));
                 }
 
-                // Si el dispositivo está emparejado, solo conectar
                 if (device.paired) {
                     await execAsync(`bluetoothctl connect ${device.address}`);
                 } else {
-                    // Emparejar y conectar
                     await execAsync(`bluetoothctl pair ${device.address}`);
                     await execAsync(`bluetoothctl connect ${device.address}`);
                 }
             }
         } catch (e) {
-            console.error("Error al conectar/desconectar dispositivo:", e);
+            console.error("Error al conectar/desconectar del dispositivo: ", e);
         }
-    };
+    }
+
 
     const toggleBluetooth = async (state: boolean) => {
         try {
@@ -46,9 +45,10 @@ export default function BluetoothPanel() {
                 bluetooth.toggle();
             }
         } catch (e) {
-            console.error("Error al cambiar estado de Bluetooth:", e);
+            console.error("Error al cambiar el estado del Bluetooth: ", e);
         }
-    };
+    }
+
 
     return (
         <menubutton hexpand widthRequest={145} heightRequest={60} direction={Gtk.ArrowType.LEFT}>
@@ -73,28 +73,38 @@ export default function BluetoothPanel() {
                         />
                     </box>
 
-                    <Gtk.Separator />
 
-                    <Gtk.ScrolledWindow
+                    <Gtk.Separator/>
+
+                  <Gtk.ScrolledWindow
                         vexpand
                         maxContentHeight={300}
                         propagateNaturalHeight
                     >
-                        <With value={devices}>
-                            {(devs) => (
+                        <With value={() => ({ powered: btBinding(), devs: devices() })}>
+                            {({ powered, devs }) => (
                                 <box orientation={Gtk.Orientation.VERTICAL} spacing={4}>
-                                    {devs.length === 0 ? (
-                                        <label label="No hay dispositivos disponibles" class="empty-devices" />
+                                    {!powered ? (
+                                        <label label="El Bluetooth está apagado" class="empty-devices"/>
+                                    ) : devs.length === 0 ? (
+                                        <label label="No se encontraron dispositivos Bluetooth" class="empty-devices"/>
                                     ) : (
                                         devs.map((device: any) => (
                                             <button
                                                 class="device-item"
                                                 onClicked={() => connectToDevice(device)}
                                             >
-                                                <box spacing={8}>
+                                                <box spacing={8} hexpand>
                                                     <label label={device.connected ? "󰂱" : device.paired ? "󰂴" : "󰂯"} />
-                                                    <label label={device.name || device.address} hexpand halign={Gtk.Align.START} />
-                                                    <label label={device.connected ? "Conectado" : device.paired ? "Emparejado" : ""} />
+                                                    <label
+                                                        label={device.name || device.address}
+                                                        hexpand
+                                                        halign={Gtk.Align.START}
+                                                    />
+                                                    <label
+                                                        label={device.connected ? "Conectado" : device.paired ? "Emparejado" : ""}
+                                                        halign={Gtk.Align.END}
+                                                    />
                                                 </box>
                                             </button>
                                         ))
@@ -106,5 +116,7 @@ export default function BluetoothPanel() {
                 </box>
             </popover>
         </menubutton>
-    );
+    )
+
+
 }

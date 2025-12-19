@@ -1,5 +1,5 @@
-import { createBinding, With, createMemo } from "ags";
-import { Gtk } from "ags/gtk4"
+import {createBinding, With, createMemo} from "ags";
+import {Gtk} from "ags/gtk4"
 // @ts-ignore
 import Bluetooth from "gi://AstalBluetooth";
 import {execAsync} from "ags/process";
@@ -10,7 +10,6 @@ export default function BluetoothPanel() {
     const btBinding = createBinding(bluetooth, "isPowered");
     const devices = createBinding(bluetooth, "devices");
 
-    // Crea un binding derivado que combina ambos valores
     const combinedBinding = createMemo(() => ({
         powered: btBinding(),
         devs: devices()
@@ -18,7 +17,7 @@ export default function BluetoothPanel() {
 
     const connectToDevice = async (device: any) => {
         try {
-            if (device.connected){
+            if (device.connected) {
                 await execAsync(`bluetoothctl disconnect ${device.address}`);
             } else {
                 if (!bluetooth.isPowered) {
@@ -54,11 +53,54 @@ export default function BluetoothPanel() {
         }
     }
 
+let isScanning = false;
+
+const scanForDevices = async () => {
+    try {
+        if (!bluetooth.isPowered) {
+            await execAsync("rfkill unblock bluetooth");
+            await new Promise(resolve => setTimeout(resolve, 500));
+            await execAsync("bluetoothctl power on");
+            await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+
+        if (isScanning) {
+            return;
+        }
+
+        isScanning = true;
+
+        const adapterInfo = await execAsync("bluetoothctl list");
+        const match = adapterInfo.match(/Controller\s+([0-9A-F:]+)/i);
+
+        if (!match) {
+            throw new Error("No se encontró adaptador Bluetooth");
+        }
+        //Hay que eliminar esto
+        const adapterAddress = match[1].replace(/:/g, '_');
+
+        await execAsync(`dbus-send --system --type=method_call --dest=org.bluez /org/bluez/hci0 org.bluez.Adapter1.StartDiscovery`);
+
+        setTimeout(async () => {
+            try {
+                await execAsync(`dbus-send --system --type=method_call --dest=org.bluez /org/bluez/hci0 org.bluez.Adapter1.StopDiscovery`);
+            } catch (e) {
+                console.error("Error al detener escaneo:", e);
+            }
+            isScanning = false;
+        }, 10000);
+
+    } catch (e) {
+        console.error("Error al escanear dispositivos: ", e);
+        isScanning = false;
+    }
+}
+
     return (
         <menubutton hexpand widthRequest={145} heightRequest={60} direction={Gtk.ArrowType.LEFT}>
             <box spacing={8}>
-                <label label={btBinding(p => p ? "󰂯" : "󰂲")} />
-                <label label={btBinding(p => p ? "Bluetooth" : "Apagado")} />
+                <label label={btBinding(p => p ? "󰂯" : "󰂲")}/>
+                <label label={btBinding(p => p ? "Bluetooth" : "Apagado")}/>
             </box>
             <popover>
                 <box orientation={Gtk.Orientation.VERTICAL} spacing={8} widthRequest={350}>
@@ -85,32 +127,48 @@ export default function BluetoothPanel() {
                         propagateNaturalHeight
                     >
                         <With value={combinedBinding}>
-                            {({ powered, devs }) => (
+                            {({powered, devs}) => (
                                 <box orientation={Gtk.Orientation.VERTICAL} spacing={4}>
                                     {!powered ? (
                                         <label label="El Bluetooth está apagado" class="empty-devices"/>
-                                    ) : devs.length === 0 ? (
-                                        <label label="No se encontraron dispositivos Bluetooth" class="empty-devices"/>
                                     ) : (
-                                        devs.map((device: any) => (
+                                        <box orientation={Gtk.Orientation.VERTICAL} spacing={4}>
                                             <button
-                                                class="device-item"
-                                                onClicked={() => connectToDevice(device)}
+                                                class="scan-button"
+                                                onClicked={scanForDevices}
                                             >
-                                                <box spacing={8} hexpand>
-                                                    <label label={device.connected ? "󰂱" : device.paired ? "󰂴" : "󰂯"} />
-                                                    <label
-                                                        label={device.name || device.address}
-                                                        hexpand
-                                                        halign={Gtk.Align.START}
-                                                    />
-                                                    <label
-                                                        label={device.connected ? "Conectado" : device.paired ? "Emparejado" : ""}
-                                                        halign={Gtk.Align.END}
-                                                    />
+                                                <box spacing={8}>
+                                                    <label label="󰂰"/>
+                                                    <label label="Buscar dispositivos"/>
                                                 </box>
                                             </button>
-                                        ))
+
+                                            {devs.length === 0 ? (
+                                                <label label="No se encontraron dispositivos Bluetooth"
+                                                       class="empty-devices"/>
+                                            ) : (
+                                                devs.map((device: any) => (
+                                                    <button
+                                                        class="device-item"
+                                                        onClicked={() => connectToDevice(device)}
+                                                    >
+                                                        <box spacing={8} hexpand>
+                                                            <label
+                                                                label={device.connected ? "󰂱" : device.paired ? "󰂴" : "󰂯"}/>
+                                                            <label
+                                                                label={device.name || device.address}
+                                                                hexpand
+                                                                halign={Gtk.Align.START}
+                                                            />
+                                                            <label
+                                                                label={device.connected ? "Conectado" : device.paired ? "Emparejado" : ""}
+                                                                halign={Gtk.Align.END}
+                                                            />
+                                                        </box>
+                                                    </button>
+                                                ))
+                                            )}
+                                        </box>
                                     )}
                                 </box>
                             )}

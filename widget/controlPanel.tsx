@@ -13,6 +13,7 @@ import Cairo from "cairo"
 import Battery from "gi://AstalBattery";
 import WifiPanel from "./wifiPanel";
 import BluetoothPanel from "./bluetoothPanel";
+import BatteryPanel from "./batteryPanel";
 
 
 function sys(cmd: string) {
@@ -214,26 +215,7 @@ export default function ControlPanel(gdkmonitor: Gdk.Monitor){
                                     </box>
                                 </button>
 
-
-                                <button
-                                    hexpand
-                                    widthRequest={145}
-                                    heightRequest={60}
-                                >
-
-                                    <box spacing={8}>
-                                        <Gtk.Image iconName={batIconBinding(i => i)} />
-
-                                        <box orientation={Gtk.Orientation.VERTICAL} valign={Gtk.Align.CENTER}>
-                                            <label halign={Gtk.Align.START}
-                                                   label={batLevelBinding(p => `Carga: ${Math.floor(p * 100)}%`)}/>
-                                            <label halign={Gtk.Align.START}
-                                                   css={batHealth < 50 ? "font-size: 10px; color: #ff5555; font-weight: bold;" : "font-size: 10px; color: #a6adc8;"}
-                                                   label={`Salud: ${Math.round(batHealth)}%`} />
-                                        </box>
-                                    </box>
-                                </button>
-
+                                <BatteryPanel/>
                             </box>
 
                         </box>

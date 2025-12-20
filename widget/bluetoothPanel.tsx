@@ -139,8 +139,6 @@ const scanForDevices = async () => {
                                                     class="scan-button"
                                                     widthRequest={36}
                                                     heightRequest={36}
-                                                    valign={Gtk.Align.CENTER}
-                                                    halign={Gtk.Align.CENTER}
                                                     onClicked={scanForDevices}
                                                 >
                                                     <Gtk.Image

@@ -241,38 +241,25 @@ window.ControlPanel {
 }
 
 
-// style.scss
-
-// Usamos "button.scan-button" para tener más peso que ".image-button"
-// Si esto no fuera suficiente, podríamos usar "#control-panel button.scan-button"
 button.scan-button {
   background: transparent;
   background-image: none;
   border: none;
   box-shadow: none;
-
-  // Geometría
-  min-width: 36px;
-  min-height: 36px;
-
-  // OJO: Si GTK se queja del padding 0, a veces hay que ser explícito con los 4 lados
   padding: 0;
   margin: 0;
   border-radius: 9999px;
 
-  // El icono interno
   > image {
     margin: 0;
-    padding: 8px; // Aquí damos el aire para que el icono no toque los bordes
+    padding: 8px;
     -gtk-icon-shadow: none;
   }
 
-  // Hover
   &:hover {
     background-color: rgba(255, 255, 255, 0.1);
   }
 
-  // Active
   &:active {
     background-color: #89b4fa;
     color: #1e1e2e;

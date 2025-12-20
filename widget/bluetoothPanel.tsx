@@ -97,7 +97,7 @@ const scanForDevices = async () => {
 }
 
     return (
-        <menubutton hexpand widthRequest={145} heightRequest={60} direction={Gtk.ArrowType.LEFT}>
+        <menubutton widthRequest={145} heightRequest={60} direction={Gtk.ArrowType.LEFT}>
             <box spacing={8}>
                 <label label={btBinding(p => p ? "󰂯" : "󰂲")}/>
                 <label label={btBinding(p => p ? "Bluetooth" : "Apagado")}/>
@@ -133,15 +133,23 @@ const scanForDevices = async () => {
                                         <label label="El Bluetooth está apagado" class="empty-devices"/>
                                     ) : (
                                         <box orientation={Gtk.Orientation.VERTICAL} spacing={4}>
-                                            <button
-                                                class="scan-button"
-                                                onClicked={scanForDevices}
-                                            >
-                                                <box spacing={8}>
-                                                    <label label="󰂰"/>
-                                                    <label label="Buscar dispositivos"/>
-                                                </box>
-                                            </button>
+
+                                            <box halign={Gtk.Align.END}>
+                                                <button
+                                                    class="scan-button"
+                                                    widthRequest={36}
+                                                    heightRequest={36}
+                                                    valign={Gtk.Align.CENTER}
+                                                    halign={Gtk.Align.CENTER}
+                                                    onClicked={scanForDevices}
+                                                >
+                                                    <Gtk.Image
+                                                        iconName="view-refresh-symbolic"
+                                                        pixelSize={18}
+                                                        />
+                                                </button>
+                                            </box>
+
 
                                             {devs.length === 0 ? (
                                                 <label label="No se encontraron dispositivos Bluetooth"

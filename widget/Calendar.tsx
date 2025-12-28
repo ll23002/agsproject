@@ -4,8 +4,13 @@ import { Astal, Gtk, Gdk } from "ags/gtk4"
 import app from "ags/gtk4/app"
 // @ts-ignore
 import Notifd from "gi://AstalNotifd"
+// @ts-ignore
+import Hyprland from "gi://AstalHyprland"; // <--- NECESARIO
+
+import { showWidget, setHover, mouseService } from "./BarState"; // <--- mouseService AGREGADO
 
 export default function Calendar(gdkmonitor: Gdk.Monitor) {
+    // Lógica de la fecha
     const fecha = createPoll("", 1000, () => {
         const now = new Date();
         return now.toLocaleDateString('es-ES', {
@@ -15,8 +20,8 @@ export default function Calendar(gdkmonitor: Gdk.Monitor) {
         });
     });
 
+    // Lógica de notificaciones
     const notifd = Notifd.get_default();
-
     const notifications = createBinding(notifd, "notifications");
 
     // @ts-ignore
@@ -26,15 +31,10 @@ export default function Calendar(gdkmonitor: Gdk.Monitor) {
 
     const { TOP } = Astal.WindowAnchor;
 
-    return <window
-        visible
-        name="calendar"
-        class="Calendar"
-        gdkmonitor={gdkmonitor}
-        exclusivity={Astal.Exclusivity.EXCLUSIVE}
-        anchor={TOP}
-        application={app}
-    >
+    // --- CORRECCIÓN IMPERATIVA (Igual que ControlPanel) ---
+
+    // 1. Definimos el contenido INTERNO (JSX normal, SIN revealer)
+    const innerContent = (
         <box spacing={12}>
             <menubutton hexpand halign={Gtk.Align.CENTER}>
                 <label label={fecha} />
@@ -46,12 +46,11 @@ export default function Calendar(gdkmonitor: Gdk.Monitor) {
                                 <label label={notifications((n) => `Notificaciones (${n.length})`)} hexpand />
                                 <button
                                     class="clear-button"
-                                    onClicked={ () => {
-                                        notifd.get_notifications().forEach( (n: any) => n.dismiss());
+                                    onClicked={() => {
+                                        notifd.get_notifications().forEach((n: any) => n.dismiss());
                                     }}
                                 >
-                                    <Gtk.Image iconName="user-trash-symbolic"/>
-
+                                    <Gtk.Image iconName="user-trash-symbolic" />
                                 </button>
                             </box>
                             <Gtk.ScrolledWindow
@@ -63,7 +62,8 @@ export default function Calendar(gdkmonitor: Gdk.Monitor) {
                                     {(notifs) => (
                                         <box orientation={Gtk.Orientation.VERTICAL} spacing={4}>
                                             {notifs.length === 0 ? (
-                                                <label label="No hay notificaciones" class="empty-notifications"/>
+                                                <label label="No hay notificaciones"
+                                                       class="empty-notifications" />
                                             ) : (
                                                 // @ts-ignore
                                                 notifs.map(notification => (
@@ -72,9 +72,11 @@ export default function Calendar(gdkmonitor: Gdk.Monitor) {
                                                             <Gtk.Image iconName={notification.appIcon} />
                                                         )}
                                                         <box orientation={Gtk.Orientation.VERTICAL}>
-                                                            <label label={notification.summary} halign={Gtk.Align.START} />
+                                                            <label label={notification.summary}
+                                                                   halign={Gtk.Align.START} />
                                                             {notification.body && (
-                                                                <label label={notification.body} halign={Gtk.Align.START} wrap />
+                                                                <label label={notification.body}
+                                                                       halign={Gtk.Align.START} wrap />
                                                             )}
                                                         </box>
                                                     </box>
@@ -89,5 +91,53 @@ export default function Calendar(gdkmonitor: Gdk.Monitor) {
                 </popover>
             </menubutton>
         </box>
-    </window>
+    );
+
+    // 2. Creamos el Revealer MANUALMENTE
+    const revealer = new Gtk.Revealer({
+        transitionType: Gtk.RevealerTransitionType.SLIDE_DOWN,
+        child: innerContent,
+    });
+
+    // 3. LOGICA DE REACTIVIDAD MANUAL
+    const updateState = () => {
+        const shouldShow = showWidget(); // Leemos el estado
+        revealer.reveal_child = shouldShow; // Aplicamos
+    };
+
+    const hypr = Hyprland.get_default();
+    hypr.connect("notify::focused-client", updateState); // Escuchamos a Hyprland
+    mouseService.connect("notify::hovered", updateState); // Escuchamos al Mouse
+
+    // Ejecutar una vez al inicio
+    updateState();
+
+    // 4. Creamos la caja MANUALMENTE (SIN CSS para evitar crash)
+    const mainBox = new Gtk.Box({});
+
+    // 5. Añadimos el controlador del mouse
+    const controller = new Gtk.EventControllerMotion();
+    controller.connect("enter", () => setHover(true));
+    controller.connect("leave", () => setHover(false));
+    mainBox.add_controller(controller);
+
+    // 6. Metemos el revealer en la caja
+    mainBox.append(revealer);
+
+    // 7. Retornamos la ventana
+    return (
+        <window
+            visible
+            name="calendar"
+            class="Calendar"
+            gdkmonitor={gdkmonitor}
+            exclusivity={Astal.Exclusivity.NORMAL}
+            layer={Astal.Layer.OVERLAY}
+            anchor={TOP}
+            application={app}
+            marginTop={12}
+        >
+            {mainBox}
+        </window>
+    );
 }

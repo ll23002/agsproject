@@ -1,4 +1,4 @@
-import { createBinding} from "ags"
+import { createBinding } from "ags"
 import { Astal, Gtk, Gdk } from "ags/gtk4"
 import app from "ags/gtk4/app"
 // @ts-ignore
@@ -11,16 +11,21 @@ import GLib from "gi://GLib"
 import Cairo from "cairo"
 // @ts-ignore
 import Battery from "gi://AstalBattery";
+// @ts-ignore
+import Hyprland from "gi://AstalHyprland"; // <--- IMPORTANTE: Necesario para detectar cambios de ventana
+
 import WifiPanel from "./wifiPanel";
 import BluetoothPanel from "./bluetoothPanel";
 import BatteryPanel from "./batteryPanel";
+
+// Importamos mouseService para escuchar eventos del mouse
+import { showWidget, setHover, mouseService } from "./BarState";
 
 
 function sys(cmd: string) {
     try {
         const [success, stdout] = GLib.spawn_command_line_sync(cmd);
-
-        if ( !success ) return 0;
+        if (!success) return 0;
         const decoder = new TextDecoder();
         const output = stdout ? decoder.decode(stdout) : "";
         return parseFloat(output.trim());
@@ -35,7 +40,7 @@ function CircularProgress({
                               size = 80,
                               lineWidth = 8,
                               color = "#89b4fa"
-    }: {
+                          }: {
     label: string,
     getValueFn: () => number,
     size?: number,
@@ -45,9 +50,9 @@ function CircularProgress({
     const drawingArea = <drawingarea
         widthRequest={size}
         heightRequest={size}
-        /> as Gtk.DrawingArea;
+    /> as Gtk.DrawingArea;
 
-    const draw = (area: Gtk.DrawingArea, cr: any, width: number, height: number) =>{
+    const draw = (area: Gtk.DrawingArea, cr: any, width: number, height: number) => {
         const centerX = width / 2;
         const centerY = height / 2;
         const radius = (Math.min(width, height) - lineWidth) / 2 - lineWidth;
@@ -62,10 +67,10 @@ function CircularProgress({
         cr.arc(centerX, centerY, radius, 0, 2 * Math.PI);
         cr.stroke();
 
-        const hex = color.replace('#','');
-        const r = parseInt(hex.substring(0,2), 16) / 255;
-        const g = parseInt(hex.substring(2,4), 16) / 255;
-        const b = parseInt(hex.substring(4,6), 16) / 255;
+        const hex = color.replace('#', '');
+        const r = parseInt(hex.substring(0, 2), 16) / 255;
+        const g = parseInt(hex.substring(2, 4), 16) / 255;
+        const b = parseInt(hex.substring(4, 6), 16) / 255;
 
         cr.setSourceRGBA(r, g, b, 1);
         cr.setLineWidth(lineWidth);
@@ -82,7 +87,7 @@ function CircularProgress({
         cr.selectFontFace("Sans", Cairo.FontSlant.NORMAL, Cairo.FontWeight.BOLD);
         cr.setFontSize(16);
 
-        const percentage =  `${Math.round(progress * 100)}%`;
+        const percentage = `${Math.round(progress * 100)}%`;
         const extents = cr.textExtents(percentage);
         cr.moveTo(centerX - extents.width / 2, centerY + extents.height / 2);
         cr.showText(percentage);
@@ -107,18 +112,13 @@ function CircularProgress({
 }
 
 
-export default function ControlPanel(gdkmonitor: Gdk.Monitor){
+export default function ControlPanel(gdkmonitor: Gdk.Monitor) {
     const notifd = Notifd.get_default();
     const network = Network.get_default();
     const bluetooth = Bluetooth.get_default();
     const battery = Battery.get_default();
 
     const dndBinding = createBinding(notifd, "dontDisturb");
-    const wifiBinding = createBinding(network.wifi, "enabled");
-    const wifiSsid = createBinding(network.wifi, "ssid");
-    const btBinding = createBinding(bluetooth, "isPowered");
-    const batIconBinding = createBinding(battery, "iconName");
-    const batLevelBinding = createBinding(battery, "percentage");
 
     let cpuValue = 0;
     let ramValue = 0;
@@ -140,7 +140,6 @@ export default function ControlPanel(gdkmonitor: Gdk.Monitor){
         const health = sys(cmd);
         batHealth = health;
         return batHealth;
-        return batHealth;
     }
 
     GLib.timeout_add(GLib.PRIORITY_DEFAULT, 3000, () => {
@@ -156,16 +155,10 @@ export default function ControlPanel(gdkmonitor: Gdk.Monitor){
 
     const { TOP, RIGHT } = Astal.WindowAnchor;
 
+    // --- AQUÍ EMPIEZA LA MAGIA REAL ---
 
-    return <window
-        visible
-        name="control-panel"
-        class="ControlPanel"
-        gdkmonitor={gdkmonitor}
-        exclusivity={Astal.Exclusivity.EXCLUSIVE}
-        anchor={TOP | RIGHT}
-        application={app}
-    >
+    // 1. Definimos el contenido INTERNO (Sin el Revealer todavía)
+    const innerContent = (
         <box spacing={12}>
             <menubutton hexpand halign={Gtk.Align.CENTER}>
                 <label label="󰒓" />
@@ -176,19 +169,19 @@ export default function ControlPanel(gdkmonitor: Gdk.Monitor){
 
                         <box orientation={Gtk.Orientation.VERTICAL} spacing={8}>
                             <label label="Rendimiento" halign={Gtk.Align.START}
-                                   css="font-weight: bold; margin-bottom: 5px;"/>
+                                   css="font-weight: bold; margin-bottom: 5px;" />
 
                             <box spacing={20} halign={Gtk.Align.CENTER}>
                                 <CircularProgress
                                     getValueFn={() => cpuValue}
                                     label="CPU"
                                     color="#89b4fa"
-                                    />
+                                />
                                 <CircularProgress
                                     getValueFn={() => ramValue}
                                     label="RAM"
                                     color="#f38ba8"
-                                    />
+                                />
                             </box>
                         </box>
 
@@ -196,8 +189,8 @@ export default function ControlPanel(gdkmonitor: Gdk.Monitor){
 
                         <box class="controls-grid" orientation={Gtk.Orientation.VERTICAL} spacing={10}>
                             <box spacing={10}>
-                                <WifiPanel/>
-                                <BluetoothPanel/>
+                                <WifiPanel />
+                                <BluetoothPanel />
                             </box>
 
                             <box spacing={10}>
@@ -207,25 +200,73 @@ export default function ControlPanel(gdkmonitor: Gdk.Monitor){
                                     heightRequest={60}
                                     css={dndBinding(d => d ? "background-color: #f38ba8; color: black;" : "")}
                                     onClicked={() => notifd.set_dont_disturb(!notifd.dontDisturb)}
-                                    >
-
+                                >
                                     <box spacing={8}>
-                                        <label label={dndBinding(d => d ? "󰂛" : "󰂚")}/>
-                                        <label label="No Molestar"/>
+                                        <label label={dndBinding(d => d ? "󰂛" : "󰂚")} />
+                                        <label label="No Molestar" />
                                     </box>
                                 </button>
 
-                                <BatteryPanel/>
+                                <BatteryPanel />
                             </box>
-
                         </box>
-
-
                     </box>
                 </popover>
             </menubutton>
+            <BatteryPanel />
         </box>
-    </window>
+    );
 
+    // 2. Creamos el Revealer MANUALMENTE
+    const revealer = new Gtk.Revealer({
+        transitionType: Gtk.RevealerTransitionType.SLIDE_DOWN,
+        child: innerContent, // Metemos el JSX aquí
+    });
 
+    // 3. LOGICA DE ACTUALIZACIÓN MANUAL (Lo que hace que funcione)
+    const updateState = () => {
+        const shouldShow = showWidget(); // Calculamos el estado actual
+        revealer.reveal_child = shouldShow; // Aplicamos
+    };
+
+    // Conectamos las señales "a la antigua" para asegurar que se escuchen
+    const hypr = Hyprland.get_default();
+    hypr.connect("notify::focused-client", updateState); // Escuchar cambios de ventana
+    mouseService.connect("notify::hovered", updateState); // Escuchar mouse
+
+    // Estado inicial
+    updateState();
+
+    // 4. Creamos la caja Principal MANUALMENTE
+    const mainBox = new Gtk.Box({
+        // IMPORTANTE: Transparente para evitar doble opacidad
+        //css: "background-color: transparent;",
+    });
+
+    // 5. Añadimos el controlador del mouse
+    const controller = new Gtk.EventControllerMotion();
+    controller.connect("enter", () => setHover(true));
+    controller.connect("leave", () => setHover(false));
+    mainBox.add_controller(controller);
+
+    // 6. Metemos el Revealer dentro de la caja principal
+    mainBox.append(revealer);
+
+    // 7. Devolvemos la ventana
+    return (
+        <window
+            visible
+            name="control-panel"
+            class="ControlPanel"
+            gdkmonitor={gdkmonitor}
+            exclusivity={Astal.Exclusivity.NORMAL}
+            anchor={TOP | RIGHT}
+            application={app}
+            layer={Astal.Layer.OVERLAY}
+            marginTop={12}
+            marginRight={12}
+        >
+            {mainBox}
+        </window>
+    );
 }

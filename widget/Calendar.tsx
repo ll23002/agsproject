@@ -5,12 +5,11 @@ import app from "ags/gtk4/app"
 // @ts-ignore
 import Notifd from "gi://AstalNotifd"
 // @ts-ignore
-import Hyprland from "gi://AstalHyprland"; // <--- NECESARIO
+import Hyprland from "gi://AstalHyprland";
 
-import { showWidget, setHover, mouseService } from "./BarState"; // <--- mouseService AGREGADO
+import { showWidget, setHover, mouseService } from "./BarState";
 
 export default function Calendar(gdkmonitor: Gdk.Monitor) {
-    // Lógica de la fecha
     const fecha = createPoll("", 1000, () => {
         const now = new Date();
         return now.toLocaleDateString('es-ES', {
@@ -20,7 +19,6 @@ export default function Calendar(gdkmonitor: Gdk.Monitor) {
         });
     });
 
-    // Lógica de notificaciones
     const notifd = Notifd.get_default();
     const notifications = createBinding(notifd, "notifications");
 
@@ -31,9 +29,6 @@ export default function Calendar(gdkmonitor: Gdk.Monitor) {
 
     const { TOP } = Astal.WindowAnchor;
 
-    // --- CORRECCIÓN IMPERATIVA (Igual que ControlPanel) ---
-
-    // 1. Definimos el contenido INTERNO (JSX normal, SIN revealer)
     const innerContent = (
         <box spacing={12}>
             <menubutton hexpand halign={Gtk.Align.CENTER}>
@@ -93,38 +88,37 @@ export default function Calendar(gdkmonitor: Gdk.Monitor) {
         </box>
     );
 
-    // 2. Creamos el Revealer MANUALMENTE
     const revealer = new Gtk.Revealer({
         transitionType: Gtk.RevealerTransitionType.SLIDE_DOWN,
+        // @ts-ignore
         child: innerContent,
     });
 
-    // 3. LOGICA DE REACTIVIDAD MANUAL
     const updateState = () => {
-        const shouldShow = showWidget(); // Leemos el estado
-        revealer.reveal_child = shouldShow; // Aplicamos
+        const shouldShow = showWidget();
+        revealer.reveal_child = shouldShow;
     };
 
     const hypr = Hyprland.get_default();
-    hypr.connect("notify::focused-client", updateState); // Escuchamos a Hyprland
-    mouseService.connect("notify::hovered", updateState); // Escuchamos al Mouse
+    hypr.connect("notify::focused-client", updateState);
+    mouseService.connect("notify::hovered", updateState);
 
-    // Ejecutar una vez al inicio
     updateState();
 
-    // 4. Creamos la caja MANUALMENTE (SIN CSS para evitar crash)
-    const mainBox = new Gtk.Box({});
+    const mainBox = new Gtk.Box({
+        valign: Gtk.Align.START,
+    });
 
-    // 5. Añadimos el controlador del mouse
+
+    mainBox.add_css_class("ghost-killer");
+
     const controller = new Gtk.EventControllerMotion();
     controller.connect("enter", () => setHover(true));
     controller.connect("leave", () => setHover(false));
     mainBox.add_controller(controller);
 
-    // 6. Metemos el revealer en la caja
     mainBox.append(revealer);
 
-    // 7. Retornamos la ventana
     return (
         <window
             visible
@@ -135,7 +129,6 @@ export default function Calendar(gdkmonitor: Gdk.Monitor) {
             layer={Astal.Layer.OVERLAY}
             anchor={TOP}
             application={app}
-            marginTop={12}
         >
             {mainBox}
         </window>

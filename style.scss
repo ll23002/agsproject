@@ -11,8 +11,26 @@ $hover-color: rgba(255, 255, 255, 0.1);
   }
 }
 
-window.Bar {
+window#control-panel, window#calendar, window#hover-zone, window.Bar {
   background-color: transparent;
+  min-height: 0px;
+}
+
+.ghost-killer {
+  background-color: transparent;
+  margin: 0px;
+  padding: 0px;
+  border: none;
+  min-height: 0px;
+}
+
+.ControlPanel revealer > box,
+.Calendar revealer > box {
+  margin-top: 12px;
+  margin-right: 12px;
+}
+
+window.Bar {
   color: $text-color;
   font-weight: bold;
 
@@ -22,9 +40,7 @@ window.Bar {
 }
 
 window.Calendar {
-  background-color: transparent;
-
-  > box > menubutton > button {
+  menubutton > button {
     background-image: none;
     background-color: $bg-color;
     color: $text-color;
@@ -39,8 +55,25 @@ window.Calendar {
       background-color: rgba(30, 30, 46, 0.9);
       border-color: rgba(255, 255, 255, 0.3);
     }
+  }
+}
 
+window.ControlPanel {
+  menubutton > button {
+    background-image: none;
+    background-color: $bg-color;
+    color: $text-color;
+    border: 1px solid $border-color;
+    border-radius: 12px;
+    padding: 6px 14px;
+    margin: 0;
+    box-shadow: none;
+    transition: all 0.2s ease;
 
+    &:hover {
+      background-color: rgba(30, 30, 46, 0.9);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
   }
 }
 
@@ -181,28 +214,6 @@ popover {
   }
 }
 
-window.ControlPanel {
-  background-color: transparent;
-
-  > box > menubutton > button {
-    background-image: none;
-    background-color: $bg-color;
-    color: $text-color;
-    border: 1px solid $border-color;
-    border-radius: 12px;
-    padding: 6px 14px;
-    margin: 0;
-    box-shadow: none;
-    transition: all 0.2s ease;
-
-    &:hover {
-      background-color: rgba(30, 30, 46, 0.9);
-      border-color: rgba(255, 255, 255, 0.3);
-    }
-  }
-}
-
-
 .panel-container {
   label {
     color: $text-color;
@@ -217,29 +228,27 @@ window.ControlPanel {
     transition: all 0.2s ease;
 
     &:hover {
-        background-color: rgba(30, 30, 46, 0.8);
-        border-color: rgba(255, 255, 255, 0.2);
+      background-color: rgba(30, 30, 46, 0.8);
+      border-color: rgba(255, 255, 255, 0.2);
     }
   }
 
-
   levelbar {
     trough {
-        background-color: rgba(255, 255, 255, 0.6);
-        border-radius: 8px;
+      background-color: rgba(255, 255, 255, 0.6);
+      border-radius: 8px;
     }
 
     block.filled {
-        background-color: $accent-color;
-        border-radius: 4px;
+      background-color: $accent-color;
+      border-radius: 4px;
     }
   }
 
   separator {
-  background-color: $border-color;
+    background-color: $border-color;
   }
 }
-
 
 button.scan-button {
   background: transparent;

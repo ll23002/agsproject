@@ -12,13 +12,12 @@ import Cairo from "cairo"
 // @ts-ignore
 import Battery from "gi://AstalBattery";
 // @ts-ignore
-import Hyprland from "gi://AstalHyprland"; // <--- IMPORTANTE: Necesario para detectar cambios de ventana
+import Hyprland from "gi://AstalHyprland";
 
 import WifiPanel from "./wifiPanel";
 import BluetoothPanel from "./bluetoothPanel";
 import BatteryPanel from "./batteryPanel";
 
-// Importamos mouseService para escuchar eventos del mouse
 import { showWidget, setHover, mouseService } from "./BarState";
 
 
@@ -155,9 +154,6 @@ export default function ControlPanel(gdkmonitor: Gdk.Monitor) {
 
     const { TOP, RIGHT } = Astal.WindowAnchor;
 
-    // --- AQUÍ EMPIEZA LA MAGIA REAL ---
-
-    // 1. Definimos el contenido INTERNO (Sin el Revealer todavía)
     const innerContent = (
         <box spacing={12}>
             <menubutton hexpand halign={Gtk.Align.CENTER}>
@@ -213,46 +209,38 @@ export default function ControlPanel(gdkmonitor: Gdk.Monitor) {
                     </box>
                 </popover>
             </menubutton>
-            <BatteryPanel />
         </box>
     );
 
-    // 2. Creamos el Revealer MANUALMENTE
     const revealer = new Gtk.Revealer({
         transitionType: Gtk.RevealerTransitionType.SLIDE_DOWN,
-        child: innerContent, // Metemos el JSX aquí
+        // @ts-ignore
+        child: innerContent,
     });
 
-    // 3. LOGICA DE ACTUALIZACIÓN MANUAL (Lo que hace que funcione)
     const updateState = () => {
-        const shouldShow = showWidget(); // Calculamos el estado actual
-        revealer.reveal_child = shouldShow; // Aplicamos
+        const shouldShow = showWidget();
+        revealer.reveal_child = shouldShow;
     };
 
-    // Conectamos las señales "a la antigua" para asegurar que se escuchen
     const hypr = Hyprland.get_default();
-    hypr.connect("notify::focused-client", updateState); // Escuchar cambios de ventana
-    mouseService.connect("notify::hovered", updateState); // Escuchar mouse
+    hypr.connect("notify::focused-client", updateState);
+    mouseService.connect("notify::hovered", updateState);
 
-    // Estado inicial
     updateState();
 
-    // 4. Creamos la caja Principal MANUALMENTE
     const mainBox = new Gtk.Box({
-        // IMPORTANTE: Transparente para evitar doble opacidad
-        //css: "background-color: transparent;",
+        valign: Gtk.Align.START,
     });
 
-    // 5. Añadimos el controlador del mouse
+    mainBox.add_css_class("ghost-killer");
+
     const controller = new Gtk.EventControllerMotion();
     controller.connect("enter", () => setHover(true));
     controller.connect("leave", () => setHover(false));
     mainBox.add_controller(controller);
 
-    // 6. Metemos el Revealer dentro de la caja principal
     mainBox.append(revealer);
-
-    // 7. Devolvemos la ventana
     return (
         <window
             visible
@@ -263,8 +251,7 @@ export default function ControlPanel(gdkmonitor: Gdk.Monitor) {
             anchor={TOP | RIGHT}
             application={app}
             layer={Astal.Layer.OVERLAY}
-            marginTop={12}
-            marginRight={12}
+            css="background-color: transparent;"
         >
             {mainBox}
         </window>

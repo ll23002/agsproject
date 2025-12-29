@@ -21,9 +21,9 @@ app.start({
     // ----------------------------------------
 
     app.get_monitors().map(monitor => {
-      TopHover(monitor)
       ControlPanel(monitor)
       Calendar(monitor)
+      TopHover(monitor)
     })
   },
 })

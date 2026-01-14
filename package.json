@@ -3,6 +3,10 @@
     "ags": "*",
     "gnim": "*"
   },
+  "scripts": {
+    "start": "ags run",
+    "build": "ags bundle"
+  },
   "prettier": {
     "semi": false,
     "tabWidth": 2

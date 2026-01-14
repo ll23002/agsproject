@@ -194,7 +194,7 @@ export default function ControlPanel(gdkmonitor: Gdk.Monitor) {
                                     hexpand
                                     widthRequest={145}
                                     heightRequest={60}
-                                    css={dndBinding(d => d ? "background-color: #f38ba8; color: black;" : "")}
+                                    class={dndBinding(d => d ? "dnd-button active" : "dnd-button")}
                                     onClicked={() => notifd.set_dont_disturb(!notifd.dontDisturb)}
                                 >
                                     <box spacing={8}>

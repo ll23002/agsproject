@@ -8,9 +8,8 @@ import TopHover from "./widget/TopHover"
 import Hyprland from "gi://AstalHyprland";
 
 app.start({
-  css: style,
+  css: style.toString().replace('@charset "UTF-8";', ""),
   main() {
-    // --- ZONA DE DEBUGGING (El Chismoso) ---
     const hypr = Hyprland.get_default();
 
     // Conectamos directamente a la señal nativa, sin intermediarios 'createBinding'
@@ -18,7 +17,6 @@ app.start({
       const cliente = hypr.focusedClient;
       console.log(`[DEBUG HYPRLAND] Cliente enfocado: ${cliente ? cliente.class : "NINGUNO (Escritorio Vacio)"}`);
     });
-    // ----------------------------------------
 
     app.get_monitors().map(monitor => {
       ControlPanel(monitor)

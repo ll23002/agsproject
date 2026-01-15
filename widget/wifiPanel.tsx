@@ -4,6 +4,7 @@ import { Astal, Gtk, Gdk } from "ags/gtk4";
 // @ts-ignore
 import Network from "gi://AstalNetwork";
 import { execAsync } from "ags/process";
+import {setPopoverOpen} from "./BarState";
 
 
 export default function WifiPanel() {
@@ -39,7 +40,11 @@ export default function WifiPanel() {
                 <label label={wifiBinding(e => e ? "󰤨" : "󰤭")} />
                 <label label={wifiSsid(s => s || "Desconectado")} />
             </box>
-            <popover onShow={() => scanWifi()}>
+            <popover
+                onShow={() => scanWifi()}
+                onMap={()=> setPopoverOpen(true)}
+                onUnmap={()=> setPopoverOpen(false)}
+            >
                 <box orientation={Gtk.Orientation.VERTICAL} spacing={8} widthRequest={350}>
                     <box class="wifi-header">
                         <label
@@ -49,6 +54,7 @@ export default function WifiPanel() {
                         />
                         <Gtk.Switch
                             active={wifiBinding(e => e)}
+                            // @ts-ignore
                             onStateSet={(_, state) => {
                                 network.wifi.enabled = state;
                                 if (state) setTimeout(scanWifi, 1000);

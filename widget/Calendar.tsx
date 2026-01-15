@@ -7,9 +7,12 @@ import Notifd from "gi://AstalNotifd"
 // @ts-ignore
 import Hyprland from "gi://AstalHyprland";
 
-import { showWidget, setHover, mouseService } from "./BarState";
+import {showWidget, setHover, mouseService, setPopoverOpen} from "./BarState";
 
 export default function Calendar(gdkmonitor: Gdk.Monitor) {
+
+
+
     const fecha = createPoll("", 1000, () => {
         const now = new Date();
         return now.toLocaleDateString('es-ES', {
@@ -33,7 +36,7 @@ export default function Calendar(gdkmonitor: Gdk.Monitor) {
         <box spacing={12}>
             <menubutton hexpand halign={Gtk.Align.CENTER}>
                 <label label={fecha} />
-                <popover>
+                <popover onMap={()=> setPopoverOpen(true)} onUnmap={()=> setPopoverOpen(false)}>
                     <box spacing={12}>
                         <Gtk.Calendar showDayNames showHeading />
                         <box orientation={Gtk.Orientation.VERTICAL} spacing={8} class="notification-center">
@@ -100,8 +103,10 @@ export default function Calendar(gdkmonitor: Gdk.Monitor) {
     };
 
     const hypr = Hyprland.get_default();
+
     hypr.connect("notify::focused-client", updateState);
     mouseService.connect("notify::hovered", updateState);
+    mouseService.connect("notify::popover_open", updateState);
 
     updateState();
 
@@ -109,14 +114,31 @@ export default function Calendar(gdkmonitor: Gdk.Monitor) {
         valign: Gtk.Align.START,
     });
 
-
-    mainBox.add_css_class("ghost-killer");
+    let hoverTimeout: any = null;
+    const cancelHoverTimeout = () => {
+        if (hoverTimeout) {
+            clearTimeout(hoverTimeout);
+            hoverTimeout = null;
+        }
+    };
 
     const controller = new Gtk.EventControllerMotion();
-    controller.connect("enter", () => setHover(true));
-    controller.connect("leave", () => setHover(false));
-    mainBox.add_controller(controller);
 
+    controller.connect("enter", () => {
+        cancelHoverTimeout();
+        setHover(true);
+    });
+
+    controller.connect("leave", () => {
+        cancelHoverTimeout();
+
+        hoverTimeout = setTimeout(() => {
+            setHover(false);
+        }, 150);
+    });
+
+    mainBox.add_controller(controller);
+    mainBox.add_css_class("ghost-killer");
     mainBox.append(revealer);
 
     return (

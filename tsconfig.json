@@ -1,10 +1,15 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
+    "types": [
+      "@girs/glib-2.0",
+      "@girs/gio-2.0",
+      "girs/cairo-1.0",
+      "ags"],
     "strict": true,
     "module": "ES2022",
     "target": "ES2020",
-    "lib": ["ES2023"],
+    "lib": ["ES2023", "DOM"],
     "moduleResolution": "Bundler",
     // "checkJs": true,
     // "allowJs": true,

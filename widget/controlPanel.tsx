@@ -18,7 +18,7 @@ import WifiPanel from "./wifiPanel";
 import BluetoothPanel from "./bluetoothPanel";
 import BatteryPanel from "./batteryPanel";
 
-import { showWidget, setHover, mouseService } from "./BarState";
+import { showWidget, setHover, mouseService, setPopoverOpen } from "./BarState";
 
 
 function sys(cmd: string) {
@@ -159,7 +159,7 @@ export default function ControlPanel(gdkmonitor: Gdk.Monitor) {
             <menubutton hexpand halign={Gtk.Align.CENTER}>
                 <label label="󰒓" />
 
-                <popover>
+                <popover onMap={()=> setPopoverOpen(true)} onUnmap={()=> setPopoverOpen(false)}>
                     <box class="panel-container" orientation={Gtk.Orientation.VERTICAL} spacing={16}
                          widthRequest={300}>
 
@@ -226,6 +226,7 @@ export default function ControlPanel(gdkmonitor: Gdk.Monitor) {
     const hypr = Hyprland.get_default();
     hypr.connect("notify::focused-client", updateState);
     mouseService.connect("notify::hovered", updateState);
+    mouseService.connect("notify::popover_open", updateState);
 
     updateState();
 
@@ -233,13 +234,31 @@ export default function ControlPanel(gdkmonitor: Gdk.Monitor) {
         valign: Gtk.Align.START,
     });
 
-    mainBox.add_css_class("ghost-killer");
+    let hoverTimeout: any = null;
+    const cancelHoverTimeout = () => {
+        if (hoverTimeout) {
+            clearTimeout(hoverTimeout);
+            hoverTimeout = null;
+        }
+    };
 
     const controller = new Gtk.EventControllerMotion();
-    controller.connect("enter", () => setHover(true));
-    controller.connect("leave", () => setHover(false));
-    mainBox.add_controller(controller);
 
+    controller.connect("enter", () => {
+        cancelHoverTimeout();
+        setHover(true);
+    });
+
+    controller.connect("leave", () => {
+        cancelHoverTimeout();
+
+        hoverTimeout = setTimeout(() => {
+            setHover(false);
+        }, 150);
+    });
+
+    mainBox.add_controller(controller);
+    mainBox.add_css_class("ghost-killer");
     mainBox.append(revealer);
     return (
         <window

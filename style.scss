@@ -372,11 +372,6 @@ label.empty-devices {
   padding: 20px;
 }
 
-
-
-
-
-
 button.dnd-button {
   background-image: none;
   box-shadow: none;
@@ -387,22 +382,20 @@ button.dnd-button {
   transition: all 0.2s ease;
 
   &.active {
-    background-color: #f38ba8; /* Rosa */
+    background-color: #f38ba8;
     border-color: #f38ba8;
-    color: #11111b;            /* Texto oscuro para contraste */
+    color: #11111b;
 
     label {
       color: #11111b;
     }
 
-    /* Hover cuando está encendido */
     &:hover {
-      /* Recuerda usar color.mix si ya arreglaste el warning de sass */
       background-color: color.mix(#f38ba8, white, 85%);
     }
   }
 
-  /* Hover cuando está apagado */
+
   &:hover {
     background-color: rgba(255, 255, 255, 0.1);
     border-color: rgba(255, 255, 255, 0.2);
@@ -411,28 +404,26 @@ button.dnd-button {
 
 
 switch {
-  /* Estado APAGADO: Fondo gris oscuro en lugar de blanco */
   background-color: rgba(50, 50, 70, 0.5);
   border: 1px solid $border-color;
-  border-radius: 9999px; /* Pill shape */
+  border-radius: 9999px;
 
-  /* El círculo que se mueve (Slider) */
   slider {
-    background-color: $text-color; /* Blanco */
+    background-color: $text-color;
     border-radius: 9999px;
     margin: 2px;
     min-width: 20px;
     min-height: 20px;
-    box-shadow: none; /* Quitar sombras raras */
+    box-shadow: none;
   }
 
-  /* Estado ENCENDIDO (:checked) */
+
   &:checked {
-    background-color: #3584e4; /* Tu azul bonito (#89b4fa) */
+    background-color: #3584e4;
     border-color: #3584e4;
 
     slider {
-      background-color: #1e1e2e; /* Círculo oscuro cuando está activo */
+      background-color: #1e1e2e;
     }
   }
 }

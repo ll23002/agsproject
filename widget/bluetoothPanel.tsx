@@ -1,5 +1,6 @@
 import {createBinding, With, createMemo} from "ags";
 import {Gtk} from "ags/gtk4"
+import { setPopoverOpen} from "./BarState";
 // @ts-ignore
 import Bluetooth from "gi://AstalBluetooth";
 import {execAsync} from "ags/process";
@@ -102,7 +103,7 @@ const scanForDevices = async () => {
                 <label label={btBinding(p => p ? "󰂯" : "󰂲")}/>
                 <label label={btBinding(p => p ? "Bluetooth" : "Apagado")}/>
             </box>
-            <popover>
+            <popover onMap={()=> setPopoverOpen(true)} onUnmap={()=> setPopoverOpen(false)}>
                 <box orientation={Gtk.Orientation.VERTICAL} spacing={8} widthRequest={350}>
                     <box class="bluetooth-header">
                         <label
@@ -112,6 +113,7 @@ const scanForDevices = async () => {
                         />
                         <Gtk.Switch
                             active={btBinding(p => p)}
+                            // @ts-ignore
                             onStateSet={(_, state) => {
                                 toggleBluetooth(state);
                                 return false;

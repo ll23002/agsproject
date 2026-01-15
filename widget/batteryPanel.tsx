@@ -4,6 +4,7 @@ import { Astal, Gtk } from "ags/gtk4";
 // @ts-ignore
 import Battery from "gi://AstalBattery";
 import GLib from "gi://GLib";
+import {setPopoverOpen} from "./BarState";
 
 
 function sys(cmd: string) {
@@ -107,7 +108,7 @@ export default function  BatteryPanel() {
             </box>
 
 
-            <popover>
+            <popover onMap={() => setPopoverOpen(true)} onUnmap={() => setPopoverOpen(false)}>
                 <box orientation={Gtk.Orientation.VERTICAL} spacing={8} widthRequest={240} class="panel-container">
                     <label
                         label="Información de la batería"

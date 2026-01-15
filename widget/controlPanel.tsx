@@ -163,8 +163,8 @@ export default function ControlPanel(gdkmonitor: Gdk.Monitor) {
     const mainBarContent = (
         <box spacing={12}>
             {/* WiFi Icon */}
-            <label
-                label={wifiEnabled(e => e ? "󰤨" : "󰤭")} // O usa wifiIcon() si quieres el icono de intensidad real
+            <Gtk.Image
+                iconName={wifiIcon(n => n)}
                 css={wifiEnabled(e => e ? "" : "color: #a6adc8;")}
             />
 

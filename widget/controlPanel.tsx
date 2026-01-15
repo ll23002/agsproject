@@ -1,4 +1,4 @@
-import { createBinding } from "ags"
+import {createBinding, createMemo} from "ags"
 import { Astal, Gtk, Gdk } from "ags/gtk4"
 import app from "ags/gtk4/app"
 // @ts-ignore
@@ -122,7 +122,37 @@ export default function ControlPanel(gdkmonitor: Gdk.Monitor) {
     const wifiEnabled = createBinding(network.wifi, "enabled");
     const btOn = createBinding(bluetooth, "isPowered");
     const batIcon = createBinding(battery, "iconName");
+
     const batPercent = createBinding(battery, "percentage");
+    const batCharging = createBinding(battery, "charging");
+
+    const getBatIcon = (p: number, charging: boolean) => {
+        if (charging) return "";
+
+        // Iconos Horizontales (FontAwesome)
+        if (p > 0.9) return ""; // 100%
+        if (p > 0.7) return ""; // 75%
+        if (p > 0.45) return ""; // 50%
+        if (p > 0.15) return ""; // 25%
+        return "";               // 0% (Vacío)
+    };
+
+    const getBatColor = (p: number, charging: boolean) => {
+        if (charging) return "#a6e3a1"; // Verde (Cargando)
+        if (p < 0.2) return "#f38ba8";  // Rojo (Crítico)
+        if (p < 0.4) return "#fab387";  // Naranja (Baja)
+        return "#ffffff";               // Morado/Normal (Tu color por defecto)
+    };
+
+    const batInfo = createMemo(() => {
+        const p = batPercent();
+        const c = batCharging();
+        return {
+            icon: getBatIcon(p, c),
+            color: getBatColor(p, c),
+            pct: Math.floor(p * 100)
+        };
+    });
 
 
     let cpuValue = 0;
@@ -182,8 +212,17 @@ export default function ControlPanel(gdkmonitor: Gdk.Monitor) {
 
             {/* Batería (Icono + Porcentaje) */}
             <box spacing={4}>
-                <label label={batPercent(p => `${Math.floor(p * 100)}%`)} css="font-size: 11px;" />
-                <Gtk.Image iconName={batIcon()} />
+                {/* Porcentaje */}
+                <label
+                    label={batInfo(i => `${i.pct}%`)}
+                    css="font-size: 11px;"
+                />
+
+                {/* Icono Dinámico Nerd Font */}
+                <label
+                    label={batInfo(i => i.icon)}
+                    css={batInfo(i => `color: ${i.color}; font-size: 16px;`)}
+                />
             </box>
         </box>
     );

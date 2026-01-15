@@ -24,10 +24,38 @@ export default function  BatteryPanel() {
 
     const levelBinding = createBinding(battery, "percentage");
     const stateBinding = createBinding(battery, "state");
-    const iconBinding = createBinding(battery, "iconName");
+    //const iconBinding = createBinding(battery, "iconName");
     const timeToEmpty = createBinding(battery, "timeToEmpty");
     const timeToFull = createBinding(battery, "timeToFull");
     const chargingBinding = createBinding(battery, "charging");
+
+
+    const getBatIcon = (p: number, charging: boolean) => {
+        if (charging) return "";
+        if (p > 0.9) return "";
+        if (p > 0.7) return "";
+        if (p > 0.45) return "";
+        if (p > 0.15) return "";
+        return "";
+    };
+
+    const getBatColor = (p: number, charging: boolean) => {
+        if (charging) return "#a6e3a1"; // Verde
+        if (p < 0.2) return "#f38ba8";  // Rojo
+        if (p < 0.4) return "#fab387";  // Naranja
+        return "#ffffff";
+    };
+
+    const batDisplay = createMemo(() => {
+        const p = levelBinding();
+        const c = chargingBinding();
+
+        return {
+            icon: getBatIcon(p, c),
+            color: getBatColor(p, c)
+        };
+    });
+
 
 
     const formatTime = (seconds: number) => {
@@ -82,21 +110,26 @@ export default function  BatteryPanel() {
             cycles,
             rate: `${rate} W`,
             health: `${health} %`,
-            volt: `${volt} %`
+            volt: `${volt} V`
         };
     });
 
 
     return (
         <menubutton widthRequest={145} heightRequest={60} direction={Gtk.ArrowType.LEFT}>
-            <box spacing={8}>
-                <Gtk.Image iconName={iconBinding(i => i)} />
+            <box spacing={8} valign={Gtk.Align.CENTER} hexpand>
+                <box spacing={4} valign={Gtk.Align.CENTER}>
+                    <label
+                        label={batDisplay(d => d.icon)}
+                        css={batDisplay(d => `color: ${d.color};`)}
+                        widthRequest={36}
+                    />
+                </box>
 
                 <box orientation={Gtk.Orientation.VERTICAL} valign={Gtk.Align.CENTER}>
                     <label
                         label={levelBinding(p => `${Math.floor(p * 100)}%`)}
                         halign={Gtk.Align.START}
-                        css="font-weight: bold;"
                         />
                     <label
                         label={stateBinding(s => s === Battery.State.CHARGING ? "Cargando" : "Bateria")}

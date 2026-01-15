@@ -118,6 +118,12 @@ export default function ControlPanel(gdkmonitor: Gdk.Monitor) {
     const battery = Battery.get_default();
 
     const dndBinding = createBinding(notifd, "dontDisturb");
+    const wifiIcon = createBinding(network.wifi, "iconName");
+    const wifiEnabled = createBinding(network.wifi, "enabled");
+    const btOn = createBinding(bluetooth, "isPowered");
+    const batIcon = createBinding(battery, "iconName");
+    const batPercent = createBinding(battery, "percentage");
+
 
     let cpuValue = 0;
     let ramValue = 0;
@@ -154,10 +160,38 @@ export default function ControlPanel(gdkmonitor: Gdk.Monitor) {
 
     const { TOP, RIGHT } = Astal.WindowAnchor;
 
+    const mainBarContent = (
+        <box spacing={12}>
+            {/* WiFi Icon */}
+            <label
+                label={wifiEnabled(e => e ? "󰤨" : "󰤭")} // O usa wifiIcon() si quieres el icono de intensidad real
+                css={wifiEnabled(e => e ? "" : "color: #a6adc8;")}
+            />
+
+            {/* Bluetooth Icon */}
+            <label
+                label={btOn(b => b ? "󰂯" : "󰂲")}
+                css={btOn(b => b ? "" : "color: #a6adc8;")}
+            />
+
+            {/* DND Icon */}
+            <label
+                label={dndBinding(d => d ? "󰂛" : "󰂚")}
+                css={dndBinding(d => d ? "color: #f38ba8;" : "")}
+            />
+
+            {/* Batería (Icono + Porcentaje) */}
+            <box spacing={4}>
+                <label label={batPercent(p => `${Math.floor(p * 100)}%`)} css="font-size: 11px;" />
+                <Gtk.Image iconName={batIcon()} />
+            </box>
+        </box>
+    );
+
     const innerContent = (
         <box spacing={12}>
             <menubutton hexpand halign={Gtk.Align.CENTER}>
-                <label label="󰒓" />
+                {mainBarContent}
 
                 <popover onMap={()=> setPopoverOpen(true)} onUnmap={()=> setPopoverOpen(false)}>
                     <box class="panel-container" orientation={Gtk.Orientation.VERTICAL} spacing={16}

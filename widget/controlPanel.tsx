@@ -129,19 +129,18 @@ export default function ControlPanel(gdkmonitor: Gdk.Monitor) {
     const getBatIcon = (p: number, charging: boolean) => {
         if (charging) return "";
 
-        // Iconos Horizontales (FontAwesome)
-        if (p > 0.9) return ""; // 100%
-        if (p > 0.7) return ""; // 75%
-        if (p > 0.45) return ""; // 50%
-        if (p > 0.15) return ""; // 25%
-        return "";               // 0% (Vacío)
+        if (p > 0.9) return "";
+        if (p > 0.7) return "";
+        if (p > 0.45) return "";
+        if (p > 0.15) return "";
+        return "";
     };
 
     const getBatColor = (p: number, charging: boolean) => {
-        if (charging) return "#a6e3a1"; // Verde (Cargando)
-        if (p < 0.2) return "#f38ba8";  // Rojo (Crítico)
-        if (p < 0.4) return "#fab387";  // Naranja (Baja)
-        return "#ffffff";               // Morado/Normal (Tu color por defecto)
+        if (charging) return "#a6e3a1";
+        if (p < 0.2) return "#f38ba8";
+        if (p < 0.4) return "#fab387";
+        return "#ffffff";
     };
 
     const batInfo = createMemo(() => {

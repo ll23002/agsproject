@@ -3,6 +3,7 @@ import style from "./style.scss"
 import Calendar from "./widget/Calendar";
 import ControlPanel from "./widget/controlPanel"
 import TopHover from "./widget/TopHover"
+import NotificationPopups from "./widget/NotificationPopups"
 // @ts-ignore
 import Hyprland from "gi://AstalHyprland";
 
@@ -19,6 +20,7 @@ app.start({
       ControlPanel(monitor)
       Calendar(monitor)
       TopHover(monitor)
+      NotificationPopups(monitor)
     })
   },
 })

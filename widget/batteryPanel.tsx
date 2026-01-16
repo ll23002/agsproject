@@ -24,7 +24,6 @@ export default function  BatteryPanel() {
 
     const levelBinding = createBinding(battery, "percentage");
     const stateBinding = createBinding(battery, "state");
-    //const iconBinding = createBinding(battery, "iconName");
     const timeToEmpty = createBinding(battery, "timeToEmpty");
     const timeToFull = createBinding(battery, "timeToFull");
     const chargingBinding = createBinding(battery, "charging");

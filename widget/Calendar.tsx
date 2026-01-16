@@ -6,20 +6,15 @@ import app from "ags/gtk4/app"
 import Notifd from "gi://AstalNotifd"
 // @ts-ignore
 import Hyprland from "gi://AstalHyprland";
+import GLib from "gi://GLib"
 
 import {showWidget, setHover, mouseService, setPopoverOpen} from "./BarState";
 
 export default function Calendar(gdkmonitor: Gdk.Monitor) {
 
-
-
     const fecha = createPoll("", 1000, () => {
-        const now = new Date();
-        return now.toLocaleDateString('es-ES', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-        });
+        const now = GLib.DateTime.new_now_local();
+        return now.format("%I:%M:%S %p") || "";
     });
 
     const notifd = Notifd.get_default();

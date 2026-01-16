@@ -3,7 +3,8 @@ import app from "ags/gtk4/app"
 // @ts-ignore
 import Notifd from "gi://AstalNotifd"
 import GLib from "gi://GLib"
-import Pango from "gi://Pango" // <--- ¡BIENVENIDO SR. PANGO!
+// @ts-ignore
+import Pango from "gi://Pango"
 
 function createNotificationWidget(n: any) {
     return (
@@ -21,8 +22,7 @@ function createNotificationWidget(n: any) {
                     label={n.summary}
                     halign={Gtk.Align.START}
                     css="font-weight: bold; font-size: 14px;"
-                    // truncate <--- ESTO ERA EL ERROR
-                    ellipsize={Pango.EllipsizeMode.END} // <--- ESTO ES LO CORRECTO
+                    ellipsize={Pango.EllipsizeMode.END}
                     maxWidthChars={25}
                 />
                 {n.body && (
@@ -31,9 +31,8 @@ function createNotificationWidget(n: any) {
                         halign={Gtk.Align.START}
                         wrap
                         useMarkup
-                        // truncate <--- ERROR
-                        ellipsize={Pango.EllipsizeMode.END} // <--- CORRECTO
-                        lines={2} // Limita a 2 líneas para que no sea un pergamino
+                        ellipsize={Pango.EllipsizeMode.END}
+                        lines={2}
                         maxWidthChars={35}
                     />
                 )}
@@ -49,7 +48,6 @@ export default function NotificationPopups(gdkmonitor: Gdk.Monitor) {
         <box orientation={Gtk.Orientation.VERTICAL} spacing={10} />
     ) as Gtk.Box;
 
-    // Creamos la ventana y la guardamos
     const win = (
         <window
             name="notifications-popup"
@@ -58,6 +56,7 @@ export default function NotificationPopups(gdkmonitor: Gdk.Monitor) {
             layer={Astal.Layer.OVERLAY}
             margin={20}
             visible={false}
+            css="background-color: transparent;"
         >
             {mainBox}
         </window>
@@ -86,7 +85,7 @@ export default function NotificationPopups(gdkmonitor: Gdk.Monitor) {
         activeNotifications++;
         updateVisibility();
 
-        GLib.timeout_add(GLib.PRIORITY_DEFAULT, 3000, () => {
+        GLib.timeout_add(GLib.PRIORITY_DEFAULT, 5000, () => {
             if (widget.get_parent()) {
                 mainBox.remove(widget);
                 activeNotifications--;

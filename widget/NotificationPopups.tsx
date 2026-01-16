@@ -7,6 +7,37 @@ import GLib from "gi://GLib"
 import Pango from "gi://Pango"
 
 function createNotificationWidget(n: any) {
+
+    let iconWidget;
+
+    if (n.image && GLib.file_test(n.image, GLib.FileTest.EXISTS)) {
+        iconWidget = (
+            <Gtk.Image
+                file={n.image}
+                pixelSize={48}
+                valign={Gtk.Align.START}
+            />
+        );
+    }
+    else if (n.appIcon) {
+        iconWidget = (
+            <Gtk.Image
+                iconName={n.appIcon}
+                pixelSize={48}
+                valign={Gtk.Align.START}
+            />
+        );
+    }
+    else {
+        iconWidget = (
+            <Gtk.Image
+                iconName="dialog-information-symbolic"
+                pixelSize={48}
+                valign={Gtk.Align.START}
+            />
+        );
+    }
+
     return (
         <box
             class="notification-popup"
@@ -14,9 +45,8 @@ function createNotificationWidget(n: any) {
             widthRequest={300}
             css="background-color: #1e1e2e; color: #cdd6f4; border: 1px solid #89b4fa; border-radius: 12px; padding: 15px; margin-bottom: 10px;"
         >
-            {n.appIcon && (
-                <Gtk.Image iconName={n.appIcon} iconSize={Gtk.IconSize.LARGE} />
-            )}
+            {iconWidget}
+
             <box orientation={Gtk.Orientation.VERTICAL} valign={Gtk.Align.CENTER}>
                 <label
                     label={n.summary}

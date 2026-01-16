@@ -382,8 +382,8 @@ button.dnd-button {
   transition: all 0.2s ease;
 
   &.active {
-    background-color: #f38ba8;
-    border-color: #f38ba8;
+    background-color: #00959b;
+    border-color: #00959b;
     color: #11111b;
 
     label {
@@ -391,7 +391,7 @@ button.dnd-button {
     }
 
     &:hover {
-      background-color: color.mix(#f38ba8, white, 85%);
+      background-color: color.mix(#00959b, white, 85%);
     }
   }
 

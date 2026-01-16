@@ -191,33 +191,27 @@ export default function ControlPanel(gdkmonitor: Gdk.Monitor) {
 
     const mainBarContent = (
         <box spacing={12}>
-            {/* WiFi Icon */}
             <Gtk.Image
                 iconName={wifiIcon(n => n)}
                 css={wifiEnabled(e => e ? "" : "color: #a6adc8;")}
             />
 
-            {/* Bluetooth Icon */}
             <label
                 label={btOn(b => b ? "󰂯" : "󰂲")}
                 css={btOn(b => b ? "" : "color: #a6adc8;")}
             />
 
-            {/* DND Icon */}
             <label
                 label={dndBinding(d => d ? "󰂛" : "󰂚")}
-                css={dndBinding(d => d ? "color: #f38ba8;" : "")}
+                css={dndBinding(d => d ? "color: #00959b;" : "")}
             />
 
-            {/* Batería (Icono + Porcentaje) */}
             <box spacing={4}>
-                {/* Porcentaje */}
                 <label
                     label={batInfo(i => `${i.pct}%`)}
                     css="font-size: 11px;"
                 />
 
-                {/* Icono Dinámico Nerd Font */}
                 <label
                     label={batInfo(i => i.icon)}
                     css={batInfo(i => `color: ${i.color}; font-size: 16px;`)}

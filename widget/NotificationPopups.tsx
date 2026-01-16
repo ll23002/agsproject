@@ -115,6 +115,14 @@ export default function NotificationPopups(gdkmonitor: Gdk.Monitor) {
         activeNotifications++;
         updateVisibility();
 
+
+        if (n.soundFile && GLib.file_test(n.soundFile, GLib.FileTest.EXISTS)) {
+            GLib.spawn_command_line_async(`paplay "${n.soundFile}"`);
+        }
+        else {
+            GLib.spawn_command_line_async("paplay /usr/share/sounds/freedesktop/stereo/arp-elegant.mp3");
+        }
+
         GLib.timeout_add(GLib.PRIORITY_DEFAULT, 5000, () => {
             if (widget.get_parent()) {
                 mainBox.remove(widget);

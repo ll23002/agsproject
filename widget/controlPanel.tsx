@@ -172,7 +172,7 @@ export default function ControlPanel(gdkmonitor: Gdk.Monitor) {
 
     const getBatHealth = () => {
         const cmd = `bash -c "echo $(( $(cat /sys/class/power_supply/BAT0/charge_full) * 100 / $(cat /sys/class/power_supply/BAT0/charge_full_design) ))"`;
-        const health = sys(cmd);
+        const health = sys(cmd)
         batHealth = health;
         return batHealth;
     }
@@ -210,7 +210,8 @@ export default function ControlPanel(gdkmonitor: Gdk.Monitor) {
             <box spacing={4}>
                 <label
                     label={batInfo(i => `${i.pct}%`)}
-                    css="font-size: 11px;"
+                    halign={Gtk.Align.END}
+                    css="font-size: 11px; min-width: 30px;"
                 />
 
                 <label

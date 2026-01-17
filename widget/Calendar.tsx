@@ -12,7 +12,7 @@ import {showWidget, setHover, mouseService, setPopoverOpen} from "./BarState";
 
 export default function Calendar(gdkmonitor: Gdk.Monitor) {
 
-    const fecha = createPoll("", 1000, () => {
+    const hora = createPoll("", 1000, () => {
         const now = GLib.DateTime.new_now_local();
         return now.format("%I:%M:%S %p") || "";
     });
@@ -30,7 +30,7 @@ export default function Calendar(gdkmonitor: Gdk.Monitor) {
     const innerContent = (
         <box spacing={12}>
             <menubutton hexpand halign={Gtk.Align.CENTER}>
-                <label label={fecha} />
+                <label label={hora} widthRequest={100} halign={Gtk.Align.CENTER} />
                 <popover onMap={()=> setPopoverOpen(true)} onUnmap={()=> setPopoverOpen(false)}>
                     <box spacing={12}>
                         <Gtk.Calendar showDayNames showHeading />

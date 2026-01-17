@@ -6,6 +6,7 @@ import TopHover from "./widget/TopHover"
 import NotificationPopups from "./widget/NotificationPopups"
 // @ts-ignore
 import Hyprland from "gi://AstalHyprland";
+import Workspaces from "./widget/Workspaces";
 
 app.start({
   css: style.toString().replace('@charset "UTF-8";', ""),
@@ -21,6 +22,7 @@ app.start({
       Calendar(monitor)
       TopHover(monitor)
       NotificationPopups(monitor)
+      Workspaces(monitor)
     })
   },
 })

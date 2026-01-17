@@ -17,6 +17,7 @@ import Hyprland from "gi://AstalHyprland";
 import WifiPanel from "./wifiPanel";
 import BluetoothPanel from "./bluetoothPanel";
 import BatteryPanel from "./batteryPanel";
+import PowerPanel from "./PowerPanel";
 
 import { showWidget, setHover, mouseService, setPopoverOpen } from "./BarState";
 
@@ -246,6 +247,8 @@ export default function ControlPanel(gdkmonitor: Gdk.Monitor) {
                                 />
                             </box>
                         </box>
+                        <Gtk.Separator />
+                        <PowerPanel />
 
                         <Gtk.Separator />
 

@@ -427,3 +427,35 @@ switch {
     }
   }
 }
+
+
+/* --- POWER PROFILE BUTTONS --- */
+.profile-btn {
+  background-image: none;
+  box-shadow: none;
+  border: none;
+  text-shadow: none;
+
+  background-color: #313244;
+  color: #cdd6f4;
+
+  border-radius: 12px;
+  padding: 12px 5px;
+  margin: 0px 4px;
+  transition: all 0.2s ease;
+}
+
+/* Cuando pasas el mouse */
+.profile-btn:hover {
+  background-color: #45475a;
+  color: #ffffff;
+}
+
+.profile-btn.active {
+  background-color: #00959b;
+  color: #1e1e2e;
+}
+
+.profile-btn > box {
+  all: unset;
+}

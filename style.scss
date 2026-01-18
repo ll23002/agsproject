@@ -542,11 +542,20 @@ window.Workspaces revealer > box {
   padding: 12px;
   margin-bottom: 4px;
 
-  .cover-art {
-    background-size: cover;
-    background-position: center;
-    border-radius: 8px;
-    background-color: rgba(0,0,0,0.2);
+  // Clase para el contenedor del icono fijo
+  .cover-art-static {
+    background-color: rgba(137, 180, 250, 0.1); // Fondo sutil
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    color: $accent-color;
+    border-radius: 12px;
+
+    // FORZAMOS CUADRADO PERFECTO
+    min-width: 64px;
+    min-height: 64px;
+
+    // Centrado a la antigua usanza si GTK se pone rebelde
+    padding: 0px;
+    margin-right: 4px; // Un poco de aire extra con el texto
   }
 
   .title {

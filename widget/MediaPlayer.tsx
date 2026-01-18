@@ -18,12 +18,20 @@ function Player({ player }: { player: Mpris.Player }) {
     return (
         <box class="media-player" spacing={12}>
             <box
-                class="cover-art"
-                css={coverArt(c => `
-                background-image: url('${c || ""}');
-                min-width: 64px; min-height: 64px;
-                `)}
-            />
+                class="cover-art-static"
+                halign={Gtk.Align.CENTER}
+                valign={Gtk.Align.CENTER}
+                hexpand={false}
+                vexpand={false}
+            >
+                <Gtk.Image
+                    iconName="audio-x-generic-symbolic"
+                    pixelSize={32}
+                    halign={Gtk.Align.CENTER}
+                    valign={Gtk.Align.CENTER}
+
+                    />
+            </box>
                 <box orientation={Gtk.Orientation.VERTICAL} valign={Gtk.Align.CENTER} hexpand>
                     <label
                         class="title"

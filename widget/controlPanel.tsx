@@ -40,13 +40,15 @@ function CircularProgress({
                               getValueFn,
                               size = 80,
                               lineWidth = 8,
-                              color = "#89b4fa"
+                              color = "#89b4fa",
+                              format = (p) => `${Math.round(p * 100)}%`
                           }: {
     label: string,
     getValueFn: () => number,
     size?: number,
     lineWidth?: number,
-    color?: string
+    color?: string,
+    format?: (value: number) => string
 }) {
     const drawingArea = <drawingarea
         widthRequest={size}
@@ -88,10 +90,12 @@ function CircularProgress({
         cr.selectFontFace("Sans", Cairo.FontSlant.NORMAL, Cairo.FontWeight.BOLD);
         cr.setFontSize(16);
 
-        const percentage = `${Math.round(progress * 100)}%`;
-        const extents = cr.textExtents(percentage);
+        const mainText = format(progress);
+
+        //const percentage = `${Math.round(progress * 100)}%`;
+        const extents = cr.textExtents(mainText);
         cr.moveTo(centerX - extents.width / 2, centerY + extents.height / 2);
-        cr.showText(percentage);
+        cr.showText(mainText);
 
         cr.setFontSize(10);
         cr.selectFontFace("Sans", Cairo.FontSlant.NORMAL, Cairo.FontWeight.NORMAL);
@@ -123,7 +127,6 @@ export default function ControlPanel(gdkmonitor: Gdk.Monitor) {
     const wifiIcon = createBinding(network.wifi, "iconName");
     const wifiEnabled = createBinding(network.wifi, "enabled");
     const btOn = createBinding(bluetooth, "isPowered");
-    const batIcon = createBinding(battery, "iconName");
 
     const batPercent = createBinding(battery, "percentage");
     const batCharging = createBinding(battery, "charging");
@@ -159,6 +162,7 @@ export default function ControlPanel(gdkmonitor: Gdk.Monitor) {
     let cpuValue = 0;
     let ramValue = 0;
     let batHealth = 0;
+    let tempValue = 0;
 
     const getCpuUsage = () => {
         const result = sys(`bash -c "grep 'cpu ' /proc/stat | awk '{usage=($2+$4)*100/($2+$4+$5)} END {print usage}'"`);
@@ -178,16 +182,24 @@ export default function ControlPanel(gdkmonitor: Gdk.Monitor) {
         return batHealth;
     }
 
+    const getTemperature = () => {
+        const temp = sys(`cat /sys/class/thermal/thermal_zone0/temp`);
+        tempValue = (temp / 1000) / 100;
+        return tempValue;
+    }
+
     GLib.timeout_add(GLib.PRIORITY_DEFAULT, 3000, () => {
         getCpuUsage()
         getRamUsage()
         getBatHealth()
+        getTemperature()
         return true;
     })
 
     getCpuUsage();
     getRamUsage();
     getBatHealth();
+    getTemperature();
 
     const { TOP, RIGHT } = Astal.WindowAnchor;
 
@@ -231,13 +243,13 @@ export default function ControlPanel(gdkmonitor: Gdk.Monitor) {
 
                 <popover onMap={()=> setPopoverOpen(true)} onUnmap={()=> setPopoverOpen(false)}>
                     <box class="panel-container" orientation={Gtk.Orientation.VERTICAL} spacing={16}
-                         widthRequest={300}>
+                         widthRequest={340}>
 
                         <box orientation={Gtk.Orientation.VERTICAL} spacing={8}>
                             <label label="Rendimiento" halign={Gtk.Align.START}
                                    css="font-weight: bold; margin-bottom: 5px;" />
 
-                            <box spacing={20} halign={Gtk.Align.CENTER}>
+                            <box spacing={15} halign={Gtk.Align.CENTER}>
                                 <CircularProgress
                                     getValueFn={() => cpuValue}
                                     label="CPU"
@@ -248,6 +260,12 @@ export default function ControlPanel(gdkmonitor: Gdk.Monitor) {
                                     label="RAM"
                                     color="#f38ba8"
                                 />
+                                <CircularProgress
+                                    getValueFn={() => tempValue}
+                                    label="TEMP"
+                                    color="#fab387"
+                                    format={(p) => `${Math.round(p * 100)}°C`}
+                                    />
                             </box>
                         </box>
                         <Gtk.Separator />

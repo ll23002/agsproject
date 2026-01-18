@@ -96,7 +96,8 @@ popover {
   calendar {
     background-color: transparent;
     color: $text-color;
-    border: none;
+    border: 1px solid $border-color;
+    border-radius: 12px;
     &.view {
       background-color: transparent;
     }
@@ -506,12 +507,11 @@ window.Workspaces revealer > box {
 
 
 .network-stats {
-  /* Fondo sutil para que no flote en la nada */
   background-color: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 12px;
   padding: 0 8px;
-  margin: 4px 4px; /* Un poco de margen para separar de otros widgets */
+  margin: 4px 4px;
 
   label {
     font-size: 11px;
@@ -520,16 +520,15 @@ window.Workspaces revealer > box {
 }
 
 .network-icon {
-  /* Tamaño fijo para que no baile la barra */
   min-width: 12px;
   min-height: 12px;
 
   &.down {
-    color: #89b4fa; /* Azul descarga */
+    color: #89b4fa;
   }
 
   &.up {
-    color: #fab387; /* Naranja subida */
+    color: #fab387;
   }
 }
 
@@ -542,7 +541,6 @@ window.Workspaces revealer > box {
   padding: 12px;
   margin-bottom: 4px;
 
-  // Clase para el contenedor del icono fijo
   .cover-art-static {
     background-color: rgba(137, 180, 250, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.05);

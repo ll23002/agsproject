@@ -19,8 +19,10 @@ function Player({ player }: { player: Mpris.Player }) {
         <box class="media-player" spacing={12}>
             <box
                 class="cover-art-static"
-                halign={Gtk.Align.CENTER}
+                widthRequest={64}
+                heightRequest={64}
                 valign={Gtk.Align.CENTER}
+                halign={Gtk.Align.CENTER}
                 hexpand={false}
                 vexpand={false}
             >
@@ -29,7 +31,8 @@ function Player({ player }: { player: Mpris.Player }) {
                     pixelSize={32}
                     halign={Gtk.Align.CENTER}
                     valign={Gtk.Align.CENTER}
-
+                    hexpand
+                    vexpand
                     />
             </box>
                 <box orientation={Gtk.Orientation.VERTICAL} valign={Gtk.Align.CENTER} hexpand>

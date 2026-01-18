@@ -4,7 +4,7 @@ import { Astal, Gtk } from "ags/gtk4";
 // @ts-ignore
 import Battery from "gi://AstalBattery";
 import GLib from "gi://GLib";
-import {setPopoverOpen} from "./BarState";
+import {setPopoverOpen} from "../service/BarState";
 
 
 function sys(cmd: string) {

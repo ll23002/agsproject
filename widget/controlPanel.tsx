@@ -19,7 +19,8 @@ import BluetoothPanel from "./bluetoothPanel";
 import BatteryPanel from "./batteryPanel";
 import PowerPanel from "./PowerPanel";
 
-import { showWidget, setHover, mouseService, setPopoverOpen } from "./BarState";
+import { showWidget, setHover, mouseService, setPopoverOpen } from "../service/BarState";
+import NetworkStats from "./NetworkStats";
 
 
 function sys(cmd: string) {
@@ -192,6 +193,7 @@ export default function ControlPanel(gdkmonitor: Gdk.Monitor) {
 
     const mainBarContent = (
         <box spacing={12}>
+            <NetworkStats/>
             <Gtk.Image
                 iconName={wifiIcon(n => n)}
                 css={wifiEnabled(e => e ? "" : "color: #a6adc8;")}

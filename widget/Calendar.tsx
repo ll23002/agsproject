@@ -8,7 +8,8 @@ import Notifd from "gi://AstalNotifd"
 import Hyprland from "gi://AstalHyprland";
 import GLib from "gi://GLib"
 
-import {showWidget, setHover, mouseService, setPopoverOpen} from "./BarState";
+import {showWidget, setHover, mouseService, setPopoverOpen} from "../service/BarState";
+import MediaPlayer from "./MediaPlayer";
 
 export default function Calendar(gdkmonitor: Gdk.Monitor) {
 
@@ -33,7 +34,10 @@ export default function Calendar(gdkmonitor: Gdk.Monitor) {
                 <label label={hora} widthRequest={100} halign={Gtk.Align.CENTER} />
                 <popover onMap={()=> setPopoverOpen(true)} onUnmap={()=> setPopoverOpen(false)}>
                     <box spacing={12}>
-                        <Gtk.Calendar showDayNames showHeading />
+                        <box orientation={Gtk.Orientation.VERTICAL} spacing={12}>
+                            <MediaPlayer/>
+                            <Gtk.Calendar showDayNames showHeading />
+                        </box>
                         <box orientation={Gtk.Orientation.VERTICAL} spacing={8} class="notification-center">
                             <box class="notification-header">
                                 <label label={notifications((n) => `Notificaciones (${n.length})`)} hexpand />

@@ -4,7 +4,7 @@ import { Astal, Gtk, Gdk } from "ags/gtk4";
 // @ts-ignore
 import Network from "gi://AstalNetwork";
 import { execAsync } from "ags/process";
-import {setPopoverOpen} from "./BarState";
+import {setPopoverOpen} from "../service/BarState";
 
 
 export default function WifiPanel() {

@@ -3,7 +3,7 @@ import { createBinding, With } from "ags";
 import app from "ags/gtk4/app";
 //@ts-ignore
 import Hyprland from "gi://AstalHyprland";
-import {showWidget, setHover, mouseService, setPopoverOpen } from "./BarState";
+import {showWidget, setHover, mouseService, setPopoverOpen } from "../service/BarState";
 
 export default function Workspaces(gdkmonitor: Gdk.Monitor) {
     const { TOP, LEFT} = Astal.WindowAnchor;

@@ -503,3 +503,84 @@ window.Workspaces revealer > box {
   margin-top: 12px;
   margin-left: 12px;
 }
+
+
+.network-stats {
+  /* Fondo sutil para que no flote en la nada */
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 0 8px;
+  margin: 4px 4px; /* Un poco de margen para separar de otros widgets */
+
+  label {
+    font-size: 11px;
+    color: #cdd6f4;
+  }
+}
+
+.network-icon {
+  /* Tamaño fijo para que no baile la barra */
+  min-width: 12px;
+  min-height: 12px;
+
+  &.down {
+    color: #89b4fa; /* Azul descarga */
+  }
+
+  &.up {
+    color: #fab387; /* Naranja subida */
+  }
+}
+
+
+/* --- MEDIA PLAYER --- */
+.media-player {
+  background-color: rgba(30, 30, 46, 0.6);
+  border: 1px solid $border-color;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 4px;
+
+  .cover-art {
+    background-size: cover;
+    background-position: center;
+    border-radius: 8px;
+    background-color: rgba(0,0,0,0.2);
+  }
+
+  .title {
+    font-weight: bold;
+    font-size: 14px;
+    color: $text-color;
+  }
+
+  .artist {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .controls {
+    button {
+      background: transparent;
+      border: 1px solid transparent;
+      box-shadow: none;
+      border-radius: 99px;
+      padding: 6px;
+      color: $text-color;
+
+      &:hover {
+        background-color: $hover-color;
+        border-color: rgba(255,255,255,0.1);
+      }
+
+      &.play-btn {
+        background-color: $accent-color;
+        color: #1e1e2e;
+        &:hover {
+          background-color: color.adjust($accent-color, $lightness: -10%);
+        }
+      }
+    }
+  }
+}

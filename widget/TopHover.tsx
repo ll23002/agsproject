@@ -1,6 +1,6 @@
 import { Astal, Gtk, Gdk } from "ags/gtk4";
 import app from "ags/gtk4/app";
-import { setHover } from "./BarState";
+import { setHover } from "../service/BarState";
 
 export default function TopHover(gdkmonitor: Gdk.Monitor) {
     const { TOP, LEFT, RIGHT } = Astal.WindowAnchor;

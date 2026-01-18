@@ -1,6 +1,6 @@
 import {createBinding, With, createMemo} from "ags";
 import {Gtk} from "ags/gtk4"
-import { setPopoverOpen} from "./BarState";
+import { setPopoverOpen} from "../service/BarState";
 // @ts-ignore
 import Bluetooth from "gi://AstalBluetooth";
 import {execAsync} from "ags/process";

@@ -21,8 +21,7 @@ export default function Calendar(gdkmonitor: Gdk.Monitor) {
     const notifd = Notifd.get_default();
     const notifications = createBinding(notifd, "notifications");
 
-    // @ts-ignore
-    notifd.connect("notified", (_, id) => {
+    notifd.connect("notified", (_: Notifd.Notifd, id: number) => {
         const n = notifd.get_notification(id);
     });
 
@@ -62,8 +61,8 @@ export default function Calendar(gdkmonitor: Gdk.Monitor) {
                                                 <label label="No hay notificaciones"
                                                        class="empty-notifications" />
                                             ) : (
-                                                // @ts-ignore
-                                                notifs.map(notification => (
+
+                                                notifs.map((notification: Notifd.Notification) => (
                                                     <box class="notification" spacing={8}>
                                                         {notification.appIcon && (
                                                             <Gtk.Image iconName={notification.appIcon} />
@@ -90,11 +89,14 @@ export default function Calendar(gdkmonitor: Gdk.Monitor) {
         </box>
     );
 
-    const revealer = new Gtk.Revealer({
-        transitionType: Gtk.RevealerTransitionType.SLIDE_DOWN,
-        // @ts-ignore
-        child: innerContent,
-    });
+
+
+    const revealer = (
+        <revealer transitionType={Gtk.RevealerTransitionType.SLIDE_DOWN}>
+            {innerContent}
+        </revealer>
+    ) as Gtk.Revealer;
+
 
     const updateState = () => {
         const shouldShow = showWidget();
@@ -133,7 +135,7 @@ export default function Calendar(gdkmonitor: Gdk.Monitor) {
 
         hoverTimeout = setTimeout(() => {
             setHover(false);
-        }, 150);
+        }, 400);
     });
 
     mainBox.add_controller(controller);

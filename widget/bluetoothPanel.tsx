@@ -98,7 +98,13 @@ const scanForDevices = async () => {
 }
 
     return (
-        <menubutton widthRequest={145} heightRequest={60} direction={Gtk.ArrowType.LEFT}>
+        <menubutton
+            widthRequest={145}
+            heightRequest={60}
+            class={btBinding(p => p ? "active" : "")}
+            direction={Gtk.ArrowType.LEFT}
+            hexpand
+        >
             <box spacing={8}>
                 <label label={btBinding(p => p ? "󰂯" : "󰂲")}/>
                 <label label={btBinding(p => p ? "Bluetooth" : "Apagado")}/>

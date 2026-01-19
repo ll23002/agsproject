@@ -243,7 +243,7 @@ export default function ControlPanel(gdkmonitor: Gdk.Monitor) {
 
                 <popover onMap={()=> setPopoverOpen(true)} onUnmap={()=> setPopoverOpen(false)}>
                     <box class="panel-container" orientation={Gtk.Orientation.VERTICAL} spacing={16}
-                         widthRequest={340}>
+                         widthRequest={320}>
 
                         <box orientation={Gtk.Orientation.VERTICAL} spacing={8}>
                             <label label="Rendimiento" halign={Gtk.Align.START}
@@ -274,12 +274,12 @@ export default function ControlPanel(gdkmonitor: Gdk.Monitor) {
                         <Gtk.Separator />
 
                         <box class="controls-grid" orientation={Gtk.Orientation.VERTICAL} spacing={10}>
-                            <box spacing={10}>
+                            <box spacing={10} homogeneous={true}>
                                 <WifiPanel />
                                 <BluetoothPanel />
                             </box>
 
-                            <box spacing={10}>
+                            <box spacing={10} homogeneous={true}>
                                 <button
                                     hexpand
                                     widthRequest={145}

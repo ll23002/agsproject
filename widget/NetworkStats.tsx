@@ -9,7 +9,7 @@ export default function NetworkStats() {
                 <Gtk.Image iconName="go-down-symbolic" class="network-icon down"/>
                 <label
                     label={createBinding(networkService, "down")}
-                    css="font-weight: bold; font-family: 'JetBrains Mono'; min-width: 48px;"
+                    css="font-weight: bold; font-family: 'JetBrains Mono'; min-width: 52px;"
                     halign={Gtk.Align.END}
                     />
             </box>
@@ -18,7 +18,7 @@ export default function NetworkStats() {
                 <Gtk.Image iconName="go-up-symbolic" class="network-icon up"/>
                 <label
                     label={createBinding(networkService, "up")}
-                    css="font-weight: bold; font-family: 'JetBrains Mono'; min-width: 48px;"
+                    css="font-weight: bold; font-family: 'JetBrains Mono'; min-width: 52px;"
                     halign={Gtk.Align.END}
                     />
             </box>

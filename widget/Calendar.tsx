@@ -35,7 +35,11 @@ export default function Calendar(gdkmonitor: Gdk.Monitor) {
                     <box spacing={12}>
                         <box orientation={Gtk.Orientation.VERTICAL} spacing={12}>
                             <MediaPlayer/>
-                            <Gtk.Calendar showDayNames showHeading />
+                            <Gtk.Calendar
+                                showDayNames
+                                showHeading
+                                css="padding: 12px;"
+                            />
                         </box>
                         <box orientation={Gtk.Orientation.VERTICAL} spacing={8} class="notification-center">
                             <box class="notification-header">

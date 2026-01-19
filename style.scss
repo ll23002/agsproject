@@ -1,14 +1,27 @@
 @use "sass:color";
-$bg-color: rgba(17, 17, 27, 0.85);
-$border-color: rgba(255, 255, 255, 0.1);
+
+/* * CYBERPUNK PALETTE */
+$cp-purple:  #711C91;
+$cp-magenta: #EA00D9;
+$cp-cyan:    #0ABDC6;
+$cp-blue:    #133E7C;
+$cp-dark:    #091833;
+
+/* SEMANTIC VARIABLES */
+$bg-color: rgba($cp-dark, 0.85);
+$accent-color: $cp-cyan;
+$active-color: $cp-magenta;
+$border-color: $cp-blue;
 $text-color: #ffffff;
-$accent-color: #89b4fa;
-$hover-color: rgba(255, 255, 255, 0.1);
+$hover-color: rgba($cp-cyan, 0.15);
+$error-color: #ff5555;
 
 * {
+  all: unset;
+
   selection {
-    background-color: $accent-color;
-    color: #1e1e2e;
+    background-color: $active-color;
+    color: $text-color;
   }
 }
 
@@ -25,10 +38,23 @@ window#control-panel, window#calendar, window#hover-zone, window.Bar, window.Wor
   min-height: 0px;
 }
 
+/* CONTROL PANEL*/
 .ControlPanel revealer > box,
 .Calendar revealer > box {
   margin-top: 12px;
   margin-right: 12px;
+}
+
+window.ControlPanel menubutton.active > button {
+  background-color: $active-color;
+  color: $text-color;
+  border-color: $active-color;
+  box-shadow: 0 0 12px rgba($cp-magenta, 0.4);
+
+  &:hover {
+    background-color: color.mix($active-color, white, 90%);
+    box-shadow: 0 0 15px rgba($cp-magenta, 0.6);
+  }
 }
 
 window.Bar {
@@ -40,42 +66,31 @@ window.Bar {
   }
 }
 
-window.Calendar {
-  menubutton > button {
-    background-image: none;
-    background-color: $bg-color;
-    color: $text-color;
-    border: 1px solid $border-color;
-    border-radius: 12px;
-    padding: 6px 14px;
-    margin: 0;
-    box-shadow: none;
-    transition: all 0.2s ease;
+// Estilos compartidos para botones de menú en barras
+%bar-button {
+  background-image: none;
+  background-color: $bg-color;
+  color: $text-color;
+  border: 1px solid $border-color;
+  border-radius: 12px;
+  padding: 6px 14px;
+  margin: 0;
+  box-shadow: none;
+  transition: all 0.2s ease;
 
-    &:hover {
-      background-color: rgba(30, 30, 46, 0.9);
-      border-color: rgba(255, 255, 255, 0.3);
-    }
+  &:hover {
+    background-color: color.mix($bg-color, $accent-color, 90%);
+    border-color: color.mix($border-color, $accent-color, 70%);
+    box-shadow: 0 0 8px rgba($cp-cyan, 0.2);
   }
 }
 
-window.ControlPanel {
-  menubutton > button {
-    background-image: none;
-    background-color: $bg-color;
-    color: $text-color;
-    border: 1px solid $border-color;
-    border-radius: 12px;
-    padding: 6px 14px;
-    margin: 0;
-    box-shadow: none;
-    transition: all 0.2s ease;
+window.Calendar menubutton > button {
+  @extend %bar-button;
+}
 
-    &:hover {
-      background-color: rgba(30, 30, 46, 0.9);
-      border-color: rgba(255, 255, 255, 0.3);
-    }
-  }
+window.ControlPanel menubutton > button {
+  @extend %bar-button;
 }
 
 popover {
@@ -83,10 +98,10 @@ popover {
   border: none;
   box-shadow: none;
 
-  arrow { background: $bg-color; border: none; }
+  arrow { background: $cp-dark; border: none; }
 
   > contents {
-    background-color: $bg-color;
+    background-color: $cp-dark;
     border-radius: 20px;
     padding: 12px;
     border: 1px solid $border-color;
@@ -98,6 +113,7 @@ popover {
     color: $text-color;
     border: 1px solid $border-color;
     border-radius: 12px;
+
     &.view {
       background-color: transparent;
     }
@@ -121,18 +137,20 @@ popover {
 
       label {
         background: transparent;
+        color: $text-color;
 
         &.today {
           background-color: $accent-color;
-          color: #1e1e2e;
+          color: $cp-dark;
           border-radius: 50%;
           font-weight: bold;
+          box-shadow: 0 0 5px $accent-color;
         }
       }
 
       &:selected {
-        background-color: $accent-color;
-        color: #1e1e2e;
+        background-color: $active-color;
+        color: $text-color;
         border-radius: 50%;
       }
 
@@ -173,25 +191,26 @@ popover {
 
     &:hover {
       background-color: $hover-color;
-      border-color: rgba(255, 255, 255, 0.3);
+      border-color: $accent-color;
     }
   }
 
   .empty-notifications {
     color: $text-color;
     padding: 12px;
+    opacity: 0.7;
   }
 
   .notification {
-    background-color: rgba(30, 30, 46, 0.6);
+    background-color: rgba($cp-blue, 0.2);
     border: 1px solid $border-color;
     border-radius: 8px;
     padding: 12px;
     transition: all 0.2s ease;
 
     &:hover {
-      background-color: rgba(30, 30, 46, 0.8);
-      border-color: rgba(255, 255, 255, 0.2);
+      background-color: rgba($cp-blue, 0.4);
+      border-color: $accent-color;
     }
 
     icon {
@@ -206,6 +225,7 @@ popover {
       &:first-child {
         font-weight: bold;
         margin-bottom: 4px;
+        color: $accent-color;
       }
     }
   }
@@ -222,7 +242,7 @@ popover {
   }
 
   button {
-    background-color: rgba(30, 30, 46, 0.6);
+    background-color: rgba($cp-blue, 0.2);
     color: $text-color;
     border: 1px solid $border-color;
     border-radius: 8px;
@@ -230,20 +250,21 @@ popover {
     transition: all 0.2s ease;
 
     &:hover {
-      background-color: rgba(30, 30, 46, 0.8);
-      border-color: rgba(255, 255, 255, 0.2);
+      background-color: rgba($cp-blue, 0.4);
+      border-color: $accent-color;
     }
   }
 
   levelbar {
     trough {
-      background-color: rgba(255, 255, 255, 0.6);
+      background-color: rgba(255, 255, 255, 0.1);
       border-radius: 8px;
     }
 
     block.filled {
       background-color: $accent-color;
       border-radius: 4px;
+      box-shadow: 0 0 5px rgba($cp-cyan, 0.5);
     }
   }
 
@@ -268,16 +289,16 @@ button.scan-button {
   }
 
   &:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: $hover-color;
   }
 
   &:active {
-    background-color: #89b4fa;
-    color: #1e1e2e;
+    background-color: $accent-color;
+    color: $cp-dark;
   }
 }
 
-.wifi-header {
+.wifi-header, .bluetooth-header {
   padding: 8px 12px;
   border-bottom: 1px solid $border-color;
   margin-bottom: 8px;
@@ -288,7 +309,7 @@ button.scan-button {
   }
 }
 
-button.network-item {
+button.network-item, button.device-item {
   background-image: none;
   background-color: transparent;
   color: $text-color;
@@ -305,107 +326,59 @@ button.network-item {
 
   &:hover {
     background-color: $hover-color;
-    border-color: rgba(255, 255, 255, 0.2);
+    border-color: rgba($cp-cyan, 0.3);
   }
 
   &:active {
     background-color: $accent-color;
-    color: #1e1e2e;
+    color: $cp-dark;
 
     label {
-      color: #1e1e2e;
+      color: $cp-dark;
+      font-weight: bold;
     }
   }
 }
 
-label.empty-networks {
+label.empty-networks, label.empty-devices {
   color: $text-color;
-  opacity: 0.7;
-  padding: 20px;
-}
-
-
-
-.bluetooth-header {
-  padding: 8px 12px;
-  border-bottom: 1px solid $border-color;
-  margin-bottom: 8px;
-
-  label {
-    font-weight: bold;
-    color: $text-color;
-  }
-}
-
-button.device-item {
-  background-image: none;
-  background-color: transparent;
-  color: $text-color;
-  border: 1px solid transparent;
-  box-shadow: none;
-  border-radius: 8px;
-  padding: 8px;
-  margin: 2px 4px;
-  transition: all 0.2s ease;
-
-  label {
-    color: $text-color;
-  }
-
-  &:hover {
-    background-color: $hover-color;
-    border-color: rgba(255, 255, 255, 0.2);
-  }
-
-  &:active {
-    background-color: $accent-color;
-    color: #1e1e2e;
-
-    label {
-      color: #1e1e2e;
-    }
-  }
-}
-
-label.empty-devices {
-  color: $text-color;
-  opacity: 0.7;
+  opacity: 0.6;
   padding: 20px;
 }
 
 button.dnd-button {
   background-image: none;
   box-shadow: none;
-  background-color: rgba(30, 30, 46, 0.6);
+  background-color: rgba($cp-blue, 0.2);
   color: $text-color;
   border: 1px solid $border-color;
   border-radius: 12px;
   transition: all 0.2s ease;
 
   &.active {
-    background-color: #00959b;
-    border-color: #00959b;
-    color: #11111b;
+    background-color: $active-color; // Magenta para DND
+    border-color: $active-color;
+    color: $text-color;
+    box-shadow: 0 0 10px rgba($cp-magenta, 0.3);
 
     label {
-      color: #11111b;
+      color: $text-color;
+      font-weight: bold;
     }
 
     &:hover {
-      background-color: color.mix(#00959b, white, 85%);
+      background-color: color.mix($active-color, white, 90%);
     }
   }
 
-
   &:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.2);
+    background-color: $hover-color;
+    border-color: $accent-color;
   }
 }
 
-
 switch {
-  background-color: rgba(50, 50, 70, 0.5);
+  background-color: rgba($cp-blue, 0.3);
   border: 1px solid $border-color;
   border-radius: 9999px;
 
@@ -418,19 +391,16 @@ switch {
     box-shadow: none;
   }
 
-
   &:checked {
-    background-color: #3584e4;
-    border-color: #3584e4;
+    background-color: $accent-color;
+    border-color: $accent-color;
+    box-shadow: 0 0 5px rgba($cp-cyan, 0.4);
 
     slider {
-      background-color: #1e1e2e;
+      background-color: $cp-dark;
     }
   }
 }
-
-
-
 
 /* --- POWER PROFILE BUTTONS --- */
 .profile-btn {
@@ -439,34 +409,38 @@ switch {
   border: none;
   text-shadow: none;
 
-  background-color: #313244;
-  color: #cdd6f4;
+  background-color: rgba($cp-blue, 0.2);
+  color: $text-color;
 
   border-radius: 12px;
   padding: 12px 5px;
   margin: 0px 4px;
   transition: all 0.2s ease;
+
+  &:hover {
+    background-color: $hover-color;
+    color: $text-color;
+    border: 1px solid $accent-color; // Borde sutil al hover
+    padding: 11px 4px; // Ajuste para el borde
+  }
+
+  &.active {
+    background-color: $active-color;
+    color: $text-color;
+    box-shadow: 0 0 8px rgba($cp-magenta, 0.4);
+    border: none;
+    padding: 12px 5px;
+  }
+
+  > box {
+    all: unset;
+  }
 }
 
-/* Cuando pasas el mouse */
-.profile-btn:hover {
-  background-color: #45475a;
-  color: #ffffff;
-}
-
-.profile-btn.active {
-  background-color: #00959b;
-  color: #1e1e2e;
-}
-
-.profile-btn > box {
-  all: unset;
-}
-
-
+/* --- WORKSPACES --- */
 .workspaces {
   background-color: $bg-color;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid $border-color;
   padding: 5px 10px;
   border-radius: 20px;
 }
@@ -477,7 +451,7 @@ button.workspace-btn {
   border: none;
   text-shadow: none;
   background-color: rgba(255, 255, 255, 0.05);
-  color: #ffffff;
+  color: $text-color;
 
   border-radius: 99px;
   min-width: 24px;
@@ -488,15 +462,17 @@ button.workspace-btn {
   transition: all 0.2s ease;
 
   &:hover {
-    background-color: rgba(255, 255, 255, 0.2);
-    color: #ffffff;
+    background-color: $hover-color;
+    color: $accent-color;
+    box-shadow: 0 0 5px rgba($cp-cyan, 0.2);
   }
 
   &.active {
-    background-color: #00959b;
-    color: #1e1e2e;
+    background-color: $accent-color;
+    color: $cp-dark;
     font-weight: bold;
     min-width: 30px;
+    box-shadow: 0 0 8px rgba($cp-cyan, 0.6);
   }
 }
 
@@ -505,17 +481,17 @@ window.Workspaces revealer > box {
   margin-left: 12px;
 }
 
-
+/* --- NETWORK STATS & MEDIA (Extras) --- */
 .network-stats {
-  background-color: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background-color: rgba($cp-blue, 0.2);
+  border: 1px solid rgba($cp-cyan, 0.1);
   border-radius: 12px;
   padding: 0 8px;
   margin: 4px 4px;
 
   label {
     font-size: 11px;
-    color: #cdd6f4;
+    color: $text-color;
   }
 }
 
@@ -523,27 +499,20 @@ window.Workspaces revealer > box {
   min-width: 12px;
   min-height: 12px;
 
-  &.down {
-    color: #89b4fa;
-  }
-
-  &.up {
-    color: #fab387;
-  }
+  &.down { color: $accent-color; }
+  &.up { color: $active-color; }
 }
 
-
-/* --- MEDIA PLAYER --- */
 .media-player {
-  background-color: rgba(30, 30, 46, 0.6);
+  background-color: rgba($cp-blue, 0.2);
   border: 1px solid $border-color;
   border-radius: 12px;
   padding: 12px;
   margin-bottom: 4px;
 
   .cover-art-static {
-    background-color: rgba(137, 180, 250, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    background-color: rgba($cp-cyan, 0.1);
+    border: 1px solid rgba($cp-cyan, 0.2);
     color: $accent-color;
     border-radius: 12px;
     margin-right: 4px;
@@ -562,29 +531,28 @@ window.Workspaces revealer > box {
 
   .artist {
     font-size: 12px;
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba($text-color, 0.7);
   }
 
-  .controls {
-    button {
-      background: transparent;
-      border: 1px solid transparent;
-      box-shadow: none;
-      border-radius: 99px;
-      padding: 6px;
-      color: $text-color;
+  .controls button {
+    background: transparent;
+    border: 1px solid transparent;
+    box-shadow: none;
+    border-radius: 99px;
+    padding: 6px;
+    color: $text-color;
 
+    &:hover {
+      background-color: $hover-color;
+      border-color: rgba($cp-cyan, 0.3);
+    }
+
+    &.play-btn {
+      background-color: $accent-color;
+      color: $cp-dark;
       &:hover {
-        background-color: $hover-color;
-        border-color: rgba(255,255,255,0.1);
-      }
-
-      &.play-btn {
-        background-color: $accent-color;
-        color: #1e1e2e;
-        &:hover {
-          background-color: color.adjust($accent-color, $lightness: -10%);
-        }
+        background-color: color.adjust($accent-color, $lightness: -10%);
+        box-shadow: 0 0 8px rgba($cp-cyan, 0.4);
       }
     }
   }

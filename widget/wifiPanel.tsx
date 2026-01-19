@@ -34,6 +34,7 @@ export default function WifiPanel() {
             hexpand
             widthRequest={145}
             heightRequest={60}
+            class={wifiBinding(e => e ? "active" : "")}
             direction={Gtk.ArrowType.LEFT}
         >
             <box spacing={8}>

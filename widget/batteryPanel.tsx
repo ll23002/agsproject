@@ -115,7 +115,7 @@ export default function  BatteryPanel() {
 
 
     return (
-        <menubutton widthRequest={145} heightRequest={60} direction={Gtk.ArrowType.LEFT}>
+        <menubutton widthRequest={145} heightRequest={60} direction={Gtk.ArrowType.LEFT} hexpand>
             <box spacing={8} valign={Gtk.Align.CENTER} hexpand>
                 <box spacing={4} valign={Gtk.Align.CENTER}>
                     <label

@@ -1,4 +1,4 @@
-import { createBinding, With } from "ags";
+import { createBinding, With, createMemo } from "ags";
 import { Astal, Gtk, Gdk } from "ags/gtk4";
 // @ts-ignore
 import Network from "gi://AstalNetwork";
@@ -6,15 +6,102 @@ import { execAsync } from "ags/process";
 import { setPopoverOpen } from "../service/BarState";
 // @ts-ignore
 import Pango from "gi://Pango";
+import GLib from "gi://GLib";
+import GObject from "gi://GObject";
 
-function WifiItem({ ap, network }: { ap: any, network: any }) {
+// --- SERVICIO DE REDES GUARDADAS (GObject Puro) ---
+class SavedNetworkService extends GObject.Object {
+    static {
+        GObject.registerClass({
+            GTypeName: "SavedNetworkService",
+            Properties: {
+                "saved": GObject.ParamSpec.jsobject(
+                    "saved", "Saved", "Saved Networks List",
+                    GObject.ParamFlags.READABLE,
+                ),
+            },
+        }, this);
+    }
 
-    const entry = (
+    #saved: string[] = [];
+
+    get saved() {
+        return this.#saved;
+    }
+
+    constructor() {
+        super();
+        this.refresh();
+        // Actualizamos cada 10s por si acaso
+        GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, 10, () => {
+            this.refresh();
+            return true;
+        });
+    }
+
+    async refresh() {
+        try {
+            const out = await execAsync("nmcli -t -f NAME connection show");
+            const list = out.split("\n").filter(Boolean);
+
+            if (JSON.stringify(this.#saved) !== JSON.stringify(list)) {
+                this.#saved = list;
+                this.notify("saved");
+            }
+        } catch (e) {
+            console.error("Error actualizando redes guardadas:", e);
+        }
+    }
+}
+
+const savedService = new SavedNetworkService();
+
+// --- COMPONENTE INDIVIDUAL ---
+function WifiItem({ ap, network, savedNetworks, onUpdate }: { ap: any, network: any, savedNetworks: string[], onUpdate: () => void }) {
+
+    const isSaved = savedNetworks.includes(ap.ssid);
+    const isConnected = network.wifi.ssid === ap.ssid;
+
+    let statusLabel: Gtk.Label;
+    let entry: Gtk.Entry;
+    let revealer: Gtk.Revealer;
+
+    const connect = (password: string = "") => {
+        if (statusLabel) statusLabel.label = "Conectando...";
+
+        const cmd = (password || isSaved)
+            ? `nmcli device wifi connect "${ap.ssid}"`
+            : `nmcli device wifi connect "${ap.ssid}" password "${password}" name "${ap.ssid}"`;
+
+        execAsync(cmd)
+            .then(() => savedService.refresh())
+            .catch(e => {
+                console.error(`Error conectando a ${ap.ssid}:`, e);
+                if (statusLabel) statusLabel.label = "Falló la conexión";
+            });
+    };
+
+    const forgetNetwork = () => {
+        execAsync(`nmcli connection delete id "${ap.ssid}"`)
+            .then(() => {
+                savedService.refresh();
+                onUpdate();
+            })
+            .catch(e => console.error(e));
+    };
+
+    const getStatusText = () => {
+        if (isConnected) return "Conectado";
+        if (isSaved) return "Guardada";
+        return `${Math.round(ap.strength)}%`;
+    };
+
+    entry = (
         <Gtk.Entry
             placeholderText="Contraseña..."
             visibility={false}
             hexpand
-            onActivate={() => connect()}
+            onActivate={() => connect(entry.text)}
             css={`
                 background-color: rgba(9, 24, 51, 0.5); 
                 color: #ffffff;
@@ -22,25 +109,12 @@ function WifiItem({ ap, network }: { ap: any, network: any }) {
                 border-radius: 8px; 
                 padding: 4px 8px;
                 caret-color: #ffffff;
+                margin-top: 4px;
             `}
         />
     ) as Gtk.Entry;
 
-    const connect = () => {
-        const password = entry.text || "";
-
-        const cmd = password
-            ? `nmcli device wifi connect "${ap.ssid}" password "${password}" name "${ap.ssid}"`
-            : `nmcli device wifi connect "${ap.ssid}" name "${ap.ssid}"`;
-
-        execAsync(cmd)
-            .then(() => print(`Conectando a ${ap.ssid}...`))
-            .catch(e => {
-                console.error(`Error conectando a ${ap.ssid}:`, e);
-            });
-    };
-
-    const revealer = (
+    revealer = (
         <revealer
             transitionType={Gtk.RevealerTransitionType.SLIDE_DOWN}
             revealChild={false}
@@ -49,7 +123,7 @@ function WifiItem({ ap, network }: { ap: any, network: any }) {
                 {entry}
                 <button
                     class="scan-button"
-                    onClicked={connect}
+                    onClicked={() => connect(entry.text)}
                 >
                     <Gtk.Image iconName="network-wireless-symbolic" />
                 </button>
@@ -57,57 +131,110 @@ function WifiItem({ ap, network }: { ap: any, network: any }) {
         </revealer>
     ) as Gtk.Revealer;
 
+    statusLabel = (
+        <label
+            label={getStatusText()}
+            css={`
+                font-size: 10px; 
+                color: ${isConnected ? "#0ABDC6" : "#6c7086"};
+                ${isConnected ? "font-weight: bold;" : ""}
+            `}
+            halign={Gtk.Align.START}
+        />
+    ) as Gtk.Label;
+
     return (
         <box orientation={Gtk.Orientation.VERTICAL}>
-            <button
-                class="network-item"
-                onClicked={() => {
-                    if (ap.ssid !== network.wifi.ssid) {
-                        revealer.reveal_child = !revealer.reveal_child;
-                        if (revealer.reveal_child) {
-                            entry.grab_focus();
+            <box class="network-row" spacing={4}>
+                <button
+                    class="network-item"
+                    hexpand
+                    onClicked={() => {
+                        if (isConnected) return;
+                        if (isSaved) {
+                            connect();
+                        } else {
+                            revealer.reveal_child = !revealer.reveal_child;
+                            if (revealer.reveal_child) entry.grab_focus();
                         }
-                    }
-                }}
-            >
-                <box spacing={8}>
-                    <label label={ap.ssid === network.wifi.ssid ? "󰤨" : "󰤯"} />
-                    <label
-                        label={ap.ssid || "Red Oculta"}
-                        hexpand
-                        halign={Gtk.Align.START}
-                        ellipsize={Pango.EllipsizeMode.END}
-                        maxWidthChars={18}
-                    />
-                    <label label={`${Math.round(ap.strength)}%`} css="color: #6c7086; font-size: 11px;" />
-                </box>
-            </button>
+                    }}
+                >
+                    <box spacing={8}>
+                        <label label={isConnected ? "󰤨" : "󰤯"} css={isConnected ? "color: #0ABDC6;" : ""} />
+                        <box orientation={Gtk.Orientation.VERTICAL} valign={Gtk.Align.CENTER}>
+                            <label
+                                label={ap.ssid || "Red Oculta"}
+                                hexpand
+                                halign={Gtk.Align.START}
+                                ellipsize={Pango.EllipsizeMode.END}
+                                maxWidthChars={16}
+                                css="font-weight: bold;"
+                            />
+                            {statusLabel}
+                        </box>
+                    </box>
+                </button>
+
+                <menubutton
+                    class="option-btn"
+                    valign={Gtk.Align.CENTER}
+                    sensitive={isSaved}
+                    css={`
+                        background: transparent;
+                        padding: 4px;
+                        border-radius: 99px;
+                        color: ${isSaved ? "#ffffff" : "rgba(255,255,255,0.2)"};
+                    `}
+                >
+                    <Gtk.Image iconName="view-more-symbolic" pixelSize={16} />
+                    <popover>
+                        <box orientation={Gtk.Orientation.VERTICAL} spacing={4} widthRequest={150} css="padding: 5px;">
+                            <label label={ap.ssid} css="font-weight: bold; margin-bottom: 5px; opacity: 0.5;" halign={Gtk.Align.START}/>
+                            <button
+                                class="menu-item-btn"
+                                onClicked={forgetNetwork}
+                                css="padding: 8px; border-radius: 6px; color: #ff5555;"
+                            >
+                                <box spacing={8}>
+                                    <Gtk.Image iconName="user-trash-symbolic" />
+                                    <label label="Olvidar Red" />
+                                </box>
+                            </button>
+                        </box>
+                    </popover>
+                </menubutton>
+            </box>
             {revealer}
         </box>
     );
 }
 
+// --- PANEL PRINCIPAL ---
 export default function WifiPanel() {
     const network = Network.get_default();
     const wifiBinding = createBinding(network.wifi, "enabled");
     const wifiSsid = createBinding(network.wifi, "ssid");
     const accessPoints = createBinding(network.wifi, "accessPoints");
+    const savedNetworksBinding = createBinding(savedService, "saved");
+
+    // SOLUCIÓN: Usamos createMemo para combinar los estados y evitar anidar <With>
+    const wifiState = createMemo(() => ({
+        aps: accessPoints() || [],
+        saved: savedNetworksBinding() || []
+    }));
 
     const scanWifi = () => {
         if (network.wifi.enabled) {
-            execAsync("nmcli device wifi rescan")
-                .catch((e) => console.error("Scan error:", e));
+            execAsync("nmcli device wifi rescan").catch(console.error);
+            savedService.refresh();
         }
     }
-
-    // Escaneo inicial
-    setTimeout(() => scanWifi(), 1000);
 
     return (
         <menubutton
             widthRequest={145}
             heightRequest={60}
-            class={wifiBinding(e => e ? "active" : "")} // class es lo correcto en JSX
+            class={wifiBinding(e => e ? "active" : "")}
             direction={Gtk.ArrowType.LEFT}
             halign={Gtk.Align.CENTER}
         >
@@ -127,11 +254,7 @@ export default function WifiPanel() {
             >
                 <box orientation={Gtk.Orientation.VERTICAL} spacing={8} widthRequest={350}>
                     <box class="wifi-header">
-                        <label
-                            label="Redes Wi-Fi"
-                            hexpand
-                            halign={Gtk.Align.START}
-                        />
+                        <label label="Redes Wi-Fi" hexpand halign={Gtk.Align.START} />
                         <Gtk.Switch
                             active={wifiBinding(e => e)}
                             // @ts-ignore
@@ -145,24 +268,26 @@ export default function WifiPanel() {
 
                     <Gtk.Separator />
 
-                    <Gtk.ScrolledWindow
-                        vexpand
-                        maxContentHeight={300}
-                        propagateNaturalHeight
-                    >
-                        <With value={accessPoints}>
-                            { (aps) => (
+                    <Gtk.ScrolledWindow vexpand maxContentHeight={300} propagateNaturalHeight>
+                        {/* UN SOLO WITH QUE RECIBE EL ESTADO COMBINADO */}
+                        <With value={wifiState}>
+                            {({ aps, saved }) => (
                                 <box orientation={Gtk.Orientation.VERTICAL} spacing={4}>
                                     {aps.length === 0 ? (
                                         <label label="No hay redes disponibles" class="empty-networks"/>
-                                    ): (
+                                    ) : (
                                         // @ts-ignore
                                         aps.filter(ap => ap.ssid)
                                             // @ts-ignore
                                             .sort((a, b) => b.strength - a.strength)
                                             // @ts-ignore
                                             .map((ap: any) => (
-                                                <WifiItem ap={ap} network={network} />
+                                                <WifiItem
+                                                    ap={ap}
+                                                    network={network}
+                                                    savedNetworks={saved}
+                                                    onUpdate={() => scanWifi()}
+                                                />
                                             ))
                                     )}
                                 </box>

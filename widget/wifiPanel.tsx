@@ -9,7 +9,6 @@ import Pango from "gi://Pango";
 import GLib from "gi://GLib";
 import GObject from "gi://GObject";
 
-// --- SERVICIO DE REDES GUARDADAS (GObject Puro) ---
 class SavedNetworkService extends GObject.Object {
     static {
         GObject.registerClass({
@@ -32,7 +31,6 @@ class SavedNetworkService extends GObject.Object {
     constructor() {
         super();
         this.refresh();
-        // Actualizamos cada 10s por si acaso
         GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, 10, () => {
             this.refresh();
             return true;
@@ -56,7 +54,6 @@ class SavedNetworkService extends GObject.Object {
 
 const savedService = new SavedNetworkService();
 
-// --- COMPONENTE INDIVIDUAL ---
 function WifiItem({ ap, network, savedNetworks, onUpdate }: { ap: any, network: any, savedNetworks: string[], onUpdate: () => void }) {
 
     const isSaved = savedNetworks.includes(ap.ssid);
@@ -209,7 +206,6 @@ function WifiItem({ ap, network, savedNetworks, onUpdate }: { ap: any, network: 
     );
 }
 
-// --- PANEL PRINCIPAL ---
 export default function WifiPanel() {
     const network = Network.get_default();
     const wifiBinding = createBinding(network.wifi, "enabled");
@@ -217,10 +213,10 @@ export default function WifiPanel() {
     const accessPoints = createBinding(network.wifi, "accessPoints");
     const savedNetworksBinding = createBinding(savedService, "saved");
 
-    // SOLUCIÓN: Usamos createMemo para combinar los estados y evitar anidar <With>
     const wifiState = createMemo(() => ({
         aps: accessPoints() || [],
-        saved: savedNetworksBinding() || []
+        saved: savedNetworksBinding() || [],
+        currentSsid: wifiSsid()
     }));
 
     const scanWifi = () => {
@@ -269,9 +265,8 @@ export default function WifiPanel() {
                     <Gtk.Separator />
 
                     <Gtk.ScrolledWindow vexpand maxContentHeight={300} propagateNaturalHeight>
-                        {/* UN SOLO WITH QUE RECIBE EL ESTADO COMBINADO */}
                         <With value={wifiState}>
-                            {({ aps, saved }) => (
+                            {({ aps, saved, currentSsid }) => (
                                 <box orientation={Gtk.Orientation.VERTICAL} spacing={4}>
                                     {aps.length === 0 ? (
                                         <label label="No hay redes disponibles" class="empty-networks"/>
@@ -279,7 +274,15 @@ export default function WifiPanel() {
                                         // @ts-ignore
                                         aps.filter(ap => ap.ssid)
                                             // @ts-ignore
-                                            .sort((a, b) => b.strength - a.strength)
+                                            .sort((a, b) => {
+                                                const aIsConnected = a.ssid === currentSsid;
+                                                const bIsConnected = b.ssid === currentSsid;
+
+                                                if (aIsConnected && !bIsConnected) return -1;
+                                                if (!aIsConnected && bIsConnected) return 1;
+
+                                                return b.strength - a.strength;
+                                            })
                                             // @ts-ignore
                                             .map((ap: any) => (
                                                 <WifiItem

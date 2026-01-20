@@ -557,3 +557,84 @@ window.Workspaces revealer > box {
     }
   }
 }
+
+
+/* --- BATTERY PANEL --- */
+.battery-panel {
+  background-color: rgba($cp-blue, 0.2);
+  border: 1px solid transparent;
+  border-radius: 12px;
+  padding: 0;
+
+  .bat-icon {
+    -gtk-icon-size: 20px;
+    color: $text-color;
+    margin-right: 8px;
+  }
+
+  .bat-percentage {
+    font-weight: bold;
+    font-size: 14px;
+    color: $text-color;
+  }
+
+  .bat-state {
+    font-size: 10px;
+    color: rgba($text-color, 0.7);
+  }
+
+  &.charging {
+    background-color: rgba($cp-cyan, 0.15);
+    border-color: rgba($cp-cyan, 0.5);
+
+    .bat-icon, .bat-percentage {
+      color: $cp-cyan;
+      text-shadow: 0 0 5px rgba($cp-cyan, 0.6);
+    }
+  }
+
+  &.low {
+    border-color: rgba($cp-purple, 0.5);
+    .bat-icon { color: $cp-magenta; }
+  }
+
+  &.critical {
+    background-color: rgba($error-color, 0.2);
+    border-color: $error-color;
+    animation: pulse-critical 2s infinite;
+
+    .bat-icon, .bat-percentage {
+      color: $error-color;
+      font-weight: 800;
+    }
+  }
+}
+
+
+.header-label {
+  font-weight: bold;
+  color: $accent-color;
+  margin-bottom: 4px;
+}
+
+.sub-label {
+  font-size: 10px;
+  color: rgba($text-color, 0.6);
+}
+
+.value-label {
+  font-weight: bold;
+  color: $text-color;
+}
+.value-label.health { color: $cp-cyan; }
+
+.time-label {
+  font-weight: bold;
+  color: $active-color;
+}
+
+@keyframes pulse-critical {
+  0% { box-shadow: 0 0 0 0 rgba($error-color, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba($error-color, 0); }
+  100% { box-shadow: 0 0 0 0 rgba($error-color, 0); }
+}

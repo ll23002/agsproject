@@ -3,14 +3,17 @@ import { Gtk } from "ags/gtk4";
 import networkService from "../service/Network";
 
 export default function NetworkStats() {
+
+    const LABEL_WIDTH = 70;
     return (
         <box class="network-stats" spacing={6}>
             <box spacing={2}>
                 <Gtk.Image iconName="go-down-symbolic" class="network-icon down"/>
                 <label
                     label={createBinding(networkService, "down")}
-                    css="font-weight: bold; font-family: 'JetBrains Mono'; min-width: 52px;"
-                    halign={Gtk.Align.END}
+                    css="font-weight: bold; font-family: 'JetBrains Mono';"
+                    widthRequest={LABEL_WIDTH}
+                    xalign={0}
                     />
             </box>
 
@@ -18,8 +21,9 @@ export default function NetworkStats() {
                 <Gtk.Image iconName="go-up-symbolic" class="network-icon up"/>
                 <label
                     label={createBinding(networkService, "up")}
-                    css="font-weight: bold; font-family: 'JetBrains Mono'; min-width: 52px;"
-                    halign={Gtk.Align.END}
+                    css="font-weight: bold; font-family: 'JetBrains Mono';"
+                    widthRequest={LABEL_WIDTH}
+                    xalign={0}
                     />
             </box>
         </box>

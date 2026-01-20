@@ -5,6 +5,8 @@ import { Astal, Gtk, Gdk } from "ags/gtk4";
 import Network from "gi://AstalNetwork";
 import { execAsync } from "ags/process";
 import {setPopoverOpen} from "../service/BarState";
+// @ts-ignore
+import Pango from "gi://Pango";
 
 
 export default function WifiPanel() {
@@ -31,7 +33,6 @@ export default function WifiPanel() {
 
     return (
         <menubutton
-            hexpand
             widthRequest={145}
             heightRequest={60}
             class={wifiBinding(e => e ? "active" : "")}
@@ -39,7 +40,11 @@ export default function WifiPanel() {
         >
             <box spacing={8}>
                 <label label={wifiBinding(e => e ? "󰤨" : "󰤭")} />
-                <label label={wifiSsid(s => s || "Desconectado")} />
+                <label
+                    label={wifiSsid(s => s || "Desconectado")}
+                    maxWidthChars={10}
+                    ellipsize={Pango.EllipsizeMode.END}
+                />
             </box>
             <popover
                 onShow={() => scanWifi()}

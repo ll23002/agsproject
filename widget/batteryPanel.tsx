@@ -1,60 +1,43 @@
 import { createBinding, createMemo, With} from "ags";
 import { Astal, Gtk } from "ags/gtk4";
-
-// @ts-ignore
+//@ts-ignore
 import Battery from "gi://AstalBattery";
-import GLib from "gi://GLib";
-import {setPopoverOpen} from "../service/BarState";
+import GLib from "gi://GLib"
+import { setPopoverOpen } from "../service/BarState";
 
-
-function sys(cmd: string) {
+const readFile = (path: string): string => {
     try {
-        const [success, stdout] = GLib.spawn_command_line_sync(cmd);
-        if ( !success ) return "";
-        if ( !stdout ) return "";
-        const decoder = new TextDecoder();
-        return decoder.decode(stdout).trim();
-    }catch (e) {
-        return "";
+        const [ok, data] = GLib.file_get_contents(path);
+        if (ok) {
+            const decoder = new TextDecoder();
+            return decoder.decode(data).trim();
+        }
+    } catch (e) {
+        console.error("Error leyendo archivo:", e);
     }
-}
+    return "";
+};
 
-export default function  BatteryPanel() {
+export default function BatteryPanel() {
     const battery = Battery.get_default();
 
     const levelBinding = createBinding(battery, "percentage");
     const stateBinding = createBinding(battery, "state");
+    const chargingBinding = createBinding(battery, "charging");
     const timeToEmpty = createBinding(battery, "timeToEmpty");
     const timeToFull = createBinding(battery, "timeToFull");
-    const chargingBinding = createBinding(battery, "charging");
+    const iconBinding = createBinding(battery, "iconName");
 
 
-    const getBatIcon = (p: number, charging: boolean) => {
-        if (charging) return "";
-        if (p > 0.9) return "";
-        if (p > 0.7) return "";
-        if (p > 0.45) return "";
-        if (p > 0.15) return "";
-        return "";
-    };
-
-    const getBatColor = (p: number, charging: boolean) => {
-        if (charging) return "#a6e3a1"; // Verde
-        if (p < 0.2) return "#f38ba8";  // Rojo
-        if (p < 0.4) return "#fab387";  // Naranja
-        return "#ffffff";
-    };
-
-    const batDisplay = createMemo(() => {
+    const batClass = createMemo(() => {
+        const charging = chargingBinding();
         const p = levelBinding();
-        const c = chargingBinding();
 
-        return {
-            icon: getBatIcon(p, c),
-            color: getBatColor(p, c)
-        };
+        if (charging) return "charging";
+        if (p < 0.15) return "critical";
+        if (p < 0.30) return "low";
+        return "normal";
     });
-
 
 
     const formatTime = (seconds: number) => {
@@ -62,153 +45,114 @@ export default function  BatteryPanel() {
         const hrs = Math.floor(seconds / 3600);
         const mins = Math.floor((seconds % 3600) / 60);
         return `${hrs}h ${mins}m`;
-    }
+    };
 
     const batteryStats = createMemo(() => {
-        const _trigger = levelBinding();
-        const path = "/sys/class/power_supply/BAT0";
+        levelBinding();
 
-        const cycles = sys(`cat ${path}/cycle_count` || "0");
+        const path = "/sys/class/power_supply/BAT0"
 
+        const cycles = readFile(`${path}/cycle_count`) || "0";
 
-        let rate = "0.00";
-        try {
-
-            const voltage = parseFloat(sys(`cat ${path}/voltage_now`));
-            const current = parseFloat(sys(`cat ${path}/current_now`));
-
-            if (!isNaN(voltage) && !isNaN(current)) {
-                const watts = (voltage * current) / 1000000000000;
-                rate = watts.toFixed(2);
-            }
-
-        } catch (e) {
-            console.error("Error calculando potencia", e);
+        const voltageRaw = parseFloat(readFile(`${path}/voltage_now`) || "0");
+        const volt = !isNaN(voltageRaw) ? `${(voltageRaw / 1e6).toFixed(1)}V` : "0.0 V";
+        const powerRaw = parseFloat(readFile(`${path}/power_now`) || "0");
+        let rate = "0.0 W"
+        if (!isNaN(powerRaw)) {
+            rate = `${(powerRaw / 1e6).toFixed(1)} W`;
         }
 
-        let health = "0";
-        try {
-            const full = parseFloat(sys(`cat ${path}/charge_full`));
-            const design = parseFloat(sys(`cat ${path}/charge_full_design`));
-            if (!isNaN(full) && !isNaN(design)) {
-                health =((full / design) * 100).toFixed(2);
-            }
-        } catch (e) {
-            console.error("Error al obtener la salud de la batería: ", e);
+
+        const fullRaw = parseFloat(readFile(`${path}/energy_full`) || "0");
+        const designRaw = parseFloat(readFile(`${path}/energy_full_design`) || "0");
+
+        let health = "N/A";
+        if (!isNaN(fullRaw) && !isNaN(designRaw) && designRaw > 0) {
+            health = `${((fullRaw / designRaw)* 100).toFixed(0)}%`;
         }
 
-        let volt = "0";
-        try {
-            const v = parseFloat(sys(`cat ${path}/voltage_now`));
-            volt = (v / 1000000).toFixed(1);
-        } catch (e) {
-            console.error("Error al obtener el voltaje de la batería: ", e);
-        }
-
-        return {
-            cycles,
-            rate: `${rate} W`,
-            health: `${health} %`,
-            volt: `${volt} V`
-        };
+        return { cycles, rate, health, volt };
     });
 
-
     return (
-        <menubutton widthRequest={145} heightRequest={60} direction={Gtk.ArrowType.LEFT} hexpand>
-            <box spacing={8} valign={Gtk.Align.CENTER} hexpand>
-                <box spacing={4} valign={Gtk.Align.CENTER}>
-                    <label
-                        label={batDisplay(d => d.icon)}
-                        css={batDisplay(d => `color: ${d.color};`)}
-                        widthRequest={36}
-                    />
-                </box>
+        <menubutton
+            halign={Gtk.Align.FILL}
+            class={batClass(c => `battery-panel ${c}`)}
+            direction={Gtk.ArrowType.LEFT}
+            widthRequest={145}
+            heightRequest={60}
+        >
+            <box spacing={8} valign={Gtk.Align.CENTER} halign={Gtk.Align.CENTER}>
+                <Gtk.Image
+                    class="bat-icon"
+                    iconName={iconBinding()}
+                />
 
                 <box orientation={Gtk.Orientation.VERTICAL} valign={Gtk.Align.CENTER}>
                     <label
+                        class="bat-percentage"
                         label={levelBinding(p => `${Math.floor(p * 100)}%`)}
                         halign={Gtk.Align.START}
-                        />
+                    />
                     <label
-                        label={stateBinding(s => s === Battery.State.CHARGING ? "Cargando" : "Bateria")}
+                        class="bat-state"
+                        label={stateBinding(s => s === Battery.State.CHARGING ? "Cargando" : "Batería")}
                         halign={Gtk.Align.START}
-                        css="font-size: 10px; color: #a6adc8;"
-                        />
+                    />
                 </box>
-
             </box>
-
 
             <popover onMap={() => setPopoverOpen(true)} onUnmap={() => setPopoverOpen(false)}>
                 <box orientation={Gtk.Orientation.VERTICAL} spacing={8} widthRequest={240} class="panel-container">
-                    <label
-                        label="Información de la batería"
-                        halign={Gtk.Align.START}
-                        css="font-weight: bold; margin-bottom:4px;"
-                        />
-
-                    <Gtk.Separator/>
+                    <label label="Energía" class="header-label" halign={Gtk.Align.START} />
+                    <Gtk.Separator />
 
                     <With value={batteryStats}>
-                        {(stats) => (
+                        {stats => (
                             <box orientation={Gtk.Orientation.VERTICAL} spacing={6}>
-                                <box spacing={12}>
-                                    <box orientation={Gtk.Orientation.VERTICAL} hexpand>
-                                        <label label="Salud" css="font-size: 10px; color: #a6adc8;" halign={Gtk.Align.START}/>
-                                        <label
-                                            label={stats.health}
-                                            halign={Gtk.Align.START}
-                                            css="font-weight: bold; color: #a6e3a1;"
-                                            />
+                                <box spacing={12} homogeneous>
+                                    <box orientation={Gtk.Orientation.VERTICAL}>
+                                        <label label="Salud" class="sub-label" halign={Gtk.Align.START} />
+                                        <label label={stats.health} class="value-label health" halign={Gtk.Align.START} />
                                     </box>
-
-                                    <box orientation={Gtk.Orientation.VERTICAL} hexpand>
-                                        <label label="Ciclos" css="font-size: 10px; color: #a6adc8;" halign={Gtk.Align.START}/>
-                                        <label label={stats.cycles} halign={Gtk.Align.START}/>
+                                    <box orientation={Gtk.Orientation.VERTICAL}>
+                                        <label label="Ciclos" class="sub-label" halign={Gtk.Align.START} />
+                                        <label label={stats.cycles} class="value-label" halign={Gtk.Align.START} />
                                     </box>
                                 </box>
-
-
-
-                                <box spacing={12}>
-                                    <box orientation={Gtk.Orientation.VERTICAL} hexpand>
-                                        <label label="Consumo" css="font-size: 10px; color: #a6adc8;" halign={Gtk.Align.START}/>
-                                        <label label={stats.rate} halign={Gtk.Align.START}/>
+                                <box spacing={12} homogeneous>
+                                    <box orientation={Gtk.Orientation.VERTICAL}>
+                                        <label label="Consumo" class="sub-label" halign={Gtk.Align.START} />
+                                        <label label={stats.rate} class="value-label" halign={Gtk.Align.START} />
                                     </box>
-
-                                    <box orientation={Gtk.Orientation.VERTICAL} hexpand>
-                                        <label label="Voltaje" css="font-size: 10px; color: #a6adc8;" halign={Gtk.Align.START}/>
-                                        <label label={stats.volt} halign={Gtk.Align.START}/>
+                                    <box orientation={Gtk.Orientation.VERTICAL}>
+                                        <label label="Voltaje" class="sub-label" halign={Gtk.Align.START} />
+                                        <label label={stats.volt} class="value-label" halign={Gtk.Align.START} />
                                     </box>
                                 </box>
                             </box>
                         )}
                     </With>
 
-                    <Gtk.Separator/>
+                    <Gtk.Separator />
 
                     <box orientation={Gtk.Orientation.VERTICAL} spacing={2}>
                         <label
-                            label={chargingBinding(c => c ? "Tiempo para carga completa" : "Tiempo restante")}
-                            css="font-size: 10px; color: #a6adc8;"
+                            label={chargingBinding(c => c ? "Tiempo para lleno" : "Tiempo restante")}
+                            class="sub-label"
                             halign={Gtk.Align.START}
-                            />
-
+                        />
                         <label
                             label={chargingBinding(c => c ? formatTime(timeToFull()) : formatTime(timeToEmpty()))}
                             halign={Gtk.Align.START}
-                            css="font-weight: bold; color: #89b4fa;"
-                            />
+                            class="time-label"
+                        />
                     </box>
-
-
                 </box>
             </popover>
-
-
-
         </menubutton>
-    )
+    );
+
+
 
 }

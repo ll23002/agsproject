@@ -103,7 +103,6 @@ const scanForDevices = async () => {
             heightRequest={60}
             class={btBinding(p => p ? "active" : "")}
             direction={Gtk.ArrowType.LEFT}
-            hexpand
         >
             <box spacing={8}>
                 <label label={btBinding(p => p ? "󰂯" : "󰂲")}/>

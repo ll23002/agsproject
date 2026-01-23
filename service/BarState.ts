@@ -1,69 +1,46 @@
-import { createBinding, createMemo } from "ags";
-import GObject from "gi://GObject";
-// @ts-ignore
-import Hyprland from "gi://AstalHyprland";
+import { createBinding} from "ags";
+import GObject from "gi://GObject"
 
-class MouseState extends GObject.Object {
+class BarVisibilityState extends GObject.Object {
     static {
         GObject.registerClass({
             Properties: {
-                'hovered': GObject.ParamSpec.boolean(
-                    'hovered', 'Hovered', 'Mouse hover state',
+                'visible': GObject.ParamSpec.boolean(
+                    'visible', 'Visible', 'Widget visibility state',
                     GObject.ParamFlags.READWRITE,
-                    false
-                ),
-                'popover_open': GObject.ParamSpec.boolean(
-                    'popover_open', 'PopoverOpen', 'Popover open state',
-                    GObject.ParamFlags.READWRITE,
-                    false
+                    true
                 ),
             },
         }, this);
     }
 
-    #hovered = false;
-    #popoverOpen = false;
+    #visible = false;
 
-    get hovered() {
-        return this.#hovered;
+    get visible() {
+        return this.#visible;
     }
 
-    set hovered(value: boolean) {
-        if (this.#hovered !== value) {
-            this.#hovered = value;
-            this.notify("hovered");
+    set visible(value: boolean) {
+        if (this.#visible !== value) {
+            this.#visible = value;
+            this.notify("visible");
         }
     }
 
-    get popover_open() {
-        return this.#popoverOpen;
+    toggle() {
+        this.visible = !this.visible;
     }
-    set popover_open(value: boolean) {
-        if (this.#popoverOpen !== value){
-            this.#popoverOpen = value;
-            this.notify("popover_open");
-        }
-    }
+
 }
 
-export const mouseService = new MouseState();
-const hyprland = Hyprland.get_default();
-const focusedClient = createBinding(hyprland, "focusedClient");
-export const isHovered = createBinding(mouseService, "hovered");
-export const isPopoverOpen = createBinding(mouseService, "popover_open");
+const service = new BarVisibilityState();
 
-export const setHover = (value: boolean) => {
-    mouseService.hovered = value;
-};
+export const showWidget = createBinding(service, "visible");
 
+//@ts-ignore
+globalThis.toggleBar = () => service.toggle();
+
+// por si a caso
 export const setPopoverOpen = (value: boolean) => {
-    mouseService.popover_open = value;
-};
-
-export const showWidget = createMemo(() => {
-    const client = focusedClient();
-    const hover = isHovered();
-    const popover = isPopoverOpen();
-
-    return !client || hover || popover;
-});
+    if (value) service.visible = true;
+}

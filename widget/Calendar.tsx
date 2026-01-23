@@ -8,7 +8,7 @@ import Notifd from "gi://AstalNotifd"
 import Hyprland from "gi://AstalHyprland";
 import GLib from "gi://GLib"
 
-import {showWidget, setHover, mouseService, setPopoverOpen} from "../service/BarState";
+import {showWidget, setPopoverOpen} from "../service/BarState";
 import MediaPlayer from "./MediaPlayer";
 
 export default function Calendar(gdkmonitor: Gdk.Monitor) {
@@ -110,8 +110,6 @@ export default function Calendar(gdkmonitor: Gdk.Monitor) {
     const hypr = Hyprland.get_default();
 
     hypr.connect("notify::focused-client", updateState);
-    mouseService.connect("notify::hovered", updateState);
-    mouseService.connect("notify::popover_open", updateState);
 
     updateState();
 
@@ -131,14 +129,12 @@ export default function Calendar(gdkmonitor: Gdk.Monitor) {
 
     controller.connect("enter", () => {
         cancelHoverTimeout();
-        setHover(true);
     });
 
     controller.connect("leave", () => {
         cancelHoverTimeout();
 
         hoverTimeout = setTimeout(() => {
-            setHover(false);
         }, 400);
     });
 

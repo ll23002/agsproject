@@ -3,7 +3,7 @@ import { createBinding, With } from "ags";
 import app from "ags/gtk4/app";
 //@ts-ignore
 import Hyprland from "gi://AstalHyprland";
-import {showWidget, setHover, mouseService, setPopoverOpen } from "../service/BarState";
+import {showWidget, setPopoverOpen } from "../service/BarState";
 
 export default function Workspaces(gdkmonitor: Gdk.Monitor) {
     const { TOP, LEFT} = Astal.WindowAnchor;
@@ -61,9 +61,7 @@ export default function Workspaces(gdkmonitor: Gdk.Monitor) {
     }
 
     hypr.connect("notify::focused-client", updateState);
-    mouseService.connect("notify::hovered", updateState);
-    mouseService.connect("notify::popover_open", updateState);
-    mouseService.connect("notify::workspaces", updateState);
+
 
     updateState()
 
@@ -85,14 +83,12 @@ export default function Workspaces(gdkmonitor: Gdk.Monitor) {
 
     controller.connect("enter", () => {
         cancelHoverTimeout();
-        setHover(true)
     })
 
     controller.connect("leave", () => {
         cancelHoverTimeout();
 
         hoverTimeout = setTimeout(() => {
-            setHover(false)
         }, 150)
     })
 

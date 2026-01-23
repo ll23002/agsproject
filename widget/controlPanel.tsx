@@ -19,7 +19,7 @@ import BluetoothPanel from "./bluetoothPanel";
 import BatteryPanel from "./batteryPanel";
 import PowerPanel from "./PowerPanel";
 
-import { showWidget, setHover, mouseService, setPopoverOpen } from "../service/BarState";
+import { showWidget, setPopoverOpen } from "../service/BarState";
 import NetworkStats from "./NetworkStats";
 
 
@@ -314,8 +314,6 @@ export default function ControlPanel(gdkmonitor: Gdk.Monitor) {
 
     const hypr = Hyprland.get_default();
     hypr.connect("notify::focused-client", updateState);
-    mouseService.connect("notify::hovered", updateState);
-    mouseService.connect("notify::popover_open", updateState);
 
     updateState();
 
@@ -335,14 +333,12 @@ export default function ControlPanel(gdkmonitor: Gdk.Monitor) {
 
     controller.connect("enter", () => {
         cancelHoverTimeout();
-        setHover(true);
     });
 
     controller.connect("leave", () => {
         cancelHoverTimeout();
 
         hoverTimeout = setTimeout(() => {
-            setHover(false);
         }, 150);
     });
 

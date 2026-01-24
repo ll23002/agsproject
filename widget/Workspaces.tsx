@@ -54,6 +54,7 @@ export function Workspaces() {
             <box
                 class="ghost-killer"
                 valign={Gtk.Align.START}
+                halign={Gtk.Align.START}
             >
                 <revealer
                     transitionType={Gtk.RevealerTransitionType.SLIDE_DOWN}

@@ -26,7 +26,8 @@ export default function Bar(gdkmonitor: Gdk.Monitor) {
             application={app}
             css="background-color: transparent;"
         >
-            <box>
+            <box
+                homogeneous={true}>
                 <Workspaces />
                 <Calendar />
                 <ControlPanel />

@@ -99,6 +99,7 @@ export function Calendar() {
             <box
                 class="ghost-killer"
                 valign={Gtk.Align.START}
+                halign={Gtk.Align.CENTER}
             >
                 <revealer
                     transitionType={Gtk.RevealerTransitionType.SLIDE_DOWN}

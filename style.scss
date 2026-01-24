@@ -6,10 +6,12 @@ $cp-magenta: #EA00D9;
 $cp-cyan:    #0ABDC6;
 $cp-blue:    #133E7C;
 $cp-dark:    #091833;
+$cp-cyan-dark: #217b97;
 
 /* SEMANTIC VARIABLES */
 $bg-color: rgba($cp-dark, 0.85);
 $accent-color: $cp-cyan;
+$active-color2: $cp-cyan-dark;
 $active-color: $cp-magenta;
 $border-color: $cp-blue;
 $text-color: #ffffff;
@@ -641,3 +643,4 @@ window.Workspaces revealer > box {
   70% { box-shadow: 0 0 0 10px rgba($error-color, 0); }
   100% { box-shadow: 0 0 0 0 rgba($error-color, 0); }
 }
+

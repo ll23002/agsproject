@@ -305,6 +305,7 @@ export function ControlPanel() {
             <box
                 class="ghost-killer"
                 valign={Gtk.Align.START}
+                halign={Gtk.Align.END}
             >
                 <revealer
                     transitionType={Gtk.RevealerTransitionType.SLIDE_DOWN}

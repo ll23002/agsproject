@@ -1,23 +1,30 @@
 @use "sass:color";
 
-/* * CYBERPUNK PALETTE */
-$cp-purple:  #711C91;
-$cp-magenta: #EA00D9;
-$cp-cyan:    #0ABDC6;
-$cp-blue:    #133E7C;
-$cp-dark:    #091833;
+/* ==============================================
+   1. VARIABLES & PALETTE
+   ============================================== */
+/* CYBERPUNK PALETTE */
+$cp-purple:    #711C91;
+$cp-magenta:   #EA00D9;
+$cp-cyan:      #0ABDC6;
+$cp-blue:      #133E7C;
+$cp-dark:      #091833;
 $cp-cyan-dark: #217b97;
 
 /* SEMANTIC VARIABLES */
-$bg-color: rgba($cp-dark, 0.85);
-$accent-color: $cp-cyan;
-$active-color2: $cp-cyan-dark;
-$active-color: $cp-magenta;
-$border-color: $cp-blue;
-$text-color: #ffffff;
-$hover-color: rgba($cp-cyan, 0.15);
-$error-color: #ff5555;
+$bg-color:      rgba($cp-dark, 0.85);
+$accent-color:  $cp-cyan;
+$border-color:  $cp-blue;
+$text-color:    #ffffff;
+$error-color:   #ff5555;
+$hover-color:   rgba($cp-cyan, 0.15);
 
+/* AQUÍ ESTÁ TU CAMBIO: Ahora el color activo es el oscuro */
+$active-color:  $cp-cyan-dark;
+
+/* ==============================================
+   2. GLOBAL RESET & UTILS
+   ============================================== */
 * {
   all: unset;
 
@@ -27,56 +34,7 @@ $error-color: #ff5555;
   }
 }
 
-window#control-panel, window#calendar, window#hover-zone, window.Bar, window.Workspaces {
-  background-color: transparent;
-  min-height: 0px;
-}
-
-.ghost-killer {
-  background-color: transparent;
-  margin: 0px;
-  padding: 0px;
-  border: none;
-  min-height: 0px;
-}
-
-/* CONTROL PANEL*/
-.ControlPanel revealer > box,
-.Calendar revealer > box {
-  margin-top: 12px;
-  margin-right: 12px;
-}
-
-window.ControlPanel menubutton.active > button {
-  background-color: $active-color;
-  color: $text-color;
-  border-color: $active-color;
-  box-shadow: 0 0 12px rgba($cp-magenta, 0.4);
-
-  &:hover {
-    background-color: color.mix($active-color, white, 90%);
-    box-shadow: 0 0 15px rgba($cp-magenta, 0.6);
-  }
-}
-
-window.Bar menubutton > button {
-  @extend %bar-button;
-
-  // Aseguramos que el hover funcione
-  &:hover {
-    background-color: color.mix($bg-color, $accent-color, 90%);
-    border-color: color.mix($border-color, $accent-color, 70%);
-    box-shadow: 0 0 8px rgba($cp-cyan, 0.2);
-  }
-
-  // Si quieres diferenciar el activo (cuando el menú está abierto)
-  &:checked {
-    background-color: $active-color;
-    color: $text-color;
-  }
-}
-
-// Estilos compartidos para botones de menú en barras
+/* Placeholder para botones de la barra (DRY principle, por favor) */
 %bar-button {
   background-image: none;
   background-color: $bg-color;
@@ -95,11 +53,112 @@ window.Bar menubutton > button {
   }
 }
 
+/* ==============================================
+   3. WINDOW CONFIGURATION
+   ============================================== */
+window#control-panel,
+window#calendar,
+window#hover-zone,
+window.Bar,
+window.Workspaces {
+  background-color: transparent;
+  min-height: 0px;
+}
 
+.ghost-killer {
+  background-color: transparent;
+  margin: 0px;
+  padding: 0px;
+  border: none;
+  min-height: 0px;
+}
 
+/* ==============================================
+   4. BAR COMPONENTS (Workspaces & MenuButtons)
+   ============================================== */
+/* Workspaces */
+.workspaces {
+  background-color: $bg-color;
+  border: 1px solid $border-color;
+  padding: 5px 10px;
+  border-radius: 20px;
+}
+
+button.workspace-btn {
+  background-image: none;
+  box-shadow: none;
+  border: none;
+  text-shadow: none;
+  background-color: rgba(255, 255, 255, 0.05);
+  color: $text-color;
+  border-radius: 99px;
+  min-width: 24px;
+  min-height: 24px;
+  padding: 0;
+  margin: 0 3px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: $hover-color;
+    color: $accent-color;
+    box-shadow: 0 0 5px rgba($cp-cyan, 0.2);
+  }
+
+  &.active {
+    background-color: $accent-color;
+    color: $cp-dark;
+    font-weight: bold;
+    min-width: 30px;
+    box-shadow: 0 0 8px rgba($cp-cyan, 0.6);
+  }
+}
+
+/* Bar Buttons */
+window.Bar menubutton > button {
+  @extend %bar-button;
+
+  &:hover {
+    background-color: color.mix($bg-color, $accent-color, 90%);
+    border-color: color.mix($border-color, $accent-color, 70%);
+    box-shadow: 0 0 8px rgba($cp-cyan, 0.2);
+  }
+
+  &:checked {
+    background-color: $active-color;
+    color: $text-color;
+  }
+}
+
+/* ==============================================
+   5. CONTROL PANEL & POPOVERS
+   ============================================== */
+/* Layout Containers */
+.ControlPanel revealer > box,
+.Calendar revealer > box {
+  margin-top: 12px;
+  margin-right: 12px;
+}
+
+window.Workspaces revealer > box {
+  margin-top: 12px;
+  margin-left: 12px;
+}
+
+window.ControlPanel menubutton.active > button {
+  background-color: $active-color;
+  color: $text-color;
+  border-color: $active-color;
+  box-shadow: 0 0 12px rgba($cp-cyan-dark, 0.4);
+
+  &:hover {
+    background-color: color.mix($active-color, white, 90%);
+    box-shadow: 0 0 15px rgba($cp-cyan-dark, 0.6);
+  }
+}
+
+/* General Popover Styling */
 popover {
   background: transparent;
-
   border: none;
   box-shadow: none;
 
@@ -112,61 +171,187 @@ popover {
     border: 1px solid $border-color;
     box-shadow: 0 4px 15px rgba(0,0,0, 0.5);
   }
+}
 
-  calendar {
-    background-color: transparent;
+/* Panel Internal Elements */
+.panel-container {
+  label { color: $text-color; }
+
+  button {
+    background-color: rgba($cp-blue, 0.2);
     color: $text-color;
     border: 1px solid $border-color;
-    border-radius: 12px;
+    border-radius: 8px;
+    padding: 8px;
+    transition: all 0.2s ease;
 
-    &.view {
-      background-color: transparent;
+    &:hover {
+      background-color: rgba($cp-blue, 0.4);
+      border-color: $accent-color;
     }
+  }
 
-    header {
-      background: transparent;
-      border: none;
-
-      button {
-        background: transparent;
-        border: none;
-        box-shadow: none;
-        color: $text-color;
-        font-weight: bold;
-        &:hover { background-color: $hover-color; }
-      }
+  levelbar {
+    trough {
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
     }
-
-    grid {
-      background: transparent;
-
-      label {
-        background: transparent;
-        color: $text-color;
-
-        &.today {
-          background-color: $accent-color;
-          color: $cp-dark;
-          border-radius: 50%;
-          font-weight: bold;
-          box-shadow: 0 0 5px $accent-color;
-        }
-      }
-
-      &:selected {
-        background-color: $active-color;
-        color: $text-color;
-        border-radius: 50%;
-      }
-
-      label:hover {
-        background-color: $hover-color;
-        border-radius: 5px;
-      }
+    block.filled {
+      background-color: $accent-color;
+      border-radius: 4px;
+      box-shadow: 0 0 5px rgba($cp-cyan, 0.5);
     }
+  }
+
+  separator { background-color: $border-color; }
+}
+
+/* ==============================================
+   6. WIDGETS: NETWORK, BLUETOOTH & TOGGLES
+   ============================================== */
+.wifi-header, .bluetooth-header {
+  padding: 8px 12px;
+  border-bottom: 1px solid $border-color;
+  margin-bottom: 8px;
+
+  label {
+    font-weight: bold;
+    color: $text-color;
   }
 }
 
+button.scan-button {
+  background: transparent;
+  background-image: none;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  margin: 0;
+  border-radius: 9999px;
+
+  > image {
+    margin: 0;
+    padding: 8px;
+    -gtk-icon-shadow: none;
+  }
+
+  &:hover { background-color: $hover-color; }
+  &:active { background-color: $accent-color; color: $cp-dark; }
+}
+
+button.network-item, button.device-item {
+  background-image: none;
+  background-color: transparent;
+  color: $text-color;
+  border: 1px solid transparent;
+  box-shadow: none;
+  border-radius: 8px;
+  padding: 8px;
+  margin: 2px 4px;
+  transition: all 0.2s ease;
+
+  label { color: $text-color; }
+
+  &:hover {
+    background-color: $hover-color;
+    border-color: rgba($cp-cyan, 0.3);
+  }
+
+  &:active {
+    background-color: $accent-color;
+    color: $cp-dark;
+    label { color: $cp-dark; font-weight: bold; }
+  }
+}
+
+label.empty-networks, label.empty-devices {
+  color: $text-color;
+  opacity: 0.6;
+  padding: 20px;
+}
+
+/* Switches */
+switch {
+  background-color: rgba($cp-blue, 0.3);
+  border: 1px solid $border-color;
+  border-radius: 9999px;
+
+  slider {
+    background-color: $text-color;
+    border-radius: 9999px;
+    margin: 2px;
+    min-width: 20px;
+    min-height: 20px;
+    box-shadow: none;
+  }
+
+  &:checked {
+    background-color: $accent-color;
+    border-color: $accent-color;
+    box-shadow: 0 0 5px rgba($cp-cyan, 0.4);
+    slider { background-color: $cp-dark; }
+  }
+}
+
+/* DND & Profile Buttons */
+button.dnd-button {
+  background-image: none;
+  box-shadow: none;
+  background-color: rgba($cp-blue, 0.2);
+  color: $text-color;
+  border: 1px solid $border-color;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+
+  &.active {
+    background-color: $active-color;
+    border-color: $active-color;
+    color: $text-color;
+    box-shadow: 0 0 10px rgba($active-color, 0.3);
+
+    label { color: $text-color; font-weight: bold; }
+    &:hover { background-color: color.mix($active-color, white, 90%); }
+  }
+
+  &:hover {
+    background-color: $hover-color;
+    border-color: $accent-color;
+  }
+}
+
+.profile-btn {
+  background-image: none;
+  box-shadow: none;
+  border: none;
+  text-shadow: none;
+  background-color: rgba($cp-blue, 0.2);
+  color: $text-color;
+  border-radius: 12px;
+  padding: 12px 5px;
+  margin: 0px 4px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: $hover-color;
+    color: $text-color;
+    border: 1px solid $accent-color;
+    padding: 11px 4px;
+  }
+
+  &.active {
+    background-color: $active-color;
+    color: $text-color;
+    box-shadow: 0 0 8px rgba($active-color, 0.4);
+    border: none;
+    padding: 12px 5px;
+  }
+
+  > box { all: unset; }
+}
+
+/* ==============================================
+   7. NOTIFICATION CENTER
+   ============================================== */
 .notification-center {
   min-width: 300px;
   padding: 8px;
@@ -176,14 +361,8 @@ popover {
     border-bottom: 1px solid $border-color;
     margin-bottom: 8px;
 
-    .clear-button {
-      margin-left: 8px;
-    }
-
-    label {
-      font-weight: bold;
-      color: $text-color;
-    }
+    .clear-button { margin-left: 8px; }
+    label { font-weight: bold; color: $text-color; }
   }
 
   .clear-button {
@@ -218,15 +397,11 @@ popover {
       border-color: $accent-color;
     }
 
-    icon {
-      min-width: 32px;
-      min-height: 32px;
-    }
+    icon { min-width: 32px; min-height: 32px; }
 
     label {
       color: $text-color;
       font-size: 14px;
-
       &:first-child {
         font-weight: bold;
         margin-bottom: 4px;
@@ -235,279 +410,12 @@ popover {
     }
   }
 
-  scrolledwindow {
-    background: transparent;
-    border: none;
-  }
+  scrolledwindow { background: transparent; border: none; }
 }
 
-.panel-container {
-  label {
-    color: $text-color;
-  }
-
-  button {
-    background-color: rgba($cp-blue, 0.2);
-    color: $text-color;
-    border: 1px solid $border-color;
-    border-radius: 8px;
-    padding: 8px;
-    transition: all 0.2s ease;
-
-    &:hover {
-      background-color: rgba($cp-blue, 0.4);
-      border-color: $accent-color;
-    }
-  }
-
-  levelbar {
-    trough {
-      background-color: rgba(255, 255, 255, 0.1);
-      border-radius: 8px;
-    }
-
-    block.filled {
-      background-color: $accent-color;
-      border-radius: 4px;
-      box-shadow: 0 0 5px rgba($cp-cyan, 0.5);
-    }
-  }
-
-  separator {
-    background-color: $border-color;
-  }
-}
-
-button.scan-button {
-  background: transparent;
-  background-image: none;
-  border: none;
-  box-shadow: none;
-  padding: 0;
-  margin: 0;
-  border-radius: 9999px;
-
-  > image {
-    margin: 0;
-    padding: 8px;
-    -gtk-icon-shadow: none;
-  }
-
-  &:hover {
-    background-color: $hover-color;
-  }
-
-  &:active {
-    background-color: $accent-color;
-    color: $cp-dark;
-  }
-}
-
-.wifi-header, .bluetooth-header {
-  padding: 8px 12px;
-  border-bottom: 1px solid $border-color;
-  margin-bottom: 8px;
-
-  label {
-    font-weight: bold;
-    color: $text-color;
-  }
-}
-
-button.network-item, button.device-item {
-  background-image: none;
-  background-color: transparent;
-  color: $text-color;
-  border: 1px solid transparent;
-  box-shadow: none;
-  border-radius: 8px;
-  padding: 8px;
-  margin: 2px 4px;
-  transition: all 0.2s ease;
-
-  label {
-    color: $text-color;
-  }
-
-  &:hover {
-    background-color: $hover-color;
-    border-color: rgba($cp-cyan, 0.3);
-  }
-
-  &:active {
-    background-color: $accent-color;
-    color: $cp-dark;
-
-    label {
-      color: $cp-dark;
-      font-weight: bold;
-    }
-  }
-}
-
-label.empty-networks, label.empty-devices {
-  color: $text-color;
-  opacity: 0.6;
-  padding: 20px;
-}
-
-button.dnd-button {
-  background-image: none;
-  box-shadow: none;
-  background-color: rgba($cp-blue, 0.2);
-  color: $text-color;
-  border: 1px solid $border-color;
-  border-radius: 12px;
-  transition: all 0.2s ease;
-
-  &.active {
-    background-color: $active-color; // Magenta para DND
-    border-color: $active-color;
-    color: $text-color;
-    box-shadow: 0 0 10px rgba($cp-magenta, 0.3);
-
-    label {
-      color: $text-color;
-      font-weight: bold;
-    }
-
-    &:hover {
-      background-color: color.mix($active-color, white, 90%);
-    }
-  }
-
-  &:hover {
-    background-color: $hover-color;
-    border-color: $accent-color;
-  }
-}
-
-switch {
-  background-color: rgba($cp-blue, 0.3);
-  border: 1px solid $border-color;
-  border-radius: 9999px;
-
-  slider {
-    background-color: $text-color;
-    border-radius: 9999px;
-    margin: 2px;
-    min-width: 20px;
-    min-height: 20px;
-    box-shadow: none;
-  }
-
-  &:checked {
-    background-color: $accent-color;
-    border-color: $accent-color;
-    box-shadow: 0 0 5px rgba($cp-cyan, 0.4);
-
-    slider {
-      background-color: $cp-dark;
-    }
-  }
-}
-
-/* --- POWER PROFILE BUTTONS --- */
-.profile-btn {
-  background-image: none;
-  box-shadow: none;
-  border: none;
-  text-shadow: none;
-
-  background-color: rgba($cp-blue, 0.2);
-  color: $text-color;
-
-  border-radius: 12px;
-  padding: 12px 5px;
-  margin: 0px 4px;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background-color: $hover-color;
-    color: $text-color;
-    border: 1px solid $accent-color; // Borde sutil al hover
-    padding: 11px 4px; // Ajuste para el borde
-  }
-
-  &.active {
-    background-color: $active-color;
-    color: $text-color;
-    box-shadow: 0 0 8px rgba($cp-magenta, 0.4);
-    border: none;
-    padding: 12px 5px;
-  }
-
-  > box {
-    all: unset;
-  }
-}
-
-/* --- WORKSPACES --- */
-.workspaces {
-  background-color: $bg-color;
-  border: 1px solid $border-color;
-  padding: 5px 10px;
-  border-radius: 20px;
-}
-
-button.workspace-btn {
-  background-image: none;
-  box-shadow: none;
-  border: none;
-  text-shadow: none;
-  background-color: rgba(255, 255, 255, 0.05);
-  color: $text-color;
-
-  border-radius: 99px;
-  min-width: 24px;
-  min-height: 24px;
-  padding: 0;
-  margin: 0 3px;
-
-  transition: all 0.2s ease;
-
-  &:hover {
-    background-color: $hover-color;
-    color: $accent-color;
-    box-shadow: 0 0 5px rgba($cp-cyan, 0.2);
-  }
-
-  &.active {
-    background-color: $accent-color;
-    color: $cp-dark;
-    font-weight: bold;
-    min-width: 30px;
-    box-shadow: 0 0 8px rgba($cp-cyan, 0.6);
-  }
-}
-
-window.Workspaces revealer > box {
-  margin-top: 12px;
-  margin-left: 12px;
-}
-
-/* --- NETWORK STATS & MEDIA (Extras) --- */
-.network-stats {
-  background-color: rgba($cp-blue, 0.2);
-  border: 1px solid rgba($cp-cyan, 0.1);
-  border-radius: 12px;
-  padding: 0 8px;
-  margin: 4px 4px;
-
-  label {
-    font-size: 11px;
-    color: $text-color;
-  }
-}
-
-.network-icon {
-  min-width: 12px;
-  min-height: 12px;
-
-  &.down { color: $accent-color; }
-  &.up { color: $active-color; }
-}
-
+/* ==============================================
+   8. MEDIA PLAYER & EXTRAS
+   ============================================== */
 .media-player {
   background-color: rgba($cp-blue, 0.2);
   border: 1px solid $border-color;
@@ -521,23 +429,11 @@ window.Workspaces revealer > box {
     color: $accent-color;
     border-radius: 12px;
     margin-right: 4px;
-
-    > image {
-      all: unset;
-      -gtk-icon-size: 32px;
-    }
+    > image { all: unset; -gtk-icon-size: 32px; }
   }
 
-  .title {
-    font-weight: bold;
-    font-size: 14px;
-    color: $text-color;
-  }
-
-  .artist {
-    font-size: 12px;
-    color: rgba($text-color, 0.7);
-  }
+  .title { font-weight: bold; font-size: 14px; color: $text-color; }
+  .artist { font-size: 12px; color: rgba($text-color, 0.7); }
 
   .controls button {
     background: transparent;
@@ -563,35 +459,38 @@ window.Workspaces revealer > box {
   }
 }
 
+.network-stats {
+  background-color: rgba($cp-blue, 0.2);
+  border: 1px solid rgba($cp-cyan, 0.1);
+  border-radius: 12px;
+  padding: 0 8px;
+  margin: 4px 4px;
+  label { font-size: 11px; color: $text-color; }
+}
 
-/* --- BATTERY PANEL --- */
+.network-icon {
+  min-width: 12px;
+  min-height: 12px;
+  &.down { color: $accent-color; }
+  &.up { color: $active-color; }
+}
+
+/* ==============================================
+   9. BATTERY PANEL & LABELS
+   ============================================== */
 .battery-panel {
   background-color: rgba($cp-blue, 0.2);
   border: 1px solid transparent;
   border-radius: 12px;
   padding: 0;
 
-  .bat-icon {
-    -gtk-icon-size: 20px;
-    color: $text-color;
-    margin-right: 8px;
-  }
-
-  .bat-percentage {
-    font-weight: bold;
-    font-size: 14px;
-    color: $text-color;
-  }
-
-  .bat-state {
-    font-size: 10px;
-    color: rgba($text-color, 0.7);
-  }
+  .bat-icon { -gtk-icon-size: 20px; color: $text-color; margin-right: 8px; }
+  .bat-percentage { font-weight: bold; font-size: 14px; color: $text-color; }
+  .bat-state { font-size: 10px; color: rgba($text-color, 0.7); }
 
   &.charging {
     background-color: rgba($cp-cyan, 0.15);
     border-color: rgba($cp-cyan, 0.5);
-
     .bat-icon, .bat-percentage {
       color: $cp-cyan;
       text-shadow: 0 0 5px rgba($cp-cyan, 0.6);
@@ -607,40 +506,70 @@ window.Workspaces revealer > box {
     background-color: rgba($error-color, 0.2);
     border-color: $error-color;
     animation: pulse-critical 2s infinite;
+    .bat-icon, .bat-percentage { color: $error-color; font-weight: 800; }
+  }
+}
 
-    .bat-icon, .bat-percentage {
-      color: $error-color;
-      font-weight: 800;
+.header-label { font-weight: bold; color: $accent-color; margin-bottom: 4px; }
+.sub-label { font-size: 10px; color: rgba($text-color, 0.6); }
+.value-label { font-weight: bold; color: $text-color; }
+.value-label.health { color: $cp-cyan; }
+.time-label { font-weight: bold; color: $active-color; }
+
+/* ==============================================
+   10. CALENDAR WIDGET
+   ============================================== */
+popover calendar {
+  background-color: transparent;
+  color: $text-color;
+  border: 1px solid $border-color;
+  border-radius: 12px;
+
+  &.view { background-color: transparent; }
+
+  header {
+    background: transparent;
+    border: none;
+    button {
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      color: $text-color;
+      font-weight: bold;
+      &:hover { background-color: $hover-color; }
+    }
+  }
+
+  grid {
+    background: transparent;
+    label {
+      background: transparent;
+      color: $text-color;
+      &.today {
+        background-color: $accent-color;
+        color: $cp-dark;
+        border-radius: 50%;
+        font-weight: bold;
+        box-shadow: 0 0 5px $accent-color;
+      }
+    }
+    &:selected {
+      background-color: $active-color;
+      color: $text-color;
+      border-radius: 50%;
+    }
+    label:hover {
+      background-color: $hover-color;
+      border-radius: 5px;
     }
   }
 }
 
-
-.header-label {
-  font-weight: bold;
-  color: $accent-color;
-  margin-bottom: 4px;
-}
-
-.sub-label {
-  font-size: 10px;
-  color: rgba($text-color, 0.6);
-}
-
-.value-label {
-  font-weight: bold;
-  color: $text-color;
-}
-.value-label.health { color: $cp-cyan; }
-
-.time-label {
-  font-weight: bold;
-  color: $active-color;
-}
-
+/* ==============================================
+   11. ANIMATIONS
+   ============================================== */
 @keyframes pulse-critical {
   0% { box-shadow: 0 0 0 0 rgba($error-color, 0.4); }
   70% { box-shadow: 0 0 0 10px rgba($error-color, 0); }
   100% { box-shadow: 0 0 0 0 rgba($error-color, 0); }
 }
-

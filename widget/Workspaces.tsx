@@ -1,12 +1,10 @@
 import { Astal, Gtk, Gdk } from "ags/gtk4";
 import { createBinding, With } from "ags";
-import app from "ags/gtk4/app";
 //@ts-ignore
 import Hyprland from "gi://AstalHyprland";
 import {showWidget} from "../service/BarState";
 
 export function Workspaces() {
-    const { TOP, LEFT, RIGHT} = Astal.WindowAnchor;
     const hypr = Hyprland.get_default()
 
     const workspaces = createBinding(hypr, "workspaces");

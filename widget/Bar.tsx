@@ -1,8 +1,5 @@
 import app from "ags/gtk4/app"
 import {Astal, Gtk, Gdk} from "ags/gtk4"
-import {showWidget} from "../service/BarState";
-
-// Importamos los widgets transformados
 import {Workspaces} from "./Workspaces";
 import {Calendar} from "./Calendar";
 import {ControlPanel} from "./controlPanel";
@@ -13,7 +10,6 @@ export default function Bar(gdkmonitor: Gdk.Monitor) {
     return (
         <window
             visible
-
             name="bar"
             namespace="bar"
             class="Bar"

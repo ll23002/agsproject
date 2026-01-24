@@ -57,12 +57,20 @@ window.ControlPanel menubutton.active > button {
   }
 }
 
-window.Bar {
-  color: $text-color;
-  font-weight: bold;
+window.Bar menubutton > button {
+  @extend %bar-button;
 
-  > centerbox {
-    background: transparent;
+  // Aseguramos que el hover funcione
+  &:hover {
+    background-color: color.mix($bg-color, $accent-color, 90%);
+    border-color: color.mix($border-color, $accent-color, 70%);
+    box-shadow: 0 0 8px rgba($cp-cyan, 0.2);
+  }
+
+  // Si quieres diferenciar el activo (cuando el menú está abierto)
+  &:checked {
+    background-color: $active-color;
+    color: $text-color;
   }
 }
 
@@ -85,16 +93,11 @@ window.Bar {
   }
 }
 
-window.Calendar menubutton > button {
-  @extend %bar-button;
-}
 
-window.ControlPanel menubutton > button {
-  @extend %bar-button;
-}
 
 popover {
   background: transparent;
+
   border: none;
   box-shadow: none;
 

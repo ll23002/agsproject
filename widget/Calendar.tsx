@@ -11,7 +11,7 @@ import GLib from "gi://GLib"
 import {showWidget, setPopoverOpen} from "../service/BarState";
 import MediaPlayer from "./MediaPlayer";
 
-export default function Calendar(gdkmonitor: Gdk.Monitor) {
+export function Calendar() {
 
     const hora = createPoll("", 1000, () => {
         const now = GLib.DateTime.new_now_local();
@@ -25,7 +25,7 @@ export default function Calendar(gdkmonitor: Gdk.Monitor) {
         const n = notifd.get_notification(id);
     });
 
-    const { TOP } = Astal.WindowAnchor;
+    const { TOP, RIGHT, LEFT } = Astal.WindowAnchor;
 
     const innerContent = (
         <box spacing={12}>
@@ -95,16 +95,7 @@ export default function Calendar(gdkmonitor: Gdk.Monitor) {
 
 
     return (
-        <window
-            visible
-            name="calendar"
-            class="Calendar"
-            gdkmonitor={gdkmonitor}
-            exclusivity={Astal.Exclusivity.NORMAL}
-            layer={Astal.Layer.OVERLAY}
-            anchor={TOP}
-            application={app}
-        >
+
             <box
                 class="ghost-killer"
                 valign={Gtk.Align.START}
@@ -116,6 +107,5 @@ export default function Calendar(gdkmonitor: Gdk.Monitor) {
                     {innerContent}
                 </revealer>
             </box>
-        </window>
     );
 }

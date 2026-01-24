@@ -5,8 +5,8 @@ import app from "ags/gtk4/app";
 import Hyprland from "gi://AstalHyprland";
 import {showWidget} from "../service/BarState";
 
-export default function Workspaces(gdkmonitor: Gdk.Monitor) {
-    const { TOP, LEFT} = Astal.WindowAnchor;
+export function Workspaces() {
+    const { TOP, LEFT, RIGHT} = Astal.WindowAnchor;
     const hypr = Hyprland.get_default()
 
     const workspaces = createBinding(hypr, "workspaces");
@@ -50,17 +50,7 @@ export default function Workspaces(gdkmonitor: Gdk.Monitor) {
 
 
     return (
-        <window
-            visible
-            name="workspaces"
-            class="Workspaces"
-            gdkmonitor={gdkmonitor}
-            exclusivity={Astal.Exclusivity.NORMAL}
-            layer={Astal.Layer.OVERLAY}
-            anchor={TOP | LEFT}
-            application={app}
-            css="background-color: transparent;"
-        >
+
             <box
                 class="ghost-killer"
                 valign={Gtk.Align.START}
@@ -72,6 +62,5 @@ export default function Workspaces(gdkmonitor: Gdk.Monitor) {
                     {innerContent}
                 </revealer>
             </box>
-        </window>
     )
 }

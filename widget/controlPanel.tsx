@@ -11,8 +11,6 @@ import GLib from "gi://GLib"
 import Cairo from "cairo"
 // @ts-ignore
 import Battery from "gi://AstalBattery";
-// @ts-ignore
-import Hyprland from "gi://AstalHyprland";
 
 import WifiPanel from "./wifiPanel";
 import BluetoothPanel from "./bluetoothPanel";
@@ -117,7 +115,7 @@ function CircularProgress({
 }
 
 
-export default function ControlPanel(gdkmonitor: Gdk.Monitor) {
+export function ControlPanel() {
     const notifd = Notifd.get_default();
     const network = Network.get_default();
     const bluetooth = Bluetooth.get_default();
@@ -201,7 +199,7 @@ export default function ControlPanel(gdkmonitor: Gdk.Monitor) {
     getBatHealth();
     getTemperature();
 
-    const { TOP, RIGHT } = Astal.WindowAnchor;
+    const { TOP, RIGHT, LEFT } = Astal.WindowAnchor;
 
     const mainBarContent = (
         <box spacing={12}>
@@ -303,17 +301,7 @@ export default function ControlPanel(gdkmonitor: Gdk.Monitor) {
 
 
     return (
-        <window
-            visible
-            name="control-panel"
-            class="ControlPanel"
-            gdkmonitor={gdkmonitor}
-            exclusivity={Astal.Exclusivity.NORMAL}
-            anchor={TOP | RIGHT}
-            application={app}
-            layer={Astal.Layer.OVERLAY}
-            css="background-color: transparent;"
-        >
+
             <box
                 class="ghost-killer"
                 valign={Gtk.Align.START}
@@ -326,6 +314,5 @@ export default function ControlPanel(gdkmonitor: Gdk.Monitor) {
                     {innerContent}
                 </revealer>
             </box>
-        </window>
     );
 }

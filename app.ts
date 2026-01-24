@@ -5,6 +5,7 @@ import ControlPanel from "./widget/controlPanel"
 import NotificationPopups from "./widget/NotificationPopups"
 import Workspaces from "./widget/Workspaces";
 import "./service/BarState";
+import Bar from "./widget/Bar";
 
 app.start({
   css: style.toString().replace('@charset "UTF-8";', ""),
@@ -16,10 +17,8 @@ app.start({
   main() {
 
     app.get_monitors().map(monitor => {
-      ControlPanel(monitor)
-      Calendar(monitor)
+      Bar(monitor)
       NotificationPopups(monitor)
-      Workspaces(monitor)
     })
   },
 })

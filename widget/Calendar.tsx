@@ -94,54 +94,6 @@ export default function Calendar(gdkmonitor: Gdk.Monitor) {
     );
 
 
-
-    const revealer = (
-        <revealer transitionType={Gtk.RevealerTransitionType.SLIDE_DOWN}>
-            {innerContent}
-        </revealer>
-    ) as Gtk.Revealer;
-
-
-    const updateState = () => {
-        const shouldShow = showWidget();
-        revealer.reveal_child = shouldShow;
-    };
-
-    const hypr = Hyprland.get_default();
-
-    hypr.connect("notify::focused-client", updateState);
-
-    updateState();
-
-    const mainBox = new Gtk.Box({
-        valign: Gtk.Align.START,
-    });
-
-    let hoverTimeout: any = null;
-    const cancelHoverTimeout = () => {
-        if (hoverTimeout) {
-            clearTimeout(hoverTimeout);
-            hoverTimeout = null;
-        }
-    };
-
-    const controller = new Gtk.EventControllerMotion();
-
-    controller.connect("enter", () => {
-        cancelHoverTimeout();
-    });
-
-    controller.connect("leave", () => {
-        cancelHoverTimeout();
-
-        hoverTimeout = setTimeout(() => {
-        }, 400);
-    });
-
-    mainBox.add_controller(controller);
-    mainBox.add_css_class("ghost-killer");
-    mainBox.append(revealer);
-
     return (
         <window
             visible
@@ -153,7 +105,14 @@ export default function Calendar(gdkmonitor: Gdk.Monitor) {
             anchor={TOP}
             application={app}
         >
-            {mainBox}
+            <box class="ghost-killer">
+                <revealer
+                    transitionType={Gtk.RevealerTransitionType.SLIDE_DOWN}
+                    revealChild={showWidget(v => v)}
+                >
+                    {innerContent}
+                </revealer>
+            </box>
         </window>
     );
 }

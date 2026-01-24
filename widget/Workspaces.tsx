@@ -3,7 +3,7 @@ import { createBinding, With } from "ags";
 import app from "ags/gtk4/app";
 //@ts-ignore
 import Hyprland from "gi://AstalHyprland";
-import {showWidget, setPopoverOpen } from "../service/BarState";
+import {showWidget} from "../service/BarState";
 
 export default function Workspaces(gdkmonitor: Gdk.Monitor) {
     const { TOP, LEFT} = Astal.WindowAnchor;
@@ -49,54 +49,6 @@ export default function Workspaces(gdkmonitor: Gdk.Monitor) {
     )
 
 
-    const revealer = new Gtk.Revealer({
-        transitionType: Gtk.RevealerTransitionType.SLIDE_DOWN,
-        // @ts-ignore
-        child: innerContent,
-    })
-
-    const updateState = () => {
-        const shouldShow = showWidget();
-        revealer.reveal_child = shouldShow;
-    }
-
-    hypr.connect("notify::focused-client", updateState);
-
-
-    updateState()
-
-
-    const mainBox = new Gtk.Box({
-        valign: Gtk.Align.START,
-    })
-
-    let hoverTimeout: any = null;
-    const cancelHoverTimeout = () => {
-        if (hoverTimeout) {
-            clearTimeout(hoverTimeout);
-            hoverTimeout = null;
-        }
-    }
-
-    const controller = new Gtk.EventControllerMotion()
-
-
-    controller.connect("enter", () => {
-        cancelHoverTimeout();
-    })
-
-    controller.connect("leave", () => {
-        cancelHoverTimeout();
-
-        hoverTimeout = setTimeout(() => {
-        }, 150)
-    })
-
-    mainBox.add_controller(controller)
-    mainBox.add_css_class("ghost-killer")
-    mainBox.append(revealer)
-
-
     return (
         <window
             visible
@@ -109,7 +61,14 @@ export default function Workspaces(gdkmonitor: Gdk.Monitor) {
             application={app}
             css="background-color: transparent;"
         >
-            {mainBox}
+            <box css="background-color: transparent;">
+                <revealer
+                    transitionType={Gtk.RevealerTransitionType.SLIDE_DOWN}
+                    revealChild={showWidget(v => v)} // ¡Magia reactiva!
+                >
+                    {innerContent}
+                </revealer>
+            </box>
         </window>
     )
 }

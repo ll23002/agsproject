@@ -304,7 +304,7 @@ export default function ControlPanel(gdkmonitor: Gdk.Monitor) {
 
     return (
         <window
-            visible={showWidget(v => v)}
+            visible
             name="control-panel"
             class="ControlPanel"
             gdkmonitor={gdkmonitor}
@@ -314,7 +314,10 @@ export default function ControlPanel(gdkmonitor: Gdk.Monitor) {
             layer={Astal.Layer.OVERLAY}
             css="background-color: transparent;"
         >
-            <box class="ghost-killer">
+            <box
+                class="ghost-killer"
+                valign={Gtk.Align.START}
+            >
                 <revealer
                     transitionType={Gtk.RevealerTransitionType.SLIDE_DOWN}
 

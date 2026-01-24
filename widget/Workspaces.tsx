@@ -61,10 +61,13 @@ export default function Workspaces(gdkmonitor: Gdk.Monitor) {
             application={app}
             css="background-color: transparent;"
         >
-            <box css="background-color: transparent;">
+            <box
+                class="ghost-killer"
+                valign={Gtk.Align.START}
+            >
                 <revealer
                     transitionType={Gtk.RevealerTransitionType.SLIDE_DOWN}
-                    revealChild={showWidget(v => v)} // ¡Magia reactiva!
+                    revealChild={showWidget(v => v)}
                 >
                     {innerContent}
                 </revealer>

@@ -105,7 +105,10 @@ export default function Calendar(gdkmonitor: Gdk.Monitor) {
             anchor={TOP}
             application={app}
         >
-            <box class="ghost-killer">
+            <box
+                class="ghost-killer"
+                valign={Gtk.Align.START}
+            >
                 <revealer
                     transitionType={Gtk.RevealerTransitionType.SLIDE_DOWN}
                     revealChild={showWidget(v => v)}

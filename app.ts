@@ -10,21 +10,8 @@ app.start({
   css: style.toString().replace('@charset "UTF-8";', ""),
   //@ts-ignore
   requestHandler(request: string, res: (response: any) => void) {
-    const cmd = String(request).replace(/\s+/g, "");
-
-    if (cmd === "toggleBar" || cmd === "toggleBar()") {
-      // @ts-ignore
-      if (typeof globalThis.toggleBar === "function") {
-        // @ts-ignore
-        globalThis.toggleBar();
-        res("OK: Bar toggled");
-      } else {
-        print("[ERROR] globalThis.toggleBar no existe. ¿Se cargó BarState?");
-        res("ERROR: function not found");
-      }
-    } else {
-      res(`ERROR: Unknown command. Limpio: '${cmd}'`);
-    }
+    // @ts-ignore
+    globalThis.toggleBar();
   },
   main() {
 

@@ -77,8 +77,6 @@ const scanForDevices = async () => {
         if (!match) {
             throw new Error("No se encontró adaptador Bluetooth");
         }
-        //Hay que eliminar esto
-        const adapterAddress = match[1].replace(/:/g, '_');
 
         await execAsync(`dbus-send --system --type=method_call --dest=org.bluez /org/bluez/hci0 org.bluez.Adapter1.StartDiscovery`);
 
@@ -105,7 +103,7 @@ const scanForDevices = async () => {
             direction={Gtk.ArrowType.LEFT}
         >
             <box spacing={8}>
-                <label label={btBinding(p => p ? "󰂯" : "󰂲")}/>
+                <label label={btBinding(p => p ? "\u{f00af}" : "\u{f00b2}")}/>
                 <label label={btBinding(p => p ? "Bluetooth" : "Apagado")}/>
             </box>
             <popover onMap={()=> setPopoverOpen(true)} onUnmap={()=> setPopoverOpen(false)}>
@@ -148,10 +146,8 @@ const scanForDevices = async () => {
                                                     heightRequest={36}
                                                     onClicked={scanForDevices}
                                                 >
-                                                    <Gtk.Image
-                                                        iconName="view-refresh-symbolic"
-                                                        pixelSize={18}
-                                                        />
+                                                    <label label={"\u{f021}"} css="font-size: 16px;" />
+
                                                 </button>
                                             </box>
 
@@ -167,7 +163,7 @@ const scanForDevices = async () => {
                                                     >
                                                         <box spacing={8} hexpand>
                                                             <label
-                                                                label={device.connected ? "󰂱" : device.paired ? "󰂴" : "󰂯"}/>
+                                                                label={device.connected ? "\u{f00b1}" : device.paired ? "\u{f00b0}" : "\u{f00af}"}/>
                                                             <label
                                                                 label={device.name || device.address}
                                                                 hexpand

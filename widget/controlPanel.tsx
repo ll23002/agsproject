@@ -130,13 +130,13 @@ export function ControlPanel() {
     const batCharging = createBinding(battery, "charging");
 
     const getBatIcon = (p: number, charging: boolean) => {
-        if (charging) return "";
+        if (charging) return "\u{f0088}";
 
-        if (p > 0.9) return "";
-        if (p > 0.7) return "";
-        if (p > 0.45) return "";
-        if (p > 0.15) return "";
-        return "";
+        if (p > 0.9) return "\u{f240}";
+        if (p > 0.7) return "\u{f241}";
+        if (p > 0.45) return "\u{f242}";
+        if (p > 0.20) return "\u{f243}";
+        if (p <= 0.10) return "\u{f244}";
     };
 
     const getBatColor = (p: number, charging: boolean) => {
@@ -199,7 +199,6 @@ export function ControlPanel() {
     getBatHealth();
     getTemperature();
 
-    const { TOP, RIGHT, LEFT } = Astal.WindowAnchor;
 
     const mainBarContent = (
         <box spacing={12}>
@@ -210,12 +209,12 @@ export function ControlPanel() {
             />
 
             <label
-                label={btOn(b => b ? "󰂯" : "󰂲")}
+                label={btOn(b => b ? "\u{f00af}" : "\u{f00b2}")}
                 css={btOn(b => b ? "" : "color: #a6adc8;")}
             />
 
             <label
-                label={dndBinding(d => d ? "󰂛" : "󰂚")}
+                label={dndBinding(d => d ? "\u{f05f9}" : "\u{f0f3}")}
                 css={dndBinding(d => d ? "color: #00959b;" : "")}
             />
 
@@ -285,7 +284,7 @@ export function ControlPanel() {
                                     onClicked={() => notifd.set_dont_disturb(!notifd.dontDisturb)}
                                 >
                                     <box spacing={8}>
-                                        <label label={dndBinding(d => d ? "󰂛" : "󰂚")} />
+                                        <label label={dndBinding(d => d ? "\u{f05f9}" : "\u{f0f3}")} />
                                         <label label="No Molestar" />
                                     </box>
                                 </button>

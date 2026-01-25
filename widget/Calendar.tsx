@@ -50,7 +50,7 @@ export function Calendar() {
                                         notifd.get_notifications().forEach((n: any) => n.dismiss());
                                     }}
                                 >
-                                    <Gtk.Image iconName="user-trash-symbolic" />
+                                    <label label={"\u{f039f}"} />
                                 </button>
                             </box>
                             <Gtk.ScrolledWindow

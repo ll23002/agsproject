@@ -122,7 +122,7 @@ function WifiItem({ ap, network, savedNetworks, onUpdate }: { ap: any, network: 
                     class="scan-button"
                     onClicked={() => connect(entry.text)}
                 >
-                    <Gtk.Image iconName="network-wireless-symbolic" />
+                    <label label={"\u{f00d9}"} css="font-size: 16px;" />
                 </button>
             </box>
         </revealer>
@@ -157,7 +157,7 @@ function WifiItem({ ap, network, savedNetworks, onUpdate }: { ap: any, network: 
                     }}
                 >
                     <box spacing={8}>
-                        <label label={isConnected ? "󰤨" : "󰤯"} css={isConnected ? "color: #0ABDC6;" : ""} />
+                        <label label={isConnected ? "\u{f0928}" : "\u{f092f}"} css={isConnected ? "color: #0ABDC6;" : ""} />
                         <box orientation={Gtk.Orientation.VERTICAL} valign={Gtk.Align.CENTER}>
                             <label
                                 label={ap.ssid || "Red Oculta"}
@@ -183,7 +183,7 @@ function WifiItem({ ap, network, savedNetworks, onUpdate }: { ap: any, network: 
                         color: ${isSaved ? "#ffffff" : "rgba(255,255,255,0.2)"};
                     `}
                 >
-                    <Gtk.Image iconName="view-more-symbolic" pixelSize={16} />
+                    <label label={"\u{f01d9}"} css="font-size: 16px;" />
                     <popover>
                         <box orientation={Gtk.Orientation.VERTICAL} spacing={4} widthRequest={150} css="padding: 5px;">
                             <label label={ap.ssid} css="font-weight: bold; margin-bottom: 5px; opacity: 0.5;" halign={Gtk.Align.START}/>
@@ -193,7 +193,7 @@ function WifiItem({ ap, network, savedNetworks, onUpdate }: { ap: any, network: 
                                 css="padding: 8px; border-radius: 6px; color: #ff5555;"
                             >
                                 <box spacing={8}>
-                                    <Gtk.Image iconName="user-trash-symbolic" />
+                                    <label  label={"\u{f16c5}"} />
                                     <label label="Olvidar Red" />
                                 </box>
                             </button>
@@ -235,7 +235,7 @@ export default function WifiPanel() {
             halign={Gtk.Align.CENTER}
         >
             <box spacing={8} halign={Gtk.Align.CENTER}>
-                <label label={wifiBinding(e => e ? "󰤨" : "󰤭")} />
+                <label label={wifiBinding(e => e ? "\u{f0928}" : "\u{f092d}")} />
                 <label
                     label={wifiSsid(s => s || "Desconectado")}
                     maxWidthChars={10}

@@ -349,9 +349,9 @@ button.dnd-button {
   > box { all: unset; }
 }
 
-/* ==============================================
+    /*
    7. NOTIFICATION CENTER
-   ============================================== */
+   */
 .notification-center {
   min-width: 300px;
   padding: 8px;
@@ -511,7 +511,7 @@ button.dnd-button {
 }
 
 .header-label { font-weight: bold; color: $accent-color; margin-bottom: 4px; }
-.sub-label { font-size: 10px; color: rgba($text-color, 0.6); }
+.sub-label { font-size: 14px; color: rgba($text-color, 0.6); }
 .value-label { font-weight: bold; color: $text-color; }
 .value-label.health { color: $cp-cyan; }
 .time-label { font-weight: bold; color: $active-color; }

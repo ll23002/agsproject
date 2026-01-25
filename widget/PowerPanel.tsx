@@ -9,7 +9,7 @@ export default function PowerPanel() {
                 onclicked={() => powerService.setProfile(id)}
                 >
                 <box orientation={Gtk.Orientation.VERTICAL} spacing={4}>
-                    <Gtk.Image iconName={icon}/>
+                    <label label={icon} css="font-size: 16px;"/>
                     <label label={label} css="font-size: 11px;"/>
                 </box>
             </button>
@@ -17,9 +17,9 @@ export default function PowerPanel() {
     };
 
 
-    const btnSaver = createBtn("power-saver", "battery-level-10-symbolic", "Savings");
-    const btnBalanced = createBtn("balanced", "battery-level-50-symbolic", "Balanced");
-    const btnPerformance = createBtn("performance", "battery-level-100-symbolic", "Beast");
+    const btnSaver = createBtn("power-saver", "\u{f06c}", "Savings");
+    const btnBalanced = createBtn("balanced", "\u{f05d1}", "Balanced");
+    const btnPerformance = createBtn("performance", "\u{f427}", "Beast");
 
 
     const updateUI = () => {

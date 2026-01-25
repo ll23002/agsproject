@@ -1,6 +1,6 @@
-import { createBinding, createMemo, With} from "ags";
+import { createBinding, createMemo, With } from "ags";
 import { Astal, Gtk } from "ags/gtk4";
-//@ts-ignore
+// @ts-ignore
 import Battery from "gi://AstalBattery";
 import GLib from "gi://GLib"
 import { setPopoverOpen } from "../service/BarState";
@@ -26,9 +26,8 @@ export default function BatteryPanel() {
     const chargingBinding = createBinding(battery, "charging");
     const timeToEmpty = createBinding(battery, "timeToEmpty");
     const timeToFull = createBinding(battery, "timeToFull");
-    const iconBinding = createBinding(battery, "iconName");
 
-
+    // LÓGICA DE CLASES CSS
     const batClass = createMemo(() => {
         const charging = chargingBinding();
         const p = levelBinding();
@@ -39,6 +38,31 @@ export default function BatteryPanel() {
         return "normal";
     });
 
+    const batIcon = createMemo(() => {
+        const charging = chargingBinding();
+        const p = levelBinding();
+
+        if (charging) return "\u{f0088}";
+
+
+        if (p <= 0.05) return "\u{f10cd}";
+
+        const icons = [
+            "\u{f007a}", // 10%
+            "\u{f007b}", // 20%
+            "\u{f007c}", // 30%
+            "\u{f007d}", // 40%
+            "\u{f007e}", // 50%
+            "\u{f007f}", // 60%
+            "\u{f0080}", // 70%
+            "\u{f0081}", // 80%
+            "\u{f0082}", // 90%
+            "\u{f0085}", // 100%
+        ];
+
+        const index = Math.min(Math.floor(p * 10), 9);
+        return icons[index];
+    });
 
     const formatTime = (seconds: number) => {
         if (seconds <= 0) return "Calculando...";
@@ -47,7 +71,9 @@ export default function BatteryPanel() {
         return `${hrs}h ${mins}m`;
     };
 
+    // ESTADÍSTICAS AVANZADAS (Lectura directa de /sys/class/power_supply)
     const batteryStats = createMemo(() => {
+        // Suscribimos a cambios de nivel para refrescar esto
         levelBinding();
 
         const path = "/sys/class/power_supply/BAT0"
@@ -56,12 +82,12 @@ export default function BatteryPanel() {
 
         const voltageRaw = parseFloat(readFile(`${path}/voltage_now`) || "0");
         const volt = !isNaN(voltageRaw) ? `${(voltageRaw / 1e6).toFixed(1)}V` : "0.0 V";
+
         const powerRaw = parseFloat(readFile(`${path}/power_now`) || "0");
         let rate = "0.0 W"
         if (!isNaN(powerRaw)) {
             rate = `${(powerRaw / 1e6).toFixed(1)} W`;
         }
-
 
         const fullRaw = parseFloat(readFile(`${path}/energy_full`) || "0");
         const designRaw = parseFloat(readFile(`${path}/energy_full_design`) || "0");
@@ -83,9 +109,10 @@ export default function BatteryPanel() {
             heightRequest={60}
         >
             <box spacing={8} valign={Gtk.Align.CENTER} halign={Gtk.Align.CENTER}>
-                <Gtk.Image
+                <label
                     class="bat-icon"
-                    iconName={iconBinding()}
+                    label={batIcon()}
+                    css="font-size: 24px;"
                 />
 
                 <box orientation={Gtk.Orientation.VERTICAL} valign={Gtk.Align.CENTER}>
@@ -112,21 +139,21 @@ export default function BatteryPanel() {
                             <box orientation={Gtk.Orientation.VERTICAL} spacing={6}>
                                 <box spacing={12} homogeneous>
                                     <box orientation={Gtk.Orientation.VERTICAL}>
-                                        <label label="Salud" class="sub-label" halign={Gtk.Align.START} />
+                                        <label label={"\u{f120f}  Salud"} class="sub-label" halign={Gtk.Align.START} />
                                         <label label={stats.health} class="value-label health" halign={Gtk.Align.START} />
                                     </box>
                                     <box orientation={Gtk.Orientation.VERTICAL}>
-                                        <label label="Ciclos" class="sub-label" halign={Gtk.Align.START} />
+                                        <label label={"\u{f1835}  Ciclos"} class="sub-label" halign={Gtk.Align.START} />
                                         <label label={stats.cycles} class="value-label" halign={Gtk.Align.START} />
                                     </box>
                                 </box>
                                 <box spacing={12} homogeneous>
                                     <box orientation={Gtk.Orientation.VERTICAL}>
-                                        <label label="Consumo" class="sub-label" halign={Gtk.Align.START} />
+                                        <label label={"\u{f17de}  Consumo"} class="sub-label" halign={Gtk.Align.START} />
                                         <label label={stats.rate} class="value-label" halign={Gtk.Align.START} />
                                     </box>
                                     <box orientation={Gtk.Orientation.VERTICAL}>
-                                        <label label="Voltaje" class="sub-label" halign={Gtk.Align.START} />
+                                        <label label={"\u{f1904}  Voltaje"} class="sub-label" halign={Gtk.Align.START} />
                                         <label label={stats.volt} class="value-label" halign={Gtk.Align.START} />
                                     </box>
                                 </box>
@@ -138,7 +165,7 @@ export default function BatteryPanel() {
 
                     <box orientation={Gtk.Orientation.VERTICAL} spacing={2}>
                         <label
-                            label={chargingBinding(c => c ? "Tiempo para lleno" : "Tiempo restante")}
+                            label={chargingBinding(c => c ? "\u{f19e6} Tiempo para lleno" : "\u{f19e6} Tiempo restante")}
                             class="sub-label"
                             halign={Gtk.Align.START}
                         />
@@ -152,7 +179,4 @@ export default function BatteryPanel() {
             </popover>
         </menubutton>
     );
-
-
-
 }

@@ -14,7 +14,7 @@ class BarVisibilityState extends GObject.Object {
         }, this);
     }
 
-    #visible = false;
+    #visible = true;
 
     get visible() {
         return this.#visible;

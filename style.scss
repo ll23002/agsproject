@@ -144,7 +144,7 @@ window.Workspaces revealer > box {
   margin-left: 12px;
 }
 
-window.ControlPanel menubutton.active > button {
+.panel-container menubutton.active > button {
   background-color: $active-color;
   color: $text-color;
   border-color: $active-color;

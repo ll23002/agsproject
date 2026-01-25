@@ -26,14 +26,13 @@ function Player({ player }: { player: Mpris.Player }) {
                 hexpand={false}
                 vexpand={false}
             >
-                <Gtk.Image
-                    iconName="audio-x-generic-symbolic"
-                    pixelSize={32}
-                    halign={Gtk.Align.CENTER}
-                    valign={Gtk.Align.CENTER}
-                    hexpand
-                    vexpand
-                    />
+                <label label={"\u{f0cb8}"} css="font-size: 32px;"
+                       halign={Gtk.Align.CENTER}
+                       valign={Gtk.Align.CENTER}
+                       hexpand
+                       vexpand
+                />
+
             </box>
                 <box orientation={Gtk.Orientation.VERTICAL} valign={Gtk.Align.CENTER} hexpand>
                     <label
@@ -58,18 +57,21 @@ function Player({ player }: { player: Mpris.Player }) {
                             visible={canGoPrev(c => c)}
                             class="ctrl-btn"
                             >
-                            <Gtk.Image iconName="media-skip-backward-symbolic"/>
+                            <label label={"\u{f048}"} />
                         </button>
 
                         <button
                             onClicked={() => player.play_pause()}
                             class="play-btn"
                             >
-                            <Gtk.Image iconName={status(s =>
-                            s === Mpris.PlaybackStatus.PLAYING
-                            ? "media-playback-pause-symbolic"
-                            : "media-playback-start-symbolic"
-                        )} />
+                            <label
+                                label={status(s =>
+                                    s === Mpris.PlaybackStatus.PLAYING
+                                        ? "\u{f04c}"
+                                        : "\u{f04b}"
+                                )}
+                                css="font-size: 18px;"
+                            />
                         </button>
 
                         <button
@@ -77,7 +79,7 @@ function Player({ player }: { player: Mpris.Player }) {
                             visible={canGoNext(c => c)}
                             class="ctrl-btn"
                             >
-                            <Gtk.Image iconName="media-skip-forward-symbolic"/>
+                            <label label={"\u{f051}"} />
                         </button>
                     </box>
                 </box>

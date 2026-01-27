@@ -3,17 +3,12 @@ import { createBinding } from "ags"
 import powerService from "../service/PowerProfiles"
 
 export default function PowerPanel() {
-    // Creamos el binding UNA sola vez.
-    // Esto es un objeto reactivo que cambia cuando 'service.profile' cambia.
     const currentProfile = createBinding(powerService, "profile")
 
     const createBtn = (id: string, icon: string, label: string) => {
         return (
             <button
-                // AQUÍ ESTÁ LA MAGIA:
-                // Usamos el binding directamente en la propiedad 'class'.
-                // Transformamos el valor (p) en el string de la clase.
-                // Si p === id, es "active". Automático. Reactivo. Hermoso.
+
                 class={currentProfile(p =>
                     p === id ? "profile-btn active" : "profile-btn"
                 )}

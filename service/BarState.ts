@@ -32,7 +32,7 @@ class BarVisibilityState extends GObject.Object {
         this.#visible = !this.#visible;
     }
 
-}
+ }
 
 const service = new BarVisibilityState();
 

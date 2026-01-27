@@ -59,7 +59,6 @@ class NetworkService extends GObject.Object {
 
             for (const line of lines) {
                 if (line.includes(":") && !line.includes("lo:")) {
-                    const parts = line.split(/\s+/).filter(Boolean);
                     const values = line.split(":")[1]?.trim().split(/\s+/).map(Number);
                     if (values && values.length > 8) {
                         totalDown += values[0];

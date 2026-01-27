@@ -25,7 +25,6 @@ export function Calendar() {
         const n = notifd.get_notification(id);
     });
 
-    const { TOP, RIGHT, LEFT } = Astal.WindowAnchor;
 
     const innerContent = (
         <box spacing={12}>

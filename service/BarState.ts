@@ -1,14 +1,14 @@
-import { createBinding} from "ags";
-import GObject from "gi://GObject"
+import { createBinding } from "ags";
+import GObject from "gi://GObject";
 
 class BarVisibilityState extends GObject.Object {
     static {
         GObject.registerClass({
             Properties: {
                 'visible': GObject.ParamSpec.boolean(
-                    'visible', 'Visible', 'Widget visibility state',
+                    'visible', 'Visible', 'Bar visibility state',
                     GObject.ParamFlags.READWRITE,
-                    true
+                    true,
                 ),
             },
         }, this);
@@ -23,12 +23,13 @@ class BarVisibilityState extends GObject.Object {
     set visible(value: boolean) {
         if (this.#visible !== value) {
             this.#visible = value;
-            this.notify("visible");
+            this.notify('visible');
+
         }
     }
 
     toggle() {
-        this.visible = !this.visible;
+        this.#visible = !this.#visible;
     }
 
 }
@@ -40,7 +41,6 @@ export const showWidget = createBinding(service, "visible");
 //@ts-ignore
 globalThis.toggleBar = () => service.toggle();
 
-// por si a caso
 export const setPopoverOpen = (value: boolean) => {
-    if (value) service.visible = true;
+    if (value) service.visible = value;
 }

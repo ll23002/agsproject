@@ -1,4 +1,4 @@
-import { Astal, Gtk } from "ags/gtk4"
+import { Gtk } from "ags/gtk4"
 import { createBinding } from "ags"
 import powerService from "../service/PowerProfiles"
 

@@ -60,7 +60,6 @@ const service = new ProjectionService();
 export default function ProjectionMenu(gdkmonitor: Gdk.Monitor) {
     const modeBinding = createBinding(service, "mode");
 
-    // REEMPLAZO: Iconos de Nerd Font en lugar de nombres de iconos GTK
     const options = [
         { icon: "\u{f0322}", label: "Solo PC" },
         { icon: "\u{f037a}", label: "Duplicar" },
@@ -113,6 +112,7 @@ export default function ProjectionMenu(gdkmonitor: Gdk.Monitor) {
                 {options.map((opt, index) => (
                     <button
                         class={modeBinding(m => m === index ? "option active" : "option")}
+                        focusable={false}
                         onClicked={() => {
                             service.mode = index;
                             service.applyMode();

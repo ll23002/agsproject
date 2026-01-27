@@ -1,11 +1,9 @@
 import app from "ags/gtk4/app"
 import style from "./style.scss"
-import Calendar from "./widget/Calendar";
-import ControlPanel from "./widget/controlPanel"
 import NotificationPopups from "./widget/NotificationPopups"
-import Workspaces from "./widget/Workspaces";
 import "./service/BarState";
 import Bar from "./widget/Bar";
+import ProyectionMenu from "./widget/ProyectionMenu";
 
 app.start({
   css: style.toString().replace('@charset "UTF-8";', ""),
@@ -19,6 +17,7 @@ app.start({
     app.get_monitors().map(monitor => {
       Bar(monitor)
       NotificationPopups(monitor)
+      ProyectionMenu(monitor)
     })
   },
 })

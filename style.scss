@@ -573,3 +573,47 @@ popover calendar {
   70% { box-shadow: 0 0 0 10px rgba($error-color, 0); }
   100% { box-shadow: 0 0 0 0 rgba($error-color, 0); }
 }
+
+
+
+/* PROYECTION MENU */
+.projection-widget {
+  background-color: rgba(17, 17, 27, 0.95);
+  border: 2px solid rgba(137, 180, 250, 0.3); // Accent color border
+  border-radius: 24px;
+  padding: 30px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+
+  .option {
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 16px;
+    padding: 20px;
+    min-width: 140px;
+    min-height: 140px;
+    transition: all 0.2s ease;
+    box-shadow: none;
+
+    label {
+      font-weight: bold;
+      color: #cdd6f4;
+    }
+
+    image {
+      color: #cdd6f4;
+    }
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    &.active {
+      background-color: #89b4fa; // Accent color
+      border-color: #89b4fa;
+
+      label, image {
+        color: #1e1e2e; // Dark text for contrast
+      }
+    }
+  }
+}

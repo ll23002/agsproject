@@ -1,77 +1,83 @@
-import GObject from "gi://GObject"
-import GLib from "gi://GLib"
+import GObject from "gi://GObject";
+import { execAsync } from "ags/process";
 //@ts-ignore
-import Battery from "gi://AstalBattery"
-
+import Battery from "gi://AstalBattery";
 
 class PowerProfilesService extends GObject.Object {
     static {
         GObject.registerClass({
-            Signals: {
-                "changed": {},
+            Properties: {
+                'profile': GObject.ParamSpec.string(
+                    'profile', 'Power Profile', 'Current Power Profile',
+                    GObject.ParamFlags.READWRITE,
+                    "balanced"
+                ),
             },
         }, this);
     }
 
-    _profile = "balanced";
+    #profile: string = "balanced";
+    #battery = Battery.get_default();
 
     constructor() {
         super();
 
-        this._sync();
-
-        const bat = Battery.get_default();
-
-        bat.connect("notify::charging", () => this._autoSwitch(bat));
-
-        this._autoSwitch(bat);
+        this.#init();
+        this.#battery.connect("notify::charging", () => this.#autoSwitch());
     }
 
     get profile() {
-        return this._profile;
+        return this.#profile;
     }
 
-
-    _sync() {
-        try {
-            const [success, stdout, stderr, exit_status] = GLib.spawn_command_line_sync("powerprofilesctl get");
-            if (success) {
-                const decoder = new TextDecoder();
-                //@ts-ignore
-                const current = decoder.decode(stdout).trim();
-
-                if (this._profile !== current) {
-                    this._profile = current;
-                    this.emit("changed");
-                }
-            }
-        } catch (e) {
-            console.error("Error leyendo perfil de energía:", e);
+    set profile(value: string) {
+        if (this.#profile !== value) {
+            this.setProfile(value);
         }
     }
 
+    async #init() {
+        try {
+            const stdout = await execAsync("powerprofilesctl get");
+            const current = stdout.trim();
 
-    setProfile(mode: string) {
-        GLib.spawn_command_line_async(`powerprofilesctl set ${mode}`);
-
-        this._profile = mode;
-        this.emit("changed");
-        print(`⚡ Perfil cambiado a: ${mode}`);
+            if (this.#profile !== current) {
+                this.#profile = current;
+                this.notify("profile");
+            }
+        } catch (e) {
+            console.error("Error inicializando PowerProfiles:", e);
+        }
+        this.#autoSwitch();
     }
 
-    _autoSwitch(bat: any) {
-        if (bat.charging) {
-            if (this._profile !== "performance") {
-                this.setProfile("performance");
-            }
-        } else {
-            if (this._profile !== "balanced") {
-                this.setProfile("balanced");
-            }
+    async setProfile(mode: string) {
+        if (this.#profile === mode) return;
+
+        const oldProfile = this.#profile;
+        this.#profile = mode;
+        this.notify("profile");
+
+        try {
+            await execAsync(`powerprofilesctl set ${mode}`);
+            console.log(`Perfil cambiado a: ${mode}`);
+        } catch (e) {
+            console.error(`Error cambiando perfil a ${mode}:`, e);
+            this.#profile = oldProfile;
+            this.notify("profile");
+        }
+    }
+
+    #autoSwitch() {
+        const isCharging = this.#battery.charging;
+
+        if (isCharging && this.#profile !== "performance") {
+            this.setProfile("performance");
+        } else if (!isCharging && this.#profile !== "balanced") {
+            this.setProfile("balanced");
         }
     }
 }
-
 
 const service = new PowerProfilesService();
 export default service;

@@ -22,7 +22,7 @@ class PowerProfilesService extends GObject.Object {
     constructor() {
         super();
 
-        this.#init();
+        this.#init().catch(e => console.error("Error inicializando PowerProfiles:", e));
         this.#battery.connect("notify::charging", () => this.#autoSwitch());
     }
 
@@ -32,7 +32,7 @@ class PowerProfilesService extends GObject.Object {
 
     set profile(value: string) {
         if (this.#profile !== value) {
-            this.setProfile(value);
+            this.setProfile(value).catch(e => console.error("Error cambiando perfil:", e));
         }
     }
 
@@ -72,9 +72,9 @@ class PowerProfilesService extends GObject.Object {
         const isCharging = this.#battery.charging;
 
         if (isCharging && this.#profile !== "performance") {
-            this.setProfile("performance");
+            this.setProfile("performance").catch(e => console.error("Error cambiando perfil:", e));
         } else if (!isCharging && this.#profile !== "balanced") {
-            this.setProfile("balanced");
+            this.setProfile("balanced").catch(e => console.error("Error cambiando perfil:", e));
         }
     }
 }

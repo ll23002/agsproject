@@ -3,7 +3,6 @@
 /* ==============================================
    1. VARIABLES & PALETTE
    ============================================== */
-/* CYBERPUNK PALETTE */
 $cp-purple:    #711C91;
 $cp-magenta:   #EA00D9;
 $cp-cyan:      #0ABDC6;
@@ -11,16 +10,13 @@ $cp-blue:      #133E7C;
 $cp-dark:      #091833;
 $cp-cyan-dark: #217b97;
 
-/* SEMANTIC VARIABLES */
-$bg-color:      rgba($cp-dark, 0.85);
-$accent-color:  $cp-cyan;
-$border-color:  $cp-blue;
-$text-color:    #ffffff;
-$error-color:   #ff5555;
-$hover-color:   rgba($cp-cyan, 0.15);
-
-/* AQUÍ ESTÁ TU CAMBIO: Ahora el color activo es el oscuro */
-$active-color:  $cp-cyan-dark;
+$bg-color:     rgba($cp-dark, 0.85);
+$accent-color: $cp-cyan;
+$border-color: $cp-blue;
+$text-color:   #ffffff;
+$error-color:  #ff5555;
+$hover-color:  rgba($cp-cyan, 0.15);
+$active-color: $cp-cyan-dark;
 
 /* ==============================================
    2. GLOBAL RESET & UTILS
@@ -34,7 +30,6 @@ $active-color:  $cp-cyan-dark;
   }
 }
 
-/* Placeholder para botones de la barra (DRY principle, por favor) */
 %bar-button {
   background-image: none;
   background-color: $bg-color;
@@ -60,7 +55,8 @@ window#control-panel,
 window#calendar,
 window#hover-zone,
 window.Bar,
-window.Workspaces {
+window.Workspaces,
+window#projection-menu {
   background-color: transparent;
   min-height: 0px;
 }
@@ -74,9 +70,8 @@ window.Workspaces {
 }
 
 /* ==============================================
-   4. BAR COMPONENTS (Workspaces & MenuButtons)
+   4. BAR COMPONENTS
    ============================================== */
-/* Workspaces */
 .workspaces {
   background-color: $bg-color;
   border: 1px solid $border-color;
@@ -113,7 +108,6 @@ button.workspace-btn {
   }
 }
 
-/* Bar Buttons */
 window.Bar menubutton > button {
   @extend %bar-button;
 
@@ -132,7 +126,6 @@ window.Bar menubutton > button {
 /* ==============================================
    5. CONTROL PANEL & POPOVERS
    ============================================== */
-/* Layout Containers */
 .ControlPanel revealer > box,
 .Calendar revealer > box {
   margin-top: 12px;
@@ -156,7 +149,6 @@ window.Workspaces revealer > box {
   }
 }
 
-/* General Popover Styling */
 popover {
   background: transparent;
   border: none;
@@ -173,7 +165,6 @@ popover {
   }
 }
 
-/* Panel Internal Elements */
 .panel-container {
   label { color: $text-color; }
 
@@ -207,7 +198,7 @@ popover {
 }
 
 /* ==============================================
-   6. WIDGETS: NETWORK, BLUETOOTH & TOGGLES
+   6. WIDGETS
    ============================================== */
 .wifi-header, .bluetooth-header {
   padding: 8px 12px;
@@ -270,7 +261,6 @@ label.empty-networks, label.empty-devices {
   padding: 20px;
 }
 
-/* Switches */
 switch {
   background-color: rgba($cp-blue, 0.3);
   border: 1px solid $border-color;
@@ -293,7 +283,6 @@ switch {
   }
 }
 
-/* DND & Profile Buttons */
 button.dnd-button {
   background-image: none;
   box-shadow: none;
@@ -349,9 +338,9 @@ button.dnd-button {
   > box { all: unset; }
 }
 
-    /*
+/* ==============================================
    7. NOTIFICATION CENTER
-   */
+   ============================================== */
 .notification-center {
   min-width: 300px;
   padding: 8px;
@@ -476,7 +465,7 @@ button.dnd-button {
 }
 
 /* ==============================================
-   9. BATTERY PANEL & LABELS
+   9. BATTERY PANEL
    ============================================== */
 .battery-panel {
   background-color: rgba($cp-blue, 0.2);
@@ -574,45 +563,48 @@ popover calendar {
   100% { box-shadow: 0 0 0 0 rgba($error-color, 0); }
 }
 
-
-
-/* PROYECTION MENU */
+/* ==============================================
+   12. PROJECTION MENU
+   ============================================== */
 .projection-widget {
-  background-color: rgba(17, 17, 27, 0.95);
-  border: 2px solid rgba(137, 180, 250, 0.3); // Accent color border
-  border-radius: 24px;
-  padding: 30px;
+  background-color: $bg-color;
+  border: 1px solid $border-color;
+  border-radius: 20px;
+  padding: 15px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
 
   .option {
     background: transparent;
     border: 1px solid transparent;
-    border-radius: 16px;
-    padding: 20px;
-    min-width: 140px;
-    min-height: 140px;
+    border-radius: 12px;
+    padding: 10px;
+    min-width: 100px;
+    min-height: 100px;
     transition: all 0.2s ease;
     box-shadow: none;
 
     label {
       font-weight: bold;
-      color: #cdd6f4;
+      color: $text-color;
+      font-size: 13px;
     }
 
     image {
-      color: #cdd6f4;
+      color: $text-color;
     }
 
     &:hover {
-      background-color: rgba(255, 255, 255, 0.05);
+      background-color: $hover-color;
+      border-color: rgba($accent-color, 0.3);
     }
 
     &.active {
-      background-color: #89b4fa; // Accent color
-      border-color: #89b4fa;
+      background-color: $active-color;
+      border-color: $active-color;
+      box-shadow: 0 0 10px rgba($active-color, 0.4);
 
       label, image {
-        color: #1e1e2e; // Dark text for contrast
+        color: $text-color;
       }
     }
   }

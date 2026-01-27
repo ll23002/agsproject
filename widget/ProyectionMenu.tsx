@@ -19,7 +19,6 @@ class ProjectionService extends GObject.Object {
 
     declare mode: number;
 
-
     cycle(step: number) {
         let next = this.mode + step;
         if (next > 3) next = 0;
@@ -61,11 +60,12 @@ const service = new ProjectionService();
 export default function ProjectionMenu(gdkmonitor: Gdk.Monitor) {
     const modeBinding = createBinding(service, "mode");
 
+    // REEMPLAZO: Iconos de Nerd Font en lugar de nombres de iconos GTK
     const options = [
-        { icon: "computer-symbolic", label: "Solo PC" },
-        { icon: "video-display-symbolic", label: "Duplicar" },
-        { icon: "view-dual-symbolic", label: "Extender" },
-        { icon: "video-joined-displays-symbolic", label: "Solo Proyector" },
+        { icon: "\u{f0322}", label: "Solo PC" },
+        { icon: "\u{f037a}", label: "Duplicar" },
+        { icon: "\u{f1928}", label: "Extender" },
+        { icon: "\u{f042e}", label: "Solo Proyector" },
     ];
 
     const hide = () => app.toggle_window("projection-menu");
@@ -102,7 +102,6 @@ export default function ProjectionMenu(gdkmonitor: Gdk.Monitor) {
             exclusivity={Astal.Exclusivity.IGNORE}
             keymode={Astal.Keymode.EXCLUSIVE}
             layer={Astal.Layer.OVERLAY}
-            margin={50}
             application={app}
             css="background-color: transparent;"
         >
@@ -121,7 +120,10 @@ export default function ProjectionMenu(gdkmonitor: Gdk.Monitor) {
                         }}
                     >
                         <box orientation={Gtk.Orientation.VERTICAL} spacing={10}>
-                            <Gtk.Image iconName={opt.icon} pixelSize={48} />
+                            <label
+                                label={opt.icon}
+                                css="font-size: 64px;"
+                            />
                             <label label={opt.label} />
                         </box>
                     </button>

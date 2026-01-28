@@ -1,9 +1,8 @@
 import { createBinding, With, createMemo } from "ags";
-import { Astal, Gtk, Gdk } from "ags/gtk4";
+import { Gtk } from "ags/gtk4";
 // @ts-ignore
 import Network from "gi://AstalNetwork";
 import { execAsync } from "ags/process";
-import { setPopoverOpen } from "../service/BarState";
 // @ts-ignore
 import Pango from "gi://Pango";
 import GLib from "gi://GLib";
@@ -30,9 +29,9 @@ class SavedNetworkService extends GObject.Object {
 
     constructor() {
         super();
-        this.refresh();
+        this.refresh().catch(console.error);
         GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, 10, () => {
-            this.refresh();
+            this.refresh().catch(console.error);
             return true;
         });
     }
@@ -81,7 +80,7 @@ function WifiItem({ ap, network, savedNetworks, onUpdate }: { ap: any, network: 
     const forgetNetwork = () => {
         execAsync(`nmcli connection delete id "${ap.ssid}"`)
             .then(() => {
-                savedService.refresh();
+                savedService.refresh().catch(console.error);
                 onUpdate();
             })
             .catch(e => console.error(e));
@@ -222,7 +221,7 @@ export default function WifiPanel() {
     const scanWifi = () => {
         if (network.wifi.enabled) {
             execAsync("nmcli device wifi rescan").catch(console.error);
-            savedService.refresh();
+            savedService.refresh().catch(console.error);
         }
     }
 
@@ -245,8 +244,6 @@ export default function WifiPanel() {
 
             <popover
                 onShow={() => scanWifi()}
-                onMap={()=> setPopoverOpen(true)}
-                onUnmap={()=> setPopoverOpen(false)}
             >
                 <box orientation={Gtk.Orientation.VERTICAL} spacing={8} widthRequest={350}>
                     <box class="wifi-header">

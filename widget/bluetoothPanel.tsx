@@ -1,6 +1,5 @@
 import {createBinding, With, createMemo} from "ags";
 import {Gtk} from "ags/gtk4"
-import { setPopoverOpen} from "../service/BarState";
 // @ts-ignore
 import Bluetooth from "gi://AstalBluetooth";
 import {execAsync} from "ags/process";
@@ -75,7 +74,7 @@ const scanForDevices = async () => {
         const match = adapterInfo.match(/Controller\s+([0-9A-F:]+)/i);
 
         if (!match) {
-            throw new Error("No se encontró adaptador Bluetooth");
+            console.error("No se encontró adaptador Bluetooth");
         }
 
         await execAsync(`dbus-send --system --type=method_call --dest=org.bluez /org/bluez/hci0 org.bluez.Adapter1.StartDiscovery`);
@@ -106,7 +105,7 @@ const scanForDevices = async () => {
                 <label label={btBinding(p => p ? "\u{f00af}" : "\u{f00b2}")}/>
                 <label label={btBinding(p => p ? "Bluetooth" : "Apagado")}/>
             </box>
-            <popover onMap={()=> setPopoverOpen(true)} onUnmap={()=> setPopoverOpen(false)}>
+            <popover>
                 <box orientation={Gtk.Orientation.VERTICAL} spacing={8} widthRequest={350}>
                     <box class="bluetooth-header">
                         <label
@@ -118,7 +117,7 @@ const scanForDevices = async () => {
                             active={btBinding(p => p)}
                             // @ts-ignore
                             onStateSet={(_, state) => {
-                                toggleBluetooth(state);
+                                toggleBluetooth(state).catch(console.error);
                                 return false;
                             }}
                         />

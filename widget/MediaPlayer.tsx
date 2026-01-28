@@ -1,16 +1,13 @@
-
-//@ts-ignore
-import Gtk from "gi://Gtk?version=4.0";
+import { Gtk } from "ags/gtk4"
 import { execAsync } from "ags/process";
+import GLib from "gi://GLib";
+import { createBinding, With } from "ags"
+import Gio from "gi://Gio";
 //@ts-ignore
 import Mpris from "gi://AstalMpris";
 //@ts-ignore
-import GLib from "gi://GLib";
-//@ts-ignore
-import Gio from "gi://Gio";
-import { createBinding, With } from "ags"
-//@ts-ignore
 import Pango from "gi://Pango";
+
 
 function CoverArt({ player }: { player: Mpris.Player }) {
     return (
@@ -25,7 +22,7 @@ function CoverArt({ player }: { player: Mpris.Player }) {
                 hexpand
                 vexpand
                 contentFit={Gtk.ContentFit.COVER}
-                onRealize={(self) => {
+                onRealize={(self: Gtk.Picture) => {
                     const update = () => {
                         const url = player.coverArt;
 
@@ -76,10 +73,9 @@ function CoverArt({ player }: { player: Mpris.Player }) {
 
                     update();
                     const id = player.connect("notify::cover-art", update);
-                    //@ts-ignore
                     self._signalId = id;
                 }}
-                onDestroy={(self) => {
+                onDestroy={(self: Gtk.Picture) => {
                     //@ts-ignore
                     if (self._signalId) player.disconnect(self._signalId);
                 }}

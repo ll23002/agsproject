@@ -13,68 +13,75 @@ function CoverArt({ player }: { player: Mpris.Player }) {
     return (
         <box
             class="cover-art-area"
-            widthRequest={64}
-            heightRequest={64}
             valign={Gtk.Align.CENTER}
             halign={Gtk.Align.CENTER}
         >
-            <Gtk.Picture
-                hexpand
-                vexpand
-                contentFit={Gtk.ContentFit.CONTAIN}
-                onRealize={(self: Gtk.Picture) => {
-                    const update = () => {
-                        const url = player.coverArt;
+            <Gtk.ScrolledWindow
+                widthRequest={64}
+                heightRequest={64}
+                hscrollbarPolicy={Gtk.PolicyType.NEVER}
+                vscrollbarPolicy={Gtk.PolicyType.NEVER}
+                hexpand={false}
+                vexpand={false}
+                css="border-radius: 8px;"
+            >
+                <Gtk.Picture
+                    contentFit={Gtk.ContentFit.COVER}
+                    onRealize={(self: Gtk.Picture) => {
+                        const update = () => {
+                            const url = player.coverArt;
 
-                        if (!url) {
-                            self.file = null;
-                            return;
-                        }
+                            if (!url) {
+                                self.file = null;
+                                return;
+                            }
 
-                        const cacheDir = GLib.get_user_cache_dir() + "/ags/media-covers";
-                        const safeName = GLib.base64_encode(url).replace(/[\/+=]/g, "");
-                        const destPath = `${cacheDir}/${safeName}.jpg`;
+                            const cacheDir = GLib.get_user_cache_dir() + "/ags/media-covers";
+                            const safeName = GLib.base64_encode(url).replace(/[\/+=]/g, "");
+                            const destPath = `${cacheDir}/${safeName}.jpg`;
 
-                        const setImage = (path: string) => {
-                            if (GLib.file_test(path, GLib.FileTest.EXISTS)) {
-                                console.log(`Cargando: ${path}`);
-                                self.file = Gio.File.new_for_path(path);
-                            } else {
-                                console.error(`[ERROR] Archivo fantasma: ${path}`);
+                            const setImage = (path: string) => {
+                                if (GLib.file_test(path, GLib.FileTest.EXISTS)) {
+                                    self.file = Gio.File.new_for_path(path);
+                                } else {
+                                    console.error(`[ERROR] Archivo fantasma: ${path}`);
+                                }
+                            };
+
+                            if (GLib.file_test(destPath, GLib.FileTest.EXISTS)) {
+                                setImage(destPath);
+                                return;
+                            }
+
+                            GLib.mkdir_with_parents(cacheDir, 0o755);
+
+                            let srcPath: string | null = null;
+                            if (url.startsWith("file://")) srcPath = url.substring(7);
+                            else if (url.startsWith("/")) srcPath = url;
+
+                            if (srcPath) {
+                                if (GLib.file_test(srcPath, GLib.FileTest.EXISTS)) {
+                                    execAsync(["cp", srcPath, destPath])
+                                        .then(() => { if (self && self.visible) setImage(destPath); })
+                                        .catch(err => console.error("CP Error:", err));
+                                }
+                            } else if (url.startsWith("http")) {
+                                execAsync(["curl", "-s", "-o", destPath, url])
+                                    .then(() => { if (self && self.visible) setImage(destPath); })
+                                    .catch(err => console.error("Curl Error:", err));
                             }
                         };
 
-                        if (GLib.file_test(destPath, GLib.FileTest.EXISTS)) {
-                            setImage(destPath);
-                            return;
-                        }
+                        update();
+                        self._signalId = player.connect("notify::cover-art", update);
+                    }}
+                    onDestroy={(self: Gtk.Picture) => {
+                        if (self._signalId) player.disconnect(self._signalId);
+                    }}
+                />
 
-                        GLib.mkdir_with_parents(cacheDir, 0o755);
+            </Gtk.ScrolledWindow>
 
-                        let srcPath: string | null = null;
-                        if (url.startsWith("file://")) srcPath = url.substring(7);
-                        else if (url.startsWith("/")) srcPath = url;
-
-                        if (srcPath) {
-                            if (GLib.file_test(srcPath, GLib.FileTest.EXISTS)) {
-                                execAsync(["cp", srcPath, destPath])
-                                    .then(() => { if (self && self.visible) setImage(destPath); })
-                                    .catch(err => console.error("CP Error:", err));
-                            }
-                        } else if (url.startsWith("http")) {
-                            execAsync(["curl", "-s", "-o", destPath, url])
-                                .then(() => { if (self && self.visible) setImage(destPath); })
-                                .catch(err => console.error("Curl Error:", err));
-                        }
-                    };
-
-                    update();
-                    self._signalId = player.connect("notify::cover-art", update);
-                }}
-                onDestroy={(self: Gtk.Picture) => {
-                    if (self._signalId) player.disconnect(self._signalId);
-                }}
-            />
         </box>
     );
 }

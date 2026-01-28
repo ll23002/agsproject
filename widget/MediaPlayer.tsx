@@ -21,7 +21,7 @@ function CoverArt({ player }: { player: Mpris.Player }) {
             <Gtk.Picture
                 hexpand
                 vexpand
-                contentFit={Gtk.ContentFit.COVER}
+                contentFit={Gtk.ContentFit.CONTAIN}
                 onRealize={(self: Gtk.Picture) => {
                     const update = () => {
                         const url = player.coverArt;
@@ -37,23 +37,20 @@ function CoverArt({ player }: { player: Mpris.Player }) {
 
                         const setImage = (path: string) => {
                             if (GLib.file_test(path, GLib.FileTest.EXISTS)) {
-                                console.log(`[DEBUG] Intentando setear archivo: ${path}`);
+                                console.log(`Cargando: ${path}`);
                                 self.file = Gio.File.new_for_path(path);
                             } else {
                                 console.error(`[ERROR] Archivo fantasma: ${path}`);
                             }
                         };
 
-                        // 1. Check Caché
                         if (GLib.file_test(destPath, GLib.FileTest.EXISTS)) {
                             setImage(destPath);
                             return;
                         }
 
-                        // 2. Setup Directorio
                         GLib.mkdir_with_parents(cacheDir, 0o755);
 
-                        // 3. Obtener imagen
                         let srcPath: string | null = null;
                         if (url.startsWith("file://")) srcPath = url.substring(7);
                         else if (url.startsWith("/")) srcPath = url;
@@ -72,11 +69,9 @@ function CoverArt({ player }: { player: Mpris.Player }) {
                     };
 
                     update();
-                    const id = player.connect("notify::cover-art", update);
-                    self._signalId = id;
+                    self._signalId = player.connect("notify::cover-art", update);
                 }}
                 onDestroy={(self: Gtk.Picture) => {
-                    //@ts-ignore
                     if (self._signalId) player.disconnect(self._signalId);
                 }}
             />
@@ -85,8 +80,6 @@ function CoverArt({ player }: { player: Mpris.Player }) {
 }
 
 
-
-//
 function Visualizer({ player }: { player: Mpris.Player }) {
     const status = createBinding(player, "playbackStatus");
     return (
@@ -166,8 +159,8 @@ export default function MediaPlayer() {
         <box class="media-player-container" visible={players((p) => p.length > 0)}>
             <With value={players}>
                 {(ps) => {
-                    //@ts-ignore
-                    const activePlayer = ps.find((p) => p.playbackStatus === Mpris.PlaybackStatus.PLAYING) || ps[0];
+
+                    const activePlayer = ps.find((p: Mpris.Player) => p.playbackStatus === Mpris.PlaybackStatus.PLAYING) || ps[0];
                     if (activePlayer) {
                         return <Player player={activePlayer} />;
                     }

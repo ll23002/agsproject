@@ -14,6 +14,7 @@ import BluetoothPanel from "./bluetoothPanel";
 import BatteryPanel from "./batteryPanel";
 import PowerPanel from "./PowerPanel";
 import Rendimiento from "./Rendimiento";
+import NoDisturbPanel from "./NoDisturbPanel";
 
 import { showWidget } from "../service/BarState";
 import NetworkStats from "./NetworkStats";
@@ -118,18 +119,7 @@ export function ControlPanel() {
                             </box>
 
                             <box spacing={10}>
-                                <button
-                                    widthRequest={145}
-                                    heightRequest={60}
-                                    class={dndBinding(d => d ? "dnd-button active" : "dnd-button")}
-                                    onClicked={() => notifd.set_dont_disturb(!notifd.dontDisturb)}
-                                >
-                                    <box spacing={8}>
-                                        <label label={dndBinding(d => d ? "\u{f05f9}" : "\u{f0f3}")} />
-                                        <label label="No Molestar" />
-                                    </box>
-                                </button>
-
+                                <NoDisturbPanel />
                                 <BatteryPanel />
                             </box>
                         </box>

@@ -1,28 +1,16 @@
 import { createPoll } from "ags/time"
-import { createBinding, With } from "ags"
-import { Astal, Gtk, Gdk } from "ags/gtk4"
-import app from "ags/gtk4/app"
-// @ts-ignore
-import Notifd from "gi://AstalNotifd"
-// @ts-ignore
-import Hyprland from "gi://AstalHyprland";
+import { Gtk } from "ags/gtk4"
 import GLib from "gi://GLib"
 
-import {showWidget, setPopoverOpen} from "../service/BarState";
+import {showWidget} from "../service/BarState";
 import MediaPlayer from "./MediaPlayer";
+import NotificacionesPanel from "./NotificacionesPanel";
 
 export function Calendar() {
 
     const hora = createPoll("", 1000, () => {
         const now = GLib.DateTime.new_now_local();
         return now.format("%I:%M:%S %p") || "";
-    });
-
-    const notifd = Notifd.get_default();
-    const notifications = createBinding(notifd, "notifications");
-
-    notifd.connect("notified", (_: Notifd.Notifd, id: number) => {
-        const n = notifd.get_notification(id);
     });
 
 
@@ -40,52 +28,7 @@ export function Calendar() {
                                 css="padding: 12px;"
                             />
                         </box>
-                        <box orientation={Gtk.Orientation.VERTICAL} spacing={8} class="notification-center">
-                            <box class="notification-header">
-                                <label label={notifications((n) => `Notificaciones (${n.length})`)} hexpand />
-                                <button
-                                    class="clear-button"
-                                    onClicked={() => {
-                                        notifd.get_notifications().forEach((n: any) => n.dismiss());
-                                    }}
-                                >
-                                    <label label={"\u{f039f}"} />
-                                </button>
-                            </box>
-                            <Gtk.ScrolledWindow
-                                vexpand
-                                maxContentHeight={400}
-                                propagateNaturalHeight
-                            >
-                                <With value={notifications}>
-                                    {(notifs) => (
-                                        <box orientation={Gtk.Orientation.VERTICAL} spacing={4}>
-                                            {notifs.length === 0 ? (
-                                                <label label="No hay notificaciones"
-                                                       class="empty-notifications" />
-                                            ) : (
-
-                                                notifs.map((notification: Notifd.Notification) => (
-                                                    <box class="notification" spacing={8}>
-                                                        {notification.appIcon && (
-                                                            <Gtk.Image iconName={notification.appIcon} />
-                                                        )}
-                                                        <box orientation={Gtk.Orientation.VERTICAL}>
-                                                            <label label={notification.summary}
-                                                                   halign={Gtk.Align.START} />
-                                                            {notification.body && (
-                                                                <label label={notification.body}
-                                                                       halign={Gtk.Align.START} wrap />
-                                                            )}
-                                                        </box>
-                                                    </box>
-                                                ))
-                                            )}
-                                        </box>
-                                    )}
-                                </With>
-                            </Gtk.ScrolledWindow>
-                        </box>
+                        <NotificacionesPanel />
                     </box>
                 </popover>
             </menubutton>

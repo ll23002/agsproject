@@ -11,7 +11,7 @@ function CircularProgress({
                               color = "#89b4fa",
                               format = (p: number) => `${Math.round(p * 100)}%`
                           }: {
-    service: any, // GObject
+    service: any,
     property: string,
     label: string,
     size?: number,
@@ -19,35 +19,30 @@ function CircularProgress({
     color?: string,
     format?: (value: number) => string
 }) {
-    // 1. Creamos el widget base
-    const da = (
+    const area = (
         <drawingarea
             widthRequest={size}
             heightRequest={size}
         />
     ) as Gtk.DrawingArea;
 
-    //@ts-ignore
-    da.set_draw_func((_, cr, width, height) => {
-        // Obtenemos el valor actual directamente del servicio
+
+    area.set_draw_func((_: Gtk.DrawingArea, cr: Cairo.Context, width: number, height: number) => {
         const progress = service[property] || 0;
 
         const centerX = width / 2;
         const centerY = height / 2;
         const radius = (Math.min(width, height) - lineWidth) / 2 - lineWidth;
 
-        // Limpiar
         cr.setOperator(Cairo.Operator.CLEAR);
         cr.paint();
         cr.setOperator(Cairo.Operator.OVER);
 
-        // Fondo (Track)
         cr.setSourceRGBA(0.2, 0.2, 0.2, 0.4);
         cr.setLineWidth(lineWidth);
         cr.arc(centerX, centerY, radius, 0, 2 * Math.PI);
         cr.stroke();
 
-        // Indicador (Color)
         const hex = color.replace('#', '');
         const r = parseInt(hex.substring(0, 2), 16) / 255;
         const g = parseInt(hex.substring(2, 4), 16) / 255;
@@ -62,7 +57,6 @@ function CircularProgress({
         cr.arc(centerX, centerY, radius, startAngle, endAngle);
         cr.stroke();
 
-        // Texto
         cr.setSourceRGBA(1, 1, 1, 1);
         cr.selectFontFace("Sans", Cairo.FontSlant.NORMAL, Cairo.FontWeight.BOLD);
         cr.setFontSize(size * 0.22);
@@ -72,7 +66,6 @@ function CircularProgress({
         cr.moveTo(centerX - extents.width / 2, centerY + extents.height / 2);
         cr.showText(mainText);
 
-        // Etiqueta
         cr.setFontSize(size * 0.12);
         cr.selectFontFace("Sans", Cairo.FontSlant.NORMAL, Cairo.FontWeight.NORMAL);
         const labelExtents = cr.textExtents(label);
@@ -80,18 +73,15 @@ function CircularProgress({
         cr.showText(label);
     });
 
-    // 3. Conexión REACTIVA (Sin hooks raros)
-    // Conectamos a la señal nativa de GObject "notify::nombre_propiedad"
     const signalId = service.connect(`notify::${property}`, () => {
-        da.queue_draw(); // Pedimos redibujar solo cuando cambia el dato
+        area.queue_draw();
     });
 
-    // 4. Limpieza automática
-    da.connect("destroy", () => {
+    area.connect("destroy", () => {
         service.disconnect(signalId);
     });
 
-    return da;
+    return area;
 }
 
 export default function PerformanceWidget() {

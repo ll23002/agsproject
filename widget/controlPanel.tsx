@@ -36,7 +36,7 @@ export function ControlPanel() {
     const batCharging = createBinding(battery, "charging");
 
     const getBatIcon = (p: number, charging: boolean) => {
-        if (charging) return "\u{f0088}";
+        if (charging) return "\u{f0084}";
 
         if (p > 0.9) return "\u{f240}";
         if (p > 0.7) return "\u{f241}";

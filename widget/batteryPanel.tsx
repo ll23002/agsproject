@@ -1,5 +1,5 @@
 import { createBinding, createMemo, With } from "ags";
-import { Astal, Gtk } from "ags/gtk4";
+import { Gtk } from "ags/gtk4";
 // @ts-ignore
 import Battery from "gi://AstalBattery";
 import GLib from "gi://GLib"
@@ -27,7 +27,6 @@ export default function BatteryPanel() {
     const timeToEmpty = createBinding(battery, "timeToEmpty");
     const timeToFull = createBinding(battery, "timeToFull");
 
-    // LÓGICA DE CLASES CSS
     const batClass = createMemo(() => {
         const charging = chargingBinding();
         const p = levelBinding();
@@ -42,7 +41,7 @@ export default function BatteryPanel() {
         const charging = chargingBinding();
         const p = levelBinding();
 
-        if (charging) return "\u{f0088}";
+        if (charging) return "\u{f0084}";
 
 
         if (p <= 0.05) return "\u{f10cd}";
@@ -71,9 +70,7 @@ export default function BatteryPanel() {
         return `${hrs}h ${mins}m`;
     };
 
-    // ESTADÍSTICAS AVANZADAS (Lectura directa de /sys/class/power_supply)
     const batteryStats = createMemo(() => {
-        // Suscribimos a cambios de nivel para refrescar esto
         levelBinding();
 
         const path = "/sys/class/power_supply/BAT0"

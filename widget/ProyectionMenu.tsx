@@ -71,7 +71,7 @@ export default function ProjectionMenu(gdkmonitor: Gdk.Monitor) {
 
     const keyController = new Gtk.EventControllerKey();
     //@ts-ignore
-    keyController.connect("key-pressed", (_, keyval, keycode, state) => {
+    keyController.connect("key-pressed", (_, keyval) => {
         if (keyval === Gdk.KEY_Escape) {
             hide();
             return true;
@@ -85,7 +85,7 @@ export default function ProjectionMenu(gdkmonitor: Gdk.Monitor) {
             return true;
         }
         if (keyval === Gdk.KEY_Return || keyval === Gdk.KEY_space) {
-            service.applyMode();
+            service.applyMode().catch(console.error);
             hide();
             return true;
         }
@@ -115,7 +115,7 @@ export default function ProjectionMenu(gdkmonitor: Gdk.Monitor) {
                         focusable={false}
                         onClicked={() => {
                             service.mode = index;
-                            service.applyMode();
+                            service.applyMode().catch(console.error);
                             hide();
                         }}
                     >

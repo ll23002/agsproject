@@ -34,7 +34,6 @@ class PerformanceService extends GObject.Object {
         super();
         this.#update();
 
-        // Timer de 2 segundos. Eficiente y suficiente.
         GLib.timeout_add(GLib.PRIORITY_DEFAULT, 2000, () => {
             this.#update();
             return true;
@@ -57,13 +56,10 @@ class PerformanceService extends GObject.Object {
             const text = new TextDecoder().decode(file);
             const lines = text.split("\n");
 
-            // "cpu  user nice system idle iowait irq softirq steal guest guest_nice"
             const fields = lines[0].split(/\s+/);
 
-            // Campos relevantes según documentación del kernel
-            const idle = Number(fields[4]) + Number(fields[5]); // idle + iowait
+            const idle = Number(fields[4]) + Number(fields[5]);
             let total = 0;
-            // Sumamos todos los campos numéricos desde el índice 1
             for (let i = 1; i < fields.length; i++) {
                 const n = Number(fields[i]);
                 if (!isNaN(n)) total += n;
@@ -74,7 +70,6 @@ class PerformanceService extends GObject.Object {
 
             if (diffTotal > 0) {
                 const usage = (diffTotal - diffIdle) / diffTotal;
-                // Solo notificamos si hay cambio real para ahorrar renders
                 if (Math.abs(this.#cpu - usage) > 0.001) {
                     this.#cpu = usage;
                     this.notify("cpu");
@@ -91,7 +86,6 @@ class PerformanceService extends GObject.Object {
             const file = GLib.file_get_contents("/proc/meminfo")[1];
             const text = new TextDecoder().decode(file);
 
-            // Regex es más rápido que spawnear awk
             const totalMatch = text.match(/MemTotal:\s+(\d+)/);
             const availMatch = text.match(/MemAvailable:\s+(\d+)/);
 
@@ -110,18 +104,18 @@ class PerformanceService extends GObject.Object {
 
     #updateTemp() {
         try {
-            // Verifica que esta ruta exista en tu hardware, puede variar (thermal_zone1, etc)
             const path = "/sys/class/thermal/thermal_zone0/temp";
-            if (GLib.file_test(path, GLib.FileTest.EXISTS)) {
-                const file = GLib.file_get_contents(path)[1];
-                const temp = Number(new TextDecoder().decode(file).trim()) / 1000;
+            const file = GLib.file_get_contents(path)[1];
+            const temp = Number(new TextDecoder().decode(file).trim()) / 1000;
 
-                if (Math.abs(this.#temp - temp) > 0.5) {
-                    this.#temp = temp;
-                    this.notify("temp");
-                }
+            if (Math.abs(this.#temp - temp) > 0.5) {
+                this.#temp = temp;
+                this.notify("temp");
             }
-        } catch (e) { console.error(e); }
+
+        } catch (e) {
+            console.error(e);
+        }
     }
 }
 

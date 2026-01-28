@@ -615,7 +615,7 @@ popover calendar {
 
 @keyframes wave {
   0% { min-height: 4px; }
-  50% { min-height: 24px; } /* Altura máxima de la barra */
+  50% { min-height: 36px; }
   100% { min-height: 4px; }
 }
 
@@ -630,7 +630,6 @@ popover calendar {
   margin: 0 1px;
 }
 
-/* Solo se mueve si tiene la clase .playing */
 .visualizer-bar.playing {
   animation-name: wave;
   animation-iteration-count: infinite;

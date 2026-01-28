@@ -8,9 +8,10 @@ import Pango from "gi://Pango";
 function Visualizer({ player }: { player: Mpris.Player }) {
     const status = createBinding(player, "playbackStatus");
 
-    return (
-        <box class="visualizer-box" valign={Gtk.Align.END}>
-            {[1.2, 0.8, 1.1, 0.9, 1.3, 0.7].map((delay) => (
+return (
+    <box class="visualizer-box" valign={Gtk.Align.CENTER}>
+        {[1.2, 0.8, 1.1, 0.9, 1.3, 0.7, 0.3, 0.2, 0.1, 0.2].map((delay) => (
+            <box valign={Gtk.Align.CENTER} vexpand={false}>
                 <label
                     class={status((s) =>
                         s === Mpris.PlaybackStatus.PLAYING
@@ -18,12 +19,13 @@ function Visualizer({ player }: { player: Mpris.Player }) {
                             : "visualizer-bar"
                     )}
                     css={`animation-duration: ${delay}s;`}
-                    valign={Gtk.Align.END}
+                    valign={Gtk.Align.CENTER}
                     vexpand={false}
                 />
-            ))}
-        </box>
-    );
+            </box>
+        ))}
+    </box>
+);
 }
 
 function Player({ player }: { player: Mpris.Player }) {
@@ -42,8 +44,6 @@ function Player({ player }: { player: Mpris.Player }) {
                 valign={Gtk.Align.CENTER}
                 halign={Gtk.Align.CENTER}
             >
-
-                <Visualizer player={player} />
             </box>
 
             <box orientation={Gtk.Orientation.VERTICAL} valign={Gtk.Align.CENTER} hexpand>
@@ -85,6 +85,9 @@ function Player({ player }: { player: Mpris.Player }) {
                             css="font-size: 18px;"
                         />
                     </button>
+
+                    <Visualizer player={player} />
+
 
                     <button
                         onClicked={() => player.next()}

@@ -19,7 +19,7 @@ function CircularProgress({
     lineWidth?: number,
     color?: string,
     max?: number,
-    format?: (value: number) => string
+    format?: (value: number, rawValue: number) => string
 }) {
     const area = (
         <drawingarea
@@ -64,7 +64,7 @@ function CircularProgress({
         cr.selectFontFace("Sans", Cairo.FontSlant.NORMAL, Cairo.FontWeight.BOLD);
         cr.setFontSize(size * 0.22);
 
-        const mainText = format(progress);
+        const mainText = format(progress, rawValue);
         const extents = cr.textExtents(mainText);
         cr.moveTo(centerX - extents.width / 2, centerY + extents.height / 2);
         cr.showText(mainText);
@@ -115,7 +115,7 @@ export default function PerformanceWidget() {
                     label="TEMP"
                     color="#fab387"
                     max={100}
-                    format={(p) => `${Math.round(p)}°C`}
+                    format={( _, raw) => `${Math.round(raw)}°C`}
                 />
             </box>
         </box>

@@ -9,6 +9,7 @@ function CircularProgress({
                               size = 70,
                               lineWidth = 6,
                               color = "#89b4fa",
+                              max = 1,
                               format = (p: number) => `${Math.round(p * 100)}%`
                           }: {
     service: any,
@@ -17,6 +18,7 @@ function CircularProgress({
     size?: number,
     lineWidth?: number,
     color?: string,
+    max?: number,
     format?: (value: number) => string
 }) {
     const area = (
@@ -28,7 +30,8 @@ function CircularProgress({
 
 
     area.set_draw_func((_: Gtk.DrawingArea, cr: Cairo.Context, width: number, height: number) => {
-        const progress = service[property] || 0;
+        const rawValue = service[property] || 0;
+        const progress = Math.min(rawValue / max, 1);
 
         const centerX = width / 2;
         const centerY = height / 2;
@@ -111,6 +114,7 @@ export default function PerformanceWidget() {
                     property="temp"
                     label="TEMP"
                     color="#fab387"
+                    max={100}
                     format={(p) => `${Math.round(p)}°C`}
                 />
             </box>

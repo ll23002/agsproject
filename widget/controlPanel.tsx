@@ -44,7 +44,6 @@ export function ControlPanel() {
     };
 
     const getBatColor = (p: number, charging: boolean) => {
-        if (charging) return "#a6e3a1";
         if (p < 0.2) return "#f38ba8";
         if (p < 0.4) return "#fab387";
         return "#ffffff";

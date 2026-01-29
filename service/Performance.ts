@@ -1,25 +1,15 @@
 import GObject from "gi://GObject";
 import GLib from "gi://GLib";
+// @ts-ignore
+import GTop from "gi://GTop";
 
 class PerformanceService extends GObject.Object {
     static {
         GObject.registerClass({
             Properties: {
-                'cpu': GObject.ParamSpec.double(
-                    'cpu', 'CPU Usage', 'CPU Usage Percentage',
-                    GObject.ParamFlags.READABLE,
-                    0, 1, 0
-                ),
-                'ram': GObject.ParamSpec.double(
-                    'ram', 'RAM Usage', 'RAM Usage Percentage',
-                    GObject.ParamFlags.READABLE,
-                    0, 1, 0
-                ),
-                'temp': GObject.ParamSpec.double(
-                    'temp', 'Temperature', 'System Temperature',
-                    GObject.ParamFlags.READABLE,
-                    0, 100, 0
-                ),
+                'cpu': GObject.ParamSpec.double('cpu', 'CPU Usage', 'CPU Usage Percentage', GObject.ParamFlags.READABLE, 0, 1, 0),
+                'ram': GObject.ParamSpec.double('ram', 'RAM Usage', 'RAM Usage Percentage', GObject.ParamFlags.READABLE, 0, 1, 0),
+                'temp': GObject.ParamSpec.double('temp', 'Temperature', 'System Temperature', GObject.ParamFlags.READABLE, 0, 100, 0),
             },
         }, this);
     }
@@ -27,14 +17,19 @@ class PerformanceService extends GObject.Object {
     #cpu = 0;
     #ram = 0;
     #temp = 0;
+
+    #gtopCpu = new GTop.glibtop_cpu();
+    #gtopMem = new GTop.glibtop_mem();
+
     #prevIdle = 0;
     #prevTotal = 0;
+    #decoder = new TextDecoder();
 
     constructor() {
         super();
         this.#update();
 
-        GLib.timeout_add(GLib.PRIORITY_DEFAULT, 2000, () => {
+        GLib.timeout_add(GLib.PRIORITY_LOW, 2000, () => {
             this.#update();
             return true;
         });
@@ -52,69 +47,61 @@ class PerformanceService extends GObject.Object {
 
     #updateCPU() {
         try {
-            const file = GLib.file_get_contents("/proc/stat")[1];
-            const text = new TextDecoder().decode(file);
-            const lines = text.split("\n");
+            GTop.glibtop_get_cpu(this.#gtopCpu);
 
-            const fields = lines[0].split(/\s+/);
+            const total = this.#gtopCpu.total;
+            const idle = this.#gtopCpu.idle;
 
-            const idle = Number(fields[4]) + Number(fields[5]);
-            let total = 0;
-            for (let i = 1; i < fields.length; i++) {
-                const n = Number(fields[i]);
-                if (!isNaN(n)) total += n;
-            }
+            const deltaTotal = total - this.#prevTotal;
+            const deltaIdle = idle - this.#prevIdle;
 
-            const diffIdle = idle - this.#prevIdle;
-            const diffTotal = total - this.#prevTotal;
+            if (deltaTotal > 0) {
+                const usage = (deltaTotal - deltaIdle) / deltaTotal;
 
-            if (diffTotal > 0) {
-                const usage = (diffTotal - diffIdle) / diffTotal;
                 if (Math.abs(this.#cpu - usage) > 0.001) {
                     this.#cpu = usage;
                     this.notify("cpu");
                 }
             }
 
-            this.#prevIdle = idle;
             this.#prevTotal = total;
-        } catch (e) { console.error(e); }
+            this.#prevIdle = idle;
+        } catch (error) {
+            console.error("[Performance] Error leyendo CPU:", error);
+        }
     }
 
     #updateRAM() {
         try {
-            const file = GLib.file_get_contents("/proc/meminfo")[1];
-            const text = new TextDecoder().decode(file);
+            GTop.glibtop_get_mem(this.#gtopMem);
 
-            const totalMatch = text.match(/MemTotal:\s+(\d+)/);
-            const availMatch = text.match(/MemAvailable:\s+(\d+)/);
+            const total = this.#gtopMem.total;
+            const usage = this.#gtopMem.user / total;
 
-            if (totalMatch && availMatch) {
-                const total = Number(totalMatch[1]);
-                const available = Number(availMatch[1]);
-                const usage = (total - available) / total;
-
-                if (Math.abs(this.#ram - usage) > 0.001) {
-                    this.#ram = usage;
-                    this.notify("ram");
-                }
+            if (Math.abs(this.#ram - usage) > 0.001) {
+                this.#ram = usage;
+                this.notify("ram");
             }
-        } catch (e) { console.error(e); }
+        } catch (error) {
+            console.error("[Performance] Error leyendo RAM:", error);
+        }
     }
 
     #updateTemp() {
         try {
             const path = "/sys/class/thermal/thermal_zone0/temp";
-            const file = GLib.file_get_contents(path)[1];
-            const temp = Number(new TextDecoder().decode(file).trim()) / 1000;
+            const [ok, content] = GLib.file_get_contents(path);
 
-            if (Math.abs(this.#temp - temp) > 0.5) {
-                this.#temp = temp;
-                this.notify("temp");
+            if (ok) {
+                const temp = Number(this.#decoder.decode(content)) / 1000;
+
+                if (Math.abs(this.#temp - temp) > 0.5) {
+                    this.#temp = temp;
+                    this.notify("temp");
+                }
             }
-
-        } catch (e) {
-            console.error(e);
+        } catch (error) {
+            console.error(error);
         }
     }
 }

@@ -214,12 +214,29 @@ export default function WifiPanel() {
     const wifiSsid = createBinding(network.wifi, "ssid");
     const accessPoints = createBinding(network.wifi, "accessPoints");
 
+    let scanInterval: number | null = null;
+
     const scanWifi = () => {
         if (network.wifi.enabled) {
             network.wifi.scan();
             savedService.update().catch(console.error);
         }
     };
+
+    const startScanning = () => {
+        scanWifi();
+        scanInterval = setInterval(scanWifi, 6000);
+    };
+
+    const stopScanning = () => {
+        if (scanInterval) {
+            clearInterval(scanInterval);
+            scanInterval = null;
+        }
+    };
+
+
+
 
     return (
         <menubutton
@@ -238,7 +255,7 @@ export default function WifiPanel() {
                 />
             </box>
 
-            <popover onShow={() => scanWifi()}>
+            <popover onShow={() => startScanning()} onHide={() => stopScanning()}>
                 <box orientation={Gtk.Orientation.VERTICAL} spacing={8} widthRequest={350}>
                     <box class="wifi-header">
                         <label label="Redes Wi-Fi" hexpand halign={Gtk.Align.START} />

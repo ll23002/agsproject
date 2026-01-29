@@ -1,10 +1,10 @@
 import { createPoll } from "ags/time"
 import { Gtk } from "ags/gtk4"
 import GLib from "gi://GLib"
-
 import {showWidget} from "../service/BarState";
 import MediaPlayer from "./MediaPlayer";
 import NotificacionesPanel from "./NotificacionesPanel";
+import { setPopoverOpen} from "../service/BarState";
 
 export function Calendar() {
 
@@ -18,7 +18,7 @@ export function Calendar() {
         <box spacing={12}>
             <menubutton hexpand halign={Gtk.Align.CENTER}>
                 <label label={hora} widthRequest={100} halign={Gtk.Align.CENTER} />
-                <popover>
+                <popover onMap={()=> setPopoverOpen(true)} onUnmap={()=> setPopoverOpen(false)}>
                     <box spacing={12}>
                         <box orientation={Gtk.Orientation.VERTICAL} spacing={12}>
                             <MediaPlayer/>

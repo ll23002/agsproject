@@ -1,5 +1,3 @@
-import {createBinding, createMemo} from "ags"
-import { Gtk } from "ags/gtk4"
 // @ts-ignore
 import Notifd from "gi://AstalNotifd"
 // @ts-ignore
@@ -8,16 +6,17 @@ import Network from "gi://AstalNetwork"
 import Bluetooth from "gi://AstalBluetooth"
 // @ts-ignore
 import Battery from "gi://AstalBattery";
-
 import WifiPanel from "./wifiPanel";
 import BluetoothPanel from "./bluetoothPanel";
 import BatteryPanel from "./batteryPanel";
 import PowerPanel from "./PowerPanel";
 import Rendimiento from "./Rendimiento";
 import NoDisturbPanel from "./NoDisturbPanel";
-
 import { showWidget } from "../service/BarState";
 import NetworkStats from "./NetworkStats";
+import { setPopoverOpen } from "../service/BarState";
+import {createBinding, createMemo} from "ags"
+import { Gtk } from "ags/gtk4"
 
 
 
@@ -102,7 +101,7 @@ export function ControlPanel() {
             <menubutton hexpand halign={Gtk.Align.CENTER}>
                 {mainBarContent}
 
-                <popover>
+                <popover onMap={()=> setPopoverOpen(true)} onUnmap={()=> setPopoverOpen(false)}>
                     <box class="panel-container" orientation={Gtk.Orientation.VERTICAL} spacing={16}
                          widthRequest={300}>
 

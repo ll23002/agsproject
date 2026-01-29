@@ -9,8 +9,15 @@ app.start({
   css: style.toString().replace('@charset "UTF-8";', ""),
   //@ts-ignore
   requestHandler(request: string, res: (response: any) => void) {
-    // @ts-ignore
-    globalThis.toggleBar();
+    const command = String(request || "").trim();
+    if (command === "toggleBar") {
+      console.log("Si estoy enviando el dato correcto")
+      // @ts-ignore
+      globalThis.toggleBar();
+      res("Barra alternada correctamente, genio.");
+    } else {
+      res(`Error: El comando '${command}' no existe en mi limitado universo.`);
+    }
   },
   main() {
 

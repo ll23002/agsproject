@@ -14,7 +14,6 @@ import Rendimiento from "./Rendimiento";
 import NoDisturbPanel from "./NoDisturbPanel";
 import { showWidget } from "../service/BarState";
 import NetworkStats from "./NetworkStats";
-import { setPopoverOpen } from "../service/BarState";
 import {createBinding, createMemo} from "ags"
 import { Gtk } from "ags/gtk4"
 
@@ -101,7 +100,7 @@ export function ControlPanel() {
             <menubutton hexpand halign={Gtk.Align.CENTER}>
                 {mainBarContent}
 
-                <popover onMap={()=> setPopoverOpen(true)} onUnmap={()=> setPopoverOpen(false)}>
+                <popover>
                     <box class="panel-container" orientation={Gtk.Orientation.VERTICAL} spacing={16}
                          widthRequest={300}>
 

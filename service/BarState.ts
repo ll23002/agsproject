@@ -40,7 +40,3 @@ export const showWidget = createBinding(service, "visible");
 
 //@ts-ignore
 globalThis.toggleBar = () => service.toggle();
-
-export const setPopoverOpen = (value: boolean) => {
-    if (value) service.visible = value;
-}

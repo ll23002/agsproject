@@ -3,7 +3,6 @@ import { Gtk } from "ags/gtk4";
 // @ts-ignore
 import Battery from "gi://AstalBattery";
 import GLib from "gi://GLib"
-import {setPopoverOpen} from "../service/BarState";
 
 const readFile = (path: string): string => {
     try {
@@ -126,7 +125,7 @@ export default function BatteryPanel() {
                 </box>
             </box>
 
-            <popover onMap={()=> setPopoverOpen(true)} onUnmap={()=> setPopoverOpen(false)}>
+            <popover>
                 <box orientation={Gtk.Orientation.VERTICAL} spacing={8} widthRequest={240} class="panel-container">
                     <label label="Energía" class="header-label" halign={Gtk.Align.START} />
                     <Gtk.Separator />

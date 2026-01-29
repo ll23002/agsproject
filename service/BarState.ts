@@ -29,7 +29,7 @@ class BarVisibilityState extends GObject.Object {
     }
 
     toggle() {
-        this.#visible = !this.#visible;
+        this.visible = !this.visible;
     }
 
  }

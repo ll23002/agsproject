@@ -3,6 +3,7 @@ import {Gtk} from "ags/gtk4"
 // @ts-ignore
 import Bluetooth from "gi://AstalBluetooth";
 import {execAsync} from "ags/process";
+import {setPopoverOpen} from "../service/BarState";
 
 
 export default function BluetoothPanel() {
@@ -105,7 +106,7 @@ const scanForDevices = async () => {
                 <label label={btBinding(p => p ? "\u{f00af}" : "\u{f00b2}")}/>
                 <label label={btBinding(p => p ? "Bluetooth" : "Apagado")}/>
             </box>
-            <popover>
+            <popover onMap={()=> setPopoverOpen(true)} onUnmap={()=> setPopoverOpen(false)}>
                 <box orientation={Gtk.Orientation.VERTICAL} spacing={8} widthRequest={350}>
                     <box class="bluetooth-header">
                         <label

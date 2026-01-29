@@ -6,6 +6,7 @@ import GObject from "gi://GObject";
 import Network from "gi://AstalNetwork";
 //@ts-ignore
 import Pango from "gi://Pango";
+import {setPopoverOpen} from "../service/BarState";
 
 
 
@@ -255,7 +256,9 @@ export default function WifiPanel() {
                 />
             </box>
 
-            <popover onShow={() => startScanning()} onHide={() => stopScanning()}>
+            <popover
+                onMap={()=> setPopoverOpen(true)} onUnmap={()=> setPopoverOpen(false)}
+                onShow={() => startScanning()} onHide={() => stopScanning()}>
                 <box orientation={Gtk.Orientation.VERTICAL} spacing={8} widthRequest={350}>
                     <box class="wifi-header">
                         <label label="Redes Wi-Fi" hexpand halign={Gtk.Align.START} />

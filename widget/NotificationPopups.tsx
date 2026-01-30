@@ -1,9 +1,8 @@
-import { Astal, Gtk, Gdk } from "ags/gtk4"
 // @ts-ignore
 import Notifd from "gi://AstalNotifd"
 import GLib from "gi://GLib"
-// @ts-ignore
 import Pango from "gi://Pango"
+import { Astal, Gtk, Gdk } from "ags/gtk4"
 
 function createNotificationWidget(n: any) {
 

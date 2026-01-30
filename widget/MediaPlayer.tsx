@@ -3,10 +3,9 @@ import { execAsync } from "ags/process";
 import GLib from "gi://GLib";
 import { createBinding, With } from "ags"
 import Gio from "gi://Gio";
+import Pango from "gi://Pango";
 //@ts-ignore
 import Mpris from "gi://AstalMpris";
-//@ts-ignore
-import Pango from "gi://Pango";
 
 
 function CoverArt({ player }: { player: Mpris.Player }) {

@@ -1,6 +1,5 @@
 import GObject from "gi://GObject";
 import GLib from "gi://GLib";
-// @ts-ignore
 import GTop from "gi://GTop";
 
 class PerformanceService extends GObject.Object {

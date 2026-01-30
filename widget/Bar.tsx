@@ -1,5 +1,5 @@
 import app from "ags/gtk4/app"
-import {Astal, Gtk, Gdk} from "ags/gtk4"
+import {Astal, Gdk} from "ags/gtk4"
 import {Workspaces} from "./Workspaces";
 import {Calendar} from "./Calendar";
 import {ControlPanel} from "./controlPanel";

@@ -2,10 +2,10 @@ import { createBinding, With } from "ags";
 import { Gtk } from "ags/gtk4";
 import { execAsync } from "ags/process";
 import GObject from "gi://GObject";
+import Pango from "gi://Pango";
 // @ts-ignore
 import Network from "gi://AstalNetwork";
-//@ts-ignore
-import Pango from "gi://Pango";
+
 
 
 

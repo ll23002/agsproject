@@ -1,11 +1,3 @@
-// @ts-ignore
-import Notifd from "gi://AstalNotifd"
-// @ts-ignore
-import Network from "gi://AstalNetwork"
-// @ts-ignore
-import Bluetooth from "gi://AstalBluetooth"
-// @ts-ignore
-import Battery from "gi://AstalBattery";
 import WifiPanel from "./wifiPanel";
 import BluetoothPanel from "./bluetoothPanel";
 import BatteryPanel from "./batteryPanel";
@@ -16,6 +8,14 @@ import { showWidget } from "../service/BarState";
 import NetworkStats from "./NetworkStats";
 import {createBinding, createMemo} from "ags"
 import { Gtk } from "ags/gtk4"
+// @ts-ignore
+import Notifd from "gi://AstalNotifd"
+// @ts-ignore
+import Network from "gi://AstalNetwork"
+// @ts-ignore
+import Bluetooth from "gi://AstalBluetooth"
+// @ts-ignore
+import Battery from "gi://AstalBattery";
 
 
 

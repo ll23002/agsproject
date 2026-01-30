@@ -1,8 +1,9 @@
 import {createBinding, With, createMemo} from "ags";
 import {Gtk} from "ags/gtk4"
+import {execAsync} from "ags/process";
 // @ts-ignore
 import Bluetooth from "gi://AstalBluetooth";
-import {execAsync} from "ags/process";
+
 
 
 export default function BluetoothPanel() {

@@ -1,8 +1,9 @@
 import { createBinding, createMemo, With } from "ags";
 import { Gtk } from "ags/gtk4";
+import GLib from "gi://GLib"
 // @ts-ignore
 import Battery from "gi://AstalBattery";
-import GLib from "gi://GLib"
+
 
 const readFile = (path: string): string => {
     try {

@@ -59,7 +59,7 @@ export function ControlPanel() {
         };
     });
 
-
+    const rendimientoResult = Rendimiento({ isVisible: false });
 
     const mainBarContent = (
         <box spacing={12}>
@@ -99,11 +99,20 @@ export function ControlPanel() {
             <menubutton hexpand halign={Gtk.Align.CENTER}>
                 {mainBarContent}
 
-                <popover>
+                <popover
+                    onShow={() => {
+                        console.log("[ControlPanel] Popover abierto - Activando Rendimiento");
+                        rendimientoResult.setVisible(true);
+                    }}
+                    onHide={() => {
+                        console.log("[ControlPanel] Popover cerrado - Desactivando Rendimiento");
+                        rendimientoResult.setVisible(false);
+                    }}
+                >
                     <box class="panel-container" orientation={Gtk.Orientation.VERTICAL} spacing={16}
                          widthRequest={300}>
 
-                        <Rendimiento />
+                        {rendimientoResult.widget}
                         <Gtk.Separator />
                         <PowerPanel />
 

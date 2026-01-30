@@ -10,7 +10,9 @@ function CircularProgress({
                               lineWidth = 6,
                               color = "#89b4fa",
                               max = 1,
-                              format = (p: number) => `${Math.round(p * 100)}%`
+                              format = (p: number) => `${Math.round(p * 100)}%`,
+    isActive = true,
+    updateCallback
                           }: {
     service: any,
     property: string,
@@ -19,7 +21,9 @@ function CircularProgress({
     lineWidth?: number,
     color?: string,
     max?: number,
-    format?: (value: number, rawValue: number) => string
+    format?: (value: number, rawValue: number) => string,
+    isActive?: boolean,
+    updateCallback?: (fn: (visible: boolean) => void) => void
 }) {
     const area = (
         <drawingarea
@@ -28,6 +32,7 @@ function CircularProgress({
         />
     ) as Gtk.DrawingArea;
 
+    let signalId: number | null = null;
 
     area.set_draw_func((_: Gtk.DrawingArea, cr: Cairo.Context, width: number, height: number) => {
         const rawValue = service[property] || 0;
@@ -76,19 +81,82 @@ function CircularProgress({
         cr.showText(label);
     });
 
-    const signalId = service.connect(`notify::${property}`, () => {
-        area.queue_draw();
-    });
+    const connectSignal = () => {
+        if (signalId === null) {
+            signalId = service.connect(`notify::${property}`, () => {
+                area.queue_draw();
+            });
+        }
+    };
+
+    const disconnectSignal = () => {
+        if (signalId !== null) {
+            service.disconnect(signalId);
+            signalId = null;
+        }
+    };
+
+    if (isActive) {
+        connectSignal();
+    }
 
     area.connect("destroy", () => {
-        service.disconnect(signalId);
+        disconnectSignal();
     });
+
+    if (updateCallback) {
+        updateCallback((visible: boolean) => {
+            if (visible) {
+                connectSignal();
+                area.queue_draw();
+            } else {
+                disconnectSignal();
+            }
+        });
+    }
 
     return area;
 }
 
-export default function PerformanceWidget() {
-    return (
+export default function PerformanceWidget({isVisible = false} : { isVisible?: boolean}) {
+    const updateFunctions: ((visible: boolean) => void)[] = [];
+
+    const cpuArea = (
+        <CircularProgress
+            service={Performance}
+            property="cpu"
+            label="CPU"
+            color="#89b4fa"
+            isActive={isVisible}
+            updateCallback={(fn) => updateFunctions.push(fn)}
+        />
+    ) as Gtk.DrawingArea;
+
+    const ramArea = (
+        <CircularProgress
+            service={Performance}
+            property="ram"
+            label="RAM"
+            color="#f38ba8"
+            isActive={isVisible}
+            updateCallback={(fn) => updateFunctions.push(fn)}
+        />
+    ) as Gtk.DrawingArea;
+
+    const tempArea = (
+        <CircularProgress
+            service={Performance}
+            property="temp"
+            label="TEMP"
+            color="#fab387"
+            max={100}
+            format={( _, raw) => `${Math.round(raw)}°C`}
+            isActive={isVisible}
+            updateCallback={(fn) => updateFunctions.push(fn)}
+        />
+    ) as Gtk.DrawingArea;
+
+    const container = (
         <box orientation={Gtk.Orientation.VERTICAL} spacing={12}>
             <label
                 label="Rendimiento"
@@ -97,27 +165,17 @@ export default function PerformanceWidget() {
             />
 
             <box spacing={15} halign={Gtk.Align.CENTER}>
-                <CircularProgress
-                    service={Performance}
-                    property="cpu"
-                    label="CPU"
-                    color="#89b4fa"
-                />
-                <CircularProgress
-                    service={Performance}
-                    property="ram"
-                    label="RAM"
-                    color="#f38ba8"
-                />
-                <CircularProgress
-                    service={Performance}
-                    property="temp"
-                    label="TEMP"
-                    color="#fab387"
-                    max={100}
-                    format={( _, raw) => `${Math.round(raw)}°C`}
-                />
+                {cpuArea}
+                {ramArea}
+                {tempArea}
             </box>
         </box>
-    );
+    ) as Gtk.Box;
+
+    return {
+        widget: container,
+        setVisible: (visible: boolean) => {
+            updateFunctions.forEach(fn => fn(visible));
+        }
+    };
 }

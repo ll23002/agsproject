@@ -49,3 +49,11 @@ import AstalNetwork from "gi://AstalNetwork"
 ```
 
 Los errores de importación del IDE son **normales y esperados** para módulos GObject Introspection.
+
+
+### Instalaciones
+```bash
+sudo pacman -S --needed base-devel git
+sudo pacman -S gtk4 gjs gobject-introspection
+yay -S libastal-meta
+```

@@ -60,9 +60,14 @@ function CoverArt({ player }: { player: Mpris.Player }) {
 
                             if (srcPath) {
                                 if (GLib.file_test(srcPath, GLib.FileTest.EXISTS)) {
-                                    execAsync(["cp", srcPath, destPath])
-                                        .then(() => { if (self && self.visible) setImage(destPath); })
-                                        .catch(err => console.error("CP Error:", err));
+                                    try {
+                                        const srcFile = Gio.File.new_for_path(srcPath);
+                                        const destFile = Gio.File.new_for_path(destPath);
+                                        srcFile.copy(destFile, Gio.FileCopyFlags.OVERWRITE, null, null);
+                                        if (self && self.visible) setImage(destPath);
+                                    } catch (err) {
+                                        console.error("GIO Copy Error:", err);
+                                    }
                                 }
                             } else if (url.startsWith("http")) {
                                 execAsync(["curl", "-s", "-o", destPath, url])

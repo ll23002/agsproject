@@ -8,7 +8,49 @@ import Pango from "gi://Pango";
 import Mpris from "gi://AstalMpris";
 
 
+function getCachedCoverPath(url: string): string | null {
+    if (!url) return null;
+
+    const cacheDir = GLib.get_user_cache_dir() + "/ags/media-covers";
+    const encoder = new TextEncoder();
+    const urlBytes = encoder.encode(url);
+    const safeName = GLib.base64_encode(urlBytes).replace(/[\/+=]/g, "");
+    const destPath = `${cacheDir}/${safeName}.jpg`;
+
+    if (GLib.file_test(destPath, GLib.FileTest.EXISTS)) {
+        return destPath;
+    }
+
+    GLib.mkdir_with_parents(cacheDir, 0o755);
+
+    let srcPath: string | null = null;
+    if (url.startsWith("file://")) srcPath = url.substring(7);
+    else if (url.startsWith("/")) srcPath = url;
+
+    if (srcPath) {
+        if (GLib.file_test(srcPath, GLib.FileTest.EXISTS)) {
+            try {
+                const srcFile = Gio.File.new_for_path(srcPath);
+                const destFile = Gio.File.new_for_path(destPath);
+                srcFile.copy(destFile, Gio.FileCopyFlags.OVERWRITE, null, null);
+                return destPath;
+            } catch (err) {
+                console.error("GIO Copy Error:", err);
+                return null;
+            }
+        }
+    } else if (url.startsWith("http")) {
+        execAsync(["curl", "-s", "-o", destPath, url])
+            .catch(err => console.error("Curl Error:", err));
+        return null;
+    }
+
+    return null;
+}
+
 function CoverArt({ player }: { player: Mpris.Player }) {
+    const coverArt = createBinding(player, "coverArt");
+
     return (
         <box
             class="cover-art-area"
@@ -24,66 +66,17 @@ function CoverArt({ player }: { player: Mpris.Player }) {
                 vexpand={false}
                 css="border-radius: 8px;"
             >
-                <Gtk.Picture
-                    contentFit={Gtk.ContentFit.COVER}
-                    onRealize={(self: Gtk.Picture) => {
-                        const update = () => {
-                            const url = player.coverArt;
-
-                            if (!url) {
-                                self.file = null;
-                                return;
-                            }
-
-                            const cacheDir = GLib.get_user_cache_dir() + "/ags/media-covers";
-                            const safeName = GLib.base64_encode(url).replace(/[\/+=]/g, "");
-                            const destPath = `${cacheDir}/${safeName}.jpg`;
-
-                            const setImage = (path: string) => {
-                                if (GLib.file_test(path, GLib.FileTest.EXISTS)) {
-                                    self.file = Gio.File.new_for_path(path);
-                                } else {
-                                    console.error(`[ERROR] Archivo fantasma: ${path}`);
-                                }
-                            };
-
-                            if (GLib.file_test(destPath, GLib.FileTest.EXISTS)) {
-                                setImage(destPath);
-                                return;
-                            }
-
-                            GLib.mkdir_with_parents(cacheDir, 0o755);
-
-                            let srcPath: string | null = null;
-                            if (url.startsWith("file://")) srcPath = url.substring(7);
-                            else if (url.startsWith("/")) srcPath = url;
-
-                            if (srcPath) {
-                                if (GLib.file_test(srcPath, GLib.FileTest.EXISTS)) {
-                                    try {
-                                        const srcFile = Gio.File.new_for_path(srcPath);
-                                        const destFile = Gio.File.new_for_path(destPath);
-                                        srcFile.copy(destFile, Gio.FileCopyFlags.OVERWRITE, null, null);
-                                        if (self && self.visible) setImage(destPath);
-                                    } catch (err) {
-                                        console.error("GIO Copy Error:", err);
-                                    }
-                                }
-                            } else if (url.startsWith("http")) {
-                                execAsync(["curl", "-s", "-o", destPath, url])
-                                    .then(() => { if (self && self.visible) setImage(destPath); })
-                                    .catch(err => console.error("Curl Error:", err));
-                            }
-                        };
-
-                        update();
-                        self._signalId = player.connect("notify::cover-art", update);
+                <With value={coverArt}>
+                    {(url) => {
+                        const path = getCachedCoverPath(url);
+                        return (
+                            <Gtk.Picture
+                                contentFit={Gtk.ContentFit.COVER}
+                                file={path ? Gio.File.new_for_path(path) : null}
+                            />
+                        );
                     }}
-                    onDestroy={(self: Gtk.Picture) => {
-                        if (self._signalId) player.disconnect(self._signalId);
-                    }}
-                />
-
+                </With>
             </Gtk.ScrolledWindow>
 
         </box>

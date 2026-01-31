@@ -23,16 +23,29 @@ class WorkspaceCarouselService extends GObject.Object {
 
     declare selectedIndex: number;
 
+    constructor() {
+        super();
+        // Log cuando cambia selectedIndex
+        this.connect("notify::selectedIndex", () => {
+            console.log(`[CarouselService] selectedIndex cambió a: ${this.selectedIndex}`);
+        });
+    }
+
     cycle(step: number, maxIndex: number) {
+        const oldIndex = this.selectedIndex;
         let next = this.selectedIndex + step;
         if (next > maxIndex) next = 0;
         if (next < 0) next = maxIndex;
+        console.log(`[CarouselService] cycle(${step}, ${maxIndex}): ${oldIndex} -> ${next}`);
         this.selectedIndex = next;
     }
 
     resetToFocused(focusedId: number, sortedWorkspaces: any[]) {
         const index = sortedWorkspaces.findIndex((ws: any) => ws.id === focusedId);
-        this.selectedIndex = index >= 0 ? index : 0;
+        const finalIndex = index >= 0 ? index : 0;
+        console.log(`[CarouselService] resetToFocused: focusedId=${focusedId}, found index=${index}, setting to=${finalIndex}`);
+        console.log(`[CarouselService] sortedWorkspaces IDs: [${sortedWorkspaces.map((ws: any) => ws.id).join(', ')}]`);
+        this.selectedIndex = finalIndex;
     }
 }
 
@@ -96,8 +109,8 @@ function PreviewImage({ id }: { id: number }) {
             {(path) => (
                 <Gtk.Picture
                     contentFit={Gtk.ContentFit.COVER}
-                    widthRequest={320}
-                    heightRequest={180}
+                    widthRequest={280}
+                    heightRequest={150}
                     file={path ? Gio.File.new_for_path(path) : null}
                 />
             )}
@@ -108,67 +121,58 @@ function PreviewImage({ id }: { id: number }) {
 
 
 
-function WorkspaceCard({ ws, index, onSelect }: { ws: any; index: number; onSelect: (wsId: number) => void }) {
-    const selectedIndex = createBinding(carouselService, "selectedIndex");
 
-    return (
-        <button
-            class={selectedIndex(idx => {
-                const isSelected = idx === index;
-                if (isSelected) return "ws-preview-card selected";
-                return "ws-preview-card";
-            })}
-            focusable={false}
-            onClicked={() => {
-                carouselService.selectedIndex = index;
-                onSelect(ws.id);
-            }}
-        >
-            <box orientation={Gtk.Orientation.VERTICAL} spacing={8}>
-                <box class="image-container">
-                    <PreviewImage id={ws.id} />
-                </box>
-                <label
-                    label={`Workspace ${ws.id}`}
-                    css="font-weight: bold; font-size: 16px;"
-                />
-            </box>
-        </button>
-    );
-}
 
 
 
 export default function WorkspaceCarousel(gdkmonitor: Gdk.Monitor) {
     const hypr = Hyprland.get_default();
     const workspaces = createBinding(hypr, "workspaces");
+    const selectedIndex = createBinding(carouselService, "selectedIndex");
+    console.log(`[WorkspaceCarousel] Creando binding de selectedIndex, valor inicial: ${carouselService.selectedIndex}`);
     const hide = () => app.toggle_window("workspace-carousel");
 
     const keyController = new Gtk.EventControllerKey();
 
     keyController.connect("key-pressed", (_: Gtk.EventControllerKey, keyval: number) => {
+        console.log(`[KeyController] Tecla presionada: ${keyval}`);
+
         const sortedWorkspaces = hypr.get_workspaces()
             .filter((w: any) => w.id > 0)
             .sort((a: any, b: any) => a.id - b.id);
 
         const maxIndex = sortedWorkspaces.length - 1;
+        console.log(`[KeyController] Total workspaces: ${sortedWorkspaces.length}, maxIndex: ${maxIndex}`);
 
         if (keyval === Gdk.KEY_Escape) {
+            console.log(`[KeyController] Escape presionado - cerrando`);
             hide();
             return true;
         }
         if (keyval === Gdk.KEY_Left || keyval === Gdk.KEY_Up) {
+            console.log(`[KeyController] Flecha izquierda/arriba - antes selectedIndex=${carouselService.selectedIndex}`);
             carouselService.cycle(-1, maxIndex);
+            console.log(`[KeyController] Flecha izquierda/arriba - después selectedIndex=${carouselService.selectedIndex}`);
             return true;
         }
         if (keyval === Gdk.KEY_Right || keyval === Gdk.KEY_Down) {
+            console.log(`[KeyController] Flecha derecha/abajo - antes selectedIndex=${carouselService.selectedIndex}`);
             carouselService.cycle(1, maxIndex);
+            console.log(`[KeyController] Flecha derecha/abajo - después selectedIndex=${carouselService.selectedIndex}`);
             return true;
         }
         if (keyval === Gdk.KEY_Return) {
             const selectedWs = sortedWorkspaces[carouselService.selectedIndex];
+            const currentWs = hypr.get_focused_workspace();
             if (selectedWs) {
-                hypr.dispatch("workspace", String(selectedWs.id));
+                console.log(`[KeyController] Enter presionado - selectedIndex: ${carouselService.selectedIndex}, workspace ID: ${selectedWs.id}, current: ${currentWs.id}`);
+                // Solo hacer dispatch si no estamos ya en ese workspace
+                if (selectedWs.id !== currentWs.id) {
+                    console.log(`[KeyController] Haciendo dispatch a workspace ${selectedWs.id}`);
+                    hypr.dispatch("workspace", String(selectedWs.id));
+                } else {
+                    console.log(`[KeyController] Ya estamos en workspace ${selectedWs.id}, no se hace dispatch`);
+                }
                 hide();
             }
             return true;
@@ -188,10 +192,14 @@ export default function WorkspaceCarousel(gdkmonitor: Gdk.Monitor) {
             application={app}
             css="background-color: rgba(0, 0, 0, 0.85);"
             onShow={() => {
+                console.log(`[Window] onShow - inicializando carousel`);
                 const sortedWorkspaces = hypr.get_workspaces()
                     .filter((w: any) => w.id > 0)
                     .sort((a: any, b: any) => a.id - b.id);
-                carouselService.resetToFocused(hypr.get_focused_workspace().id, sortedWorkspaces);
+                const focusedWs = hypr.get_focused_workspace();
+                console.log(`[Window] Workspace enfocado actual: ${focusedWs.id}`);
+                carouselService.resetToFocused(focusedWs.id, sortedWorkspaces);
+                console.log(`[Window] selectedIndex después de resetToFocused: ${carouselService.selectedIndex}`);
             }}
         >
             <box valign={Gtk.Align.CENTER} halign={Gtk.Align.CENTER} css="padding: 40px;">
@@ -214,14 +222,37 @@ export default function WorkspaceCarousel(gdkmonitor: Gdk.Monitor) {
                                     halign={Gtk.Align.CENTER}
                                 >
                                     {sortedList.map((w: any, idx: number) => (
-                                        <WorkspaceCard
-                                            ws={w}
-                                            index={idx}
-                                            onSelect={(wsId) => {
-                                                hypr.dispatch("workspace", String(wsId));
-                                                hide();
-                                            }}
-                                        />
+                                        <With value={selectedIndex}>
+                                            {(sel) => (
+                                                <button
+                                                    class={(() => {
+                                                        const isSelected = sel === idx;
+                                                        console.log(`[Binding] WS ${w.id} (idx=${idx}): selectedIndex=${sel}, isSelected=${isSelected}, class="${isSelected ? 'ws-preview-card selected' : 'ws-preview-card'}"`);
+                                                        return isSelected ? "ws-preview-card selected" : "ws-preview-card";
+                                                    })()}
+                                                    focusable={false}
+                                                    onClicked={() => {
+                                                        console.log(`[Click] Workspace ${w.id} (index ${idx}) clicked`);
+                                                        carouselService.selectedIndex = idx;
+                                                        const currentWs = hypr.get_focused_workspace();
+                                                        if (w.id !== currentWs.id) {
+                                                            hypr.dispatch("workspace", String(w.id));
+                                                        }
+                                                        hide();
+                                                    }}
+                                                >
+                                                    <box orientation={Gtk.Orientation.VERTICAL} spacing={8}>
+                                                        <box class="image-container">
+                                                            <PreviewImage id={w.id} />
+                                                        </box>
+                                                        <label
+                                                            label={`Workspace ${w.id}`}
+                                                            css="font-weight: bold; font-size: 16px;"
+                                                        />
+                                                    </box>
+                                                </button>
+                                            )}
+                                        </With>
                                     ))}
                                 </box>
                             );

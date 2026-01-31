@@ -108,7 +108,7 @@ function PreviewImage({ id }: { id: number }) {
 
 
 
-function WorkspaceCard({ ws, index }: { ws: any; index: number }) {
+function WorkspaceCard({ ws, index, onSelect }: { ws: any; index: number; onSelect: (wsId: number) => void }) {
     const selectedIndex = createBinding(carouselService, "selectedIndex");
 
     return (
@@ -118,8 +118,10 @@ function WorkspaceCard({ ws, index }: { ws: any; index: number }) {
                 if (isSelected) return "ws-preview-card selected";
                 return "ws-preview-card";
             })}
+            focusable={false}
             onClicked={() => {
                 carouselService.selectedIndex = index;
+                onSelect(ws.id);
             }}
         >
             <box orientation={Gtk.Orientation.VERTICAL} spacing={8}>
@@ -212,7 +214,14 @@ export default function WorkspaceCarousel(gdkmonitor: Gdk.Monitor) {
                                     halign={Gtk.Align.CENTER}
                                 >
                                     {sortedList.map((w: any, idx: number) => (
-                                        <WorkspaceCard ws={w} index={idx} />
+                                        <WorkspaceCard
+                                            ws={w}
+                                            index={idx}
+                                            onSelect={(wsId) => {
+                                                hypr.dispatch("workspace", String(wsId));
+                                                hide();
+                                            }}
+                                        />
                                     ))}
                                 </box>
                             );

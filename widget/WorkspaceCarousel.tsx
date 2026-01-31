@@ -11,29 +11,50 @@ import Hyprland from "gi://AstalHyprland";
 class WorkspaceCarouselService extends GObject.Object {
     static {
         GObject.registerClass({
+            GTypeName: "WorkspaceCarouselService",
             Properties: {
                 'selectedIndex': GObject.ParamSpec.int(
                     'selectedIndex', 'SelectedIndex', 'Currently selected workspace index',
                     GObject.ParamFlags.READWRITE,
                     -1, 999, 0
                 ),
+                'revision': GObject.ParamSpec.int(
+                    'revision', 'Revision', 'Trigger for re-render',
+                    GObject.ParamFlags.READWRITE,
+                    0, 999999, 0
+                ),
             },
         }, this);
     }
 
-    declare selectedIndex: number;
+    #selectedIndex: number = 0;
+    #revision: number = 0;
 
-    constructor() {
-        super();
-        // Log cuando cambia selectedIndex
-        this.connect("notify::selectedIndex", () => {
-            console.log(`[CarouselService] selectedIndex cambió a: ${this.selectedIndex}`);
-        });
+    get selectedIndex() {
+        return this.#selectedIndex;
+    }
+
+    set selectedIndex(value: number) {
+        if (this.#selectedIndex !== value) {
+            this.#selectedIndex = value;
+            this.#revision++;
+            this.notify("selectedIndex");
+            this.notify("revision");
+            console.log(`[CarouselService] selectedIndex=${this.#selectedIndex}, revision=${this.#revision}`);
+        }
+    }
+
+    get revision() {
+        return this.#revision;
+    }
+
+    set revision(value: number) {
+        this.#revision = value;
     }
 
     cycle(step: number, maxIndex: number) {
-        const oldIndex = this.selectedIndex;
-        let next = this.selectedIndex + step;
+        const oldIndex = this.#selectedIndex;
+        let next = this.#selectedIndex + step;
         if (next > maxIndex) next = 0;
         if (next < 0) next = maxIndex;
         console.log(`[CarouselService] cycle(${step}, ${maxIndex}): ${oldIndex} -> ${next}`);
@@ -125,11 +146,12 @@ function PreviewImage({ id }: { id: number }) {
 
 
 
+
+
 export default function WorkspaceCarousel(gdkmonitor: Gdk.Monitor) {
     const hypr = Hyprland.get_default();
-    const workspaces = createBinding(hypr, "workspaces");
-    const selectedIndex = createBinding(carouselService, "selectedIndex");
-    console.log(`[WorkspaceCarousel] Creando binding de selectedIndex, valor inicial: ${carouselService.selectedIndex}`);
+    const revision = createBinding(carouselService, "revision");
+    console.log(`[WorkspaceCarousel] Creando componente`);
     const hide = () => app.toggle_window("workspace-carousel");
 
     const keyController = new Gtk.EventControllerKey();
@@ -210,50 +232,46 @@ export default function WorkspaceCarousel(gdkmonitor: Gdk.Monitor) {
                         halign={Gtk.Align.CENTER}
                     />
 
-                    <With value={workspaces}>
-                        {(list) => {
-                            const sortedList = list
+                    <With value={revision}>
+                        {(rev) => {
+                            const sortedList = hypr.get_workspaces()
                                 .filter((w: any) => w.id > 0)
                                 .sort((a: any, b: any) => a.id - b.id);
 
+                            const sel = carouselService.selectedIndex;
+                            console.log(`[Render] revision=${rev}, ${sortedList.length} workspaces, selectedIndex=${sel}`);
+
                             return (
-                                <box
-                                    spacing={16}
-                                    halign={Gtk.Align.CENTER}
-                                >
-                                    {sortedList.map((w: any, idx: number) => (
-                                        <With value={selectedIndex}>
-                                            {(sel) => (
-                                                <button
-                                                    class={(() => {
-                                                        const isSelected = sel === idx;
-                                                        console.log(`[Binding] WS ${w.id} (idx=${idx}): selectedIndex=${sel}, isSelected=${isSelected}, class="${isSelected ? 'ws-preview-card selected' : 'ws-preview-card'}"`);
-                                                        return isSelected ? "ws-preview-card selected" : "ws-preview-card";
-                                                    })()}
-                                                    focusable={false}
-                                                    onClicked={() => {
-                                                        console.log(`[Click] Workspace ${w.id} (index ${idx}) clicked`);
-                                                        carouselService.selectedIndex = idx;
-                                                        const currentWs = hypr.get_focused_workspace();
-                                                        if (w.id !== currentWs.id) {
-                                                            hypr.dispatch("workspace", String(w.id));
-                                                        }
-                                                        hide();
-                                                    }}
-                                                >
-                                                    <box orientation={Gtk.Orientation.VERTICAL} spacing={8}>
-                                                        <box class="image-container">
-                                                            <PreviewImage id={w.id} />
-                                                        </box>
-                                                        <label
-                                                            label={`Workspace ${w.id}`}
-                                                            css="font-weight: bold; font-size: 16px;"
-                                                        />
+                                <box spacing={16} halign={Gtk.Align.CENTER}>
+                                    {sortedList.map((w: any, idx: number) => {
+                                        const isSelected = sel === idx;
+                                        console.log(`[Button] WS ${w.id} (idx=${idx}): isSelected=${isSelected}`);
+                                        return (
+                                            <button
+                                                class={isSelected ? "ws-preview-card selected" : "ws-preview-card"}
+                                                focusable={false}
+                                                onClicked={() => {
+                                                    console.log(`[Click] WS ${w.id} (idx=${idx})`);
+                                                    carouselService.selectedIndex = idx;
+                                                    const currentWs = hypr.get_focused_workspace();
+                                                    if (w.id !== currentWs.id) {
+                                                        hypr.dispatch("workspace", String(w.id));
+                                                    }
+                                                    hide();
+                                                }}
+                                            >
+                                                <box orientation={Gtk.Orientation.VERTICAL} spacing={8}>
+                                                    <box class="image-container">
+                                                        <PreviewImage id={w.id} />
                                                     </box>
-                                                </button>
-                                            )}
-                                        </With>
-                                    ))}
+                                                    <label
+                                                        label={`Workspace ${w.id}`}
+                                                        css="font-weight: bold; font-size: 16px;"
+                                                    />
+                                                </box>
+                                            </button>
+                                        );
+                                    })}
                                 </box>
                             );
                         }}

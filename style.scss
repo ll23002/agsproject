@@ -649,16 +649,16 @@ window#workspace-carousel {
 .ws-preview-card {
   background-color: rgba($cp-blue, 0.25);
   border: 2px solid rgba($border-color, 0.5);
-  border-radius: 16px;
-  padding: 10px;
+  border-radius: 12px;
+  padding: 8px;
   transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-  opacity: 0.5;
-  transform: scale(0.75);
-  min-width: 240px;
+  opacity: 0.6;
+  transform: scale(0.85);
+  min-width: 200px;
 
   .image-container {
-    border-radius: 12px;
+    border-radius: 8px;
     background-color: rgba($cp-dark, 0.6);
     border: 1px solid rgba($border-color, 0.3);
   }
@@ -666,35 +666,35 @@ window#workspace-carousel {
   label {
     color: rgba($text-color, 0.7);
     opacity: 0.7;
-    font-size: 14px;
+    font-size: 12px;
   }
 
   &:hover {
     background-color: rgba($cp-blue, 0.4);
     border-color: rgba($accent-color, 0.4);
-    opacity: 0.75;
-    transform: scale(0.8);
+    opacity: 0.8;
+    transform: scale(0.88);
   }
 
   &.selected {
     background-color: rgba($cp-cyan, 0.25);
     border-color: $accent-color;
-    border-width: 4px;
-    box-shadow: 0 0 32px rgba($accent-color, 0.8), 0 12px 24px rgba(0, 0, 0, 0.6);
+    border-width: 3px;
+    box-shadow: 0 0 24px rgba($accent-color, 0.6), 0 8px 20px rgba(0, 0, 0, 0.5);
     opacity: 1;
-    transform: scale(1.1);
+    transform: scale(1.0);
     padding: 8px;
-    min-width: 360px;
+    min-width: 220px;
 
     .image-container {
       border: 2px solid rgba($accent-color, 0.6);
-      box-shadow: 0 0 12px rgba($accent-color, 0.4);
+      box-shadow: 0 0 8px rgba($accent-color, 0.3);
     }
 
     label {
       color: $accent-color;
       font-weight: bold;
-      font-size: 18px;
+      font-size: 14px;
       opacity: 1;
     }
   }

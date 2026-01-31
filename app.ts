@@ -4,6 +4,7 @@ import NotificationPopups from "./widget/NotificationPopups"
 import "./service/BarState";
 import Bar from "./widget/Bar";
 import ProyectionMenu from "./widget/ProyectionMenu";
+import WorkspaceCarousel from "./widget/WorkspaceCarousel";
 
 app.start({
   css: style.toString().replace('@charset "UTF-8";', ""),
@@ -18,6 +19,8 @@ app.start({
       Bar(monitor)
       NotificationPopups(monitor)
       ProyectionMenu(monitor)
+      WorkspaceCarousel(monitor)
+
     })
   },
 })

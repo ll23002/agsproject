@@ -448,6 +448,32 @@ button.dnd-button {
   }
 }
 
+
+/* VISUALIZER */
+
+@keyframes wave {
+  0% { min-height: 4px; }
+  50% { min-height: 36px; }
+  100% { min-height: 4px; }
+}
+
+.visualizer-box {
+  min-height: 24px;
+}
+
+.visualizer-bar {
+  min-width: 4px;
+  border-radius: 2px;
+  background-color: #bd93f9;
+  margin: 0 1px;
+}
+
+.visualizer-bar.playing {
+  animation-name: wave;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+}
+
 .network-stats {
   background-color: rgba($cp-blue, 0.2);
   border: 1px solid rgba($cp-cyan, 0.1);
@@ -611,27 +637,6 @@ popover calendar {
 }
 
 
-/* VISUALIZER */
 
-@keyframes wave {
-  0% { min-height: 4px; }
-  50% { min-height: 36px; }
-  100% { min-height: 4px; }
-}
 
-.visualizer-box {
-  min-height: 24px;
-}
 
-.visualizer-bar {
-  min-width: 4px;
-  border-radius: 2px;
-  background-color: #bd93f9;
-  margin: 0 1px;
-}
-
-.visualizer-bar.playing {
-  animation-name: wave;
-  animation-iteration-count: infinite;
-  animation-timing-function: ease-in-out;
-}

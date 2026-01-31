@@ -70,8 +70,8 @@ export default function ProjectionMenu(gdkmonitor: Gdk.Monitor) {
     const hide = () => app.toggle_window("projection-menu");
 
     const keyController = new Gtk.EventControllerKey();
-    //@ts-ignore
-    keyController.connect("key-pressed", (_, keyval) => {
+
+    keyController.connect("key-pressed", (_: Gtk.EventControllerKey, keyval: number) => {
         if (keyval === Gdk.KEY_Escape) {
             hide();
             return true;

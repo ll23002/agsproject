@@ -207,11 +207,28 @@ export default function WorkspaceCarousel(gdkmonitor: Gdk.Monitor) {
                                 .sort((a: any, b: any) => a.id - b.id);
 
                             const sel = carouselService.selectedIndex;
+                            const totalWorkspaces = sortedList.length;
+
+                            // Calcular los 3 workspaces visibles (circular)
+                            let visibleIndices: number[] = [];
+                            if (totalWorkspaces <= 3) {
+                                // Si hay 3 o menos, mostrar todos
+                                visibleIndices = sortedList.map((_: any, idx: number) => idx);
+                            } else {
+                                // Mostrar: anterior, actual, siguiente (circular)
+                                const prevIdx = sel - 1 < 0 ? totalWorkspaces - 1 : sel - 1;
+                                const nextIdx = sel + 1 >= totalWorkspaces ? 0 : sel + 1;
+                                visibleIndices = [prevIdx, sel, nextIdx];
+                            }
+
+                            console.log(`[Render] rev=${rev}, total=${totalWorkspaces}, sel=${sel}, visible=[${visibleIndices.join(', ')}]`);
 
                             return (
                                 <box spacing={16} halign={Gtk.Align.CENTER}>
-                                    {sortedList.map((w: any, idx: number) => {
+                                    {visibleIndices.map((idx: number) => {
+                                        const w = sortedList[idx];
                                         const isSelected = sel === idx;
+
                                         return (
                                             <button
                                                 class={isSelected ? "ws-preview-card selected" : "ws-preview-card"}

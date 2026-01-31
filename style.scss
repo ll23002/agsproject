@@ -508,7 +508,6 @@ button.dnd-button {
     border-color: rgba($cp-cyan, 0.5);
     .bat-icon, .bat-percentage {
       color: $cp-cyan;
-      text-shadow: 0 0 5px rgba($cp-cyan, 0.6);
     }
   }
 
@@ -636,7 +635,70 @@ popover calendar {
   }
 }
 
+/* ==============================================
+   13. WORKSPACE CAROUSEL
+   ============================================== */
+window#workspace-carousel {
+  background-color: rgba(0, 0, 0, 0.85);
+}
 
+.carousel-container {
+  background-color: transparent;
+}
+
+.ws-preview-card {
+  background-color: rgba($cp-blue, 0.25);
+  border: 2px solid rgba($border-color, 0.5);
+  border-radius: 16px;
+  padding: 10px;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  opacity: 0.5;
+  transform: scale(0.75);
+  min-width: 240px;
+
+  .image-container {
+    border-radius: 12px;
+    background-color: rgba($cp-dark, 0.6);
+    border: 1px solid rgba($border-color, 0.3);
+  }
+
+  label {
+    color: rgba($text-color, 0.7);
+    opacity: 0.7;
+    font-size: 14px;
+  }
+
+  &:hover {
+    background-color: rgba($cp-blue, 0.4);
+    border-color: rgba($accent-color, 0.4);
+    opacity: 0.75;
+    transform: scale(0.8);
+  }
+
+  &.selected {
+    background-color: rgba($cp-cyan, 0.25);
+    border-color: $accent-color;
+    border-width: 4px;
+    box-shadow: 0 0 32px rgba($accent-color, 0.8), 0 12px 24px rgba(0, 0, 0, 0.6);
+    opacity: 1;
+    transform: scale(1.1);
+    padding: 8px;
+    min-width: 360px;
+
+    .image-container {
+      border: 2px solid rgba($accent-color, 0.6);
+      box-shadow: 0 0 12px rgba($accent-color, 0.4);
+    }
+
+    label {
+      color: $accent-color;
+      font-weight: bold;
+      font-size: 18px;
+      opacity: 1;
+    }
+  }
+}
 
 
 

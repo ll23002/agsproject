@@ -3,9 +3,10 @@ import { createBinding, With } from "ags";
 import GObject from "gi://GObject";
 import Gio from "gi://Gio";
 import app from "ags/gtk4/app";
+import PreviewService from "../service/WorkspaceReview";
 // @ts-ignore
 import Hyprland from "gi://AstalHyprland";
-import PreviewService from "../service/WorkspaceReview";
+
 
 class WorkspaceCarouselService extends GObject.Object {
     static {
@@ -108,21 +109,17 @@ function PreviewImage({ id }: { id: number }) {
 
 
 function WorkspaceCard({ ws, index }: { ws: any; index: number }) {
-    const hypr = Hyprland.get_default();
     const selectedIndex = createBinding(carouselService, "selectedIndex");
 
     return (
         <button
             class={selectedIndex(idx => {
-                const isFocused = hypr.get_focused_workspace().id === ws.id;
                 const isSelected = idx === index;
-                if (isFocused) return "ws-preview-card active";
                 if (isSelected) return "ws-preview-card selected";
                 return "ws-preview-card";
             })}
             onClicked={() => {
-                hypr.dispatch("workspace", String(ws.id));
-                app.toggle_window("workspace-carousel");
+                carouselService.selectedIndex = index;
             }}
         >
             <box orientation={Gtk.Orientation.VERTICAL} spacing={8}>
@@ -187,7 +184,7 @@ export default function WorkspaceCarousel(gdkmonitor: Gdk.Monitor) {
             exclusivity={Astal.Exclusivity.IGNORE}
             keymode={Astal.Keymode.EXCLUSIVE}
             application={app}
-            css="background-color: transparent;"
+            css="background-color: rgba(0, 0, 0, 0.85);"
             onShow={() => {
                 const sortedWorkspaces = hypr.get_workspaces()
                     .filter((w: any) => w.id > 0)
@@ -195,33 +192,37 @@ export default function WorkspaceCarousel(gdkmonitor: Gdk.Monitor) {
                 carouselService.resetToFocused(hypr.get_focused_workspace().id, sortedWorkspaces);
             }}
         >
-            <box css="padding: 20px;">
-                <box class="carousel-container" orientation={Gtk.Orientation.VERTICAL} spacing={16}>
-                    <label label="Resumen de Workspaces" css="font-size: 24px; font-weight: bold; color: #cdd6f4;" />
+            <box valign={Gtk.Align.CENTER} halign={Gtk.Align.CENTER} css="padding: 40px;">
+                <box class="carousel-container" orientation={Gtk.Orientation.VERTICAL} spacing={24} halign={Gtk.Align.CENTER}>
+                    <label
+                        label="Resumen de Workspaces"
+                        css="font-size: 32px; font-weight: bold; color: #0ABDC6;"
+                        halign={Gtk.Align.CENTER}
+                    />
 
-                    <Gtk.ScrolledWindow
-                        vscrollbarPolicy={Gtk.PolicyType.NEVER}
-                        hscrollbarPolicy={Gtk.PolicyType.AUTOMATIC}
-                        minContentWidth={800}
-                        maxContentWidth={1600}
-                    >
-                        <With value={workspaces}>
-                            {(list) => (
-                                <box spacing={20} css="padding-bottom: 10px;">
-                                    {list
-                                        .sort((a: any, b: any) => a.id - b.id)
-                                        .filter((w: any) => w.id > 0)
-                                        .map((w: any, idx: number) => (
-                                            <WorkspaceCard ws={w} index={idx} />
-                                        ))}
+                    <With value={workspaces}>
+                        {(list) => {
+                            const sortedList = list
+                                .filter((w: any) => w.id > 0)
+                                .sort((a: any, b: any) => a.id - b.id);
+
+                            return (
+                                <box
+                                    spacing={16}
+                                    halign={Gtk.Align.CENTER}
+                                >
+                                    {sortedList.map((w: any, idx: number) => (
+                                        <WorkspaceCard ws={w} index={idx} />
+                                    ))}
                                 </box>
-                            )}
-                        </With>
-                    </Gtk.ScrolledWindow>
+                            );
+                        }}
+                    </With>
 
                     <label
                         label="Use ← → o ↑ ↓ para navegar • Enter para seleccionar • Esc para cerrar"
-                        css="font-size: 12px; opacity: 0.7;"
+                        css="font-size: 14px; opacity: 0.9; color: #cdd6f4; margin-top: 10px;"
+                        halign={Gtk.Align.CENTER}
                     />
                 </box>
             </box>

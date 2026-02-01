@@ -81,9 +81,8 @@ class WorkspaceImageState extends GObject.Object {
     }
 
     #path: string | null = null;
-    #id: number;
-    //puede que de error
-    #signalId: number;
+    readonly #id: number;
+    _signalId: number = 0;
 
     get path(){
         return this.#path;
@@ -102,7 +101,7 @@ class WorkspaceImageState extends GObject.Object {
 
         this.updatePath();
 
-        this.#signalId = PreviewService.connect("preview-updated", (_: any, updatedId: number) => {
+        this._signalId = PreviewService.connect("preview-updated", (_: any, updatedId: number) => {
             if (updatedId === this.#id) {
                 this.updatePath();
             }
@@ -199,7 +198,7 @@ export default function WorkspaceCarousel(gdkmonitor: Gdk.Monitor) {
             <box valign={Gtk.Align.CENTER} halign={Gtk.Align.CENTER} css={"padding: 40px;"}>
                 <box class="carousel-container" orientation={Gtk.Orientation.VERTICAL} spacing={24} halign={Gtk.Align.CENTER}>
                     <With value={revision}>
-                        {(rev) => {
+                        {(_rev) => {
                             const sortedList = hypr.get_workspaces()
                                 .filter((w: any) => w.id > 0)
                                 .sort((a: any, b: any) => a.id - b.id);
@@ -207,7 +206,7 @@ export default function WorkspaceCarousel(gdkmonitor: Gdk.Monitor) {
                             const sel = carouselService.selectedIndex;
                             const totalWorkspaces = sortedList.length;
 
-                            let visibleIndices: number[] = [];
+                            let visibleIndices: number[];
 
                             if (totalWorkspaces <= 3) {
                                 visibleIndices = sortedList.map((_: any, idx: number) => idx);

@@ -1,53 +1,192 @@
 import { createBinding, With } from "ags"
 import { Gtk } from "ags/gtk4"
+import GLib from "gi://GLib"
+import Pango from "gi://Pango"
+import GObject from "gi://GObject"
 // @ts-ignore
 import Notifd from "gi://AstalNotifd"
 
-export default function NotificacionesPanel() {
-    const notifd = Notifd.get_default();
-    const notifications = createBinding(notifd, "notifications");
+class NotificationExpandState extends GObject.Object {
+    static {
+        GObject.registerClass({
+            GTypeName: "NotificationExpandState",
+            Properties: {
+                'expanded': GObject.ParamSpec.boolean(
+                    'expanded', 'Expanded', 'Estado de expansión',
+                    GObject.ParamFlags.READWRITE,
+                    false
+                ),
+            },
+        }, this);
+    }
+
+    #expanded = false;
+
+    get expanded() {
+        return this.#expanded;
+    }
+
+    set expanded(value: boolean) {
+        if (this.#expanded !== value) {
+            this.#expanded = value;
+            this.notify('expanded');
+        }
+    }
+
+    toggle() {
+        this.expanded = !this.expanded;
+    }
+}
+
+function NotificationIcon({ n }: { n: Notifd.Notification }) {
+    if (n.image && GLib.file_test(n.image, GLib.FileTest.EXISTS)) {
+        return (
+            <Gtk.Image
+                file={n.image}
+                pixelSize={48}
+                valign={Gtk.Align.START}
+            />
+        )
+    }
+
+    if (n.appIcon) {
+        return (
+            <Gtk.Image
+                iconName={n.appIcon}
+                pixelSize={48}
+                valign={Gtk.Align.START}
+                class="notif-icon"
+            />
+        )
+    }
 
     return (
-        <box orientation={Gtk.Orientation.VERTICAL} spacing={8} class="notification-center">
-            <box class="notification-header">
-                <label label={notifications((n) => `Notificaciones (${n.length})`)} hexpand />
+        <label
+            label={"\u{ea74}"}
+            css="font-size: 32px; color: #89b4fa;"
+            valign={Gtk.Align.START}
+            class="notif-icon"
+        />
+    )
+}
+
+function NotificationCard({ n }: { n: Notifd.Notification }) {
+    const summaryLength = n.summary.length
+    const shouldShowExpandButton = summaryLength > 25
+
+    const expandState = new NotificationExpandState()
+    const expandedBinding = createBinding(expandState, "expanded")
+
+    return (
+        <box
+            class="notification-card"
+            spacing={12}
+            css="background-color: rgba(30, 30, 46, 0.5); padding: 12px; border-radius: 12px;"
+        >
+            <NotificationIcon n={n} />
+
+            <box orientation={Gtk.Orientation.VERTICAL} spacing={4}>
+                <box spacing={5}>
+                    <label
+                        label={n.summary}
+                        halign={Gtk.Align.START}
+                        hexpand
+                        css="font-weight: bold; font-size: 14px;"
+                        ellipsize={expandedBinding(exp => exp ? Pango.EllipsizeMode.NONE : Pango.EllipsizeMode.END)}
+                        maxWidthChars={expandedBinding(exp => exp ? -1 : 25)}
+                        wrap={expandedBinding(exp => exp)}
+                    />
+                    <button
+                        onClicked={() => expandState.toggle()}
+                        css={shouldShowExpandButton
+                            ? "padding: 0; background: transparent; border: none; box-shadow: none;"
+                            : "padding: 0; background: transparent; border: none; box-shadow: none; opacity: 0; pointer-events: none;"}
+                        tooltipText={expandedBinding(exp => exp ? "Contraer" : "Expandir")}
+                    >
+                        <label
+                            label={expandedBinding(exp => exp ? "\u{f143}" : "\u{f140}")}
+                            css="font-size: 12px; color: #89b4fa;"
+                        />
+                    </button>
+                    <button
+                        onClicked={() => n.dismiss()}
+                        css="padding: 0; background: transparent; border: none; box-shadow: none;"
+                    >
+                        <label label={"\u{f467}"} css="font-size: 12px; color: #f38ba8;" />
+                    </button>
+                </box>
+
+                {n.body && (
+                    <label
+                        label={n.body}
+                        halign={Gtk.Align.START}
+                        wrap={true}
+                        useMarkup={true}
+                        ellipsize={Pango.EllipsizeMode.END}
+                        lines={3}
+                        maxWidthChars={35}
+                        css="color: #cdd6f4; font-size: 13px;"
+                    />
+                )}
+
+                <label
+                    label={n.appName || "Sistema"}
+                    halign={Gtk.Align.START}
+                    css="font-size: 10px; color: #7f849c; margin-top: 4px;"
+                />
+            </box>
+        </box>
+    )
+}
+
+export default function NotificacionesPanel() {
+    const notifd = Notifd.get_default()
+    const notifications = createBinding(notifd, "notifications")
+
+    return (
+        <box orientation={Gtk.Orientation.VERTICAL} spacing={10} class="notification-center">
+            <box class="notification-header" spacing={10}>
+                <label
+                    label={notifications(n => `Notificaciones (${n.length})`)}
+                    hexpand
+                    halign={Gtk.Align.START}
+                    css="font-weight: bold; font-size: 16px;"
+                />
                 <button
                     class="clear-button"
                     onClicked={() => {
-                        notifd.get_notifications().forEach((n: any) => n.dismiss());
+                        // @ts-ignore
+                        notifd.get_notifications().forEach(n => n.dismiss())
                     }}
+                    tooltipText="Limpiar todo"
                 >
-                    <label label={"\u{f039f}"} />
+
+                    <label label={"\u{f039f}"} css="font-size: 14px;" />
                 </button>
             </box>
+
             <Gtk.ScrolledWindow
                 vexpand
-                maxContentHeight={400}
-                propagateNaturalHeight
+                hscrollbarPolicy={Gtk.PolicyType.NEVER}
+                css="min-height: 300px;"
             >
                 <With value={notifications}>
-                    {(notifs) => (
-                        <box orientation={Gtk.Orientation.VERTICAL} spacing={4}>
-                            {notifs.length === 0 ? (
-                                <label label="No hay notificaciones"
-                                       class="empty-notifications" />
-                            ) : (
-                                notifs.map((notification: Notifd.Notification) => (
-                                    <box class="notification" spacing={8}>
-                                        {notification.appIcon && (
-                                            <Gtk.Image iconName={notification.appIcon} />
-                                        )}
-                                        <box orientation={Gtk.Orientation.VERTICAL}>
-                                            <label label={notification.summary}
-                                                   halign={Gtk.Align.START} />
-                                            {notification.body && (
-                                                <label label={notification.body}
-                                                       halign={Gtk.Align.START} wrap />
-                                            )}
-                                        </box>
-                                    </box>
-                                ))
-                            )}
+                    {(notifs) => notifs.length === 0 ? (
+                        <box
+                            orientation={Gtk.Orientation.VERTICAL}
+                            valign={Gtk.Align.CENTER}
+                            halign={Gtk.Align.CENTER}
+                            spacing={10}
+                            css="margin-top: 50px;"
+                        >
+                            <label label={"\u{f1f6}"} css="font-size: 48px; color: #585b70;" />
+                            <label label="Sin notificaciones" css="color: #a6adc8;" />
+                        </box>
+                    ) : (
+                        <box orientation={Gtk.Orientation.VERTICAL} spacing={10} css="padding: 10px;">
+                            {notifs.map((n: Notifd.Notification) => (
+                                <NotificationCard n={n} />
+                            ))}
                         </box>
                     )}
                 </With>
@@ -55,4 +194,3 @@ export default function NotificacionesPanel() {
         </box>
     );
 }
-

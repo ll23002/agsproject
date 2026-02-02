@@ -19,7 +19,6 @@ class WorkspacePreviewService extends GObject.Object {
     constructor() {
         super();
         GLib.mkdir_with_parents(this.#cacheDir, 0o755);
-        //execAsync(`mkdir -p ${this.#cacheDir}`).catch(console.error);
 
         GLib.timeout_add(GLib.PRIORITY_LOW, 1000, () => {
             this.#snapshotCurrent().catch(e => console.error(e));
@@ -47,7 +46,6 @@ class WorkspacePreviewService extends GObject.Object {
 
             const path = `${this.#cacheDir}/ws_${currentWs}.png`;
 
-            // Se puede reemplazar por algo más nativo? como GLib, GIO ?
             await execAsync(`grim -t png -l 0 "${path}"`);
 
             this.emit("preview-updated", currentWs);

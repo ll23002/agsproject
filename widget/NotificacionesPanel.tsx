@@ -1,7 +1,6 @@
 import { createBinding, With } from "ags"
 import { Gtk } from "ags/gtk4"
 import GLib from "gi://GLib"
-import Pango from "gi://Pango"
 import GObject from "gi://GObject"
 // @ts-ignore
 import Notifd from "gi://AstalNotifd"
@@ -38,6 +37,21 @@ class NotificationExpandState extends GObject.Object {
     }
 }
 
+const expandStates = new Map<number, NotificationExpandState>();
+
+function getExpandState(notifId: number): NotificationExpandState {
+    if (!expandStates.has(notifId)) {
+        const newState = new NotificationExpandState();
+        expandStates.set(notifId, newState);
+
+        // Conectar al evento notify para ver cuando cambia
+        newState.connect('notify::expanded', () => {
+            console.log(`[ExpandState ${notifId}] Estado cambió a: ${newState.expanded}`);
+        });
+    }
+    return expandStates.get(notifId)!;
+}
+
 function NotificationIcon({ n }: { n: Notifd.Notification }) {
     if (n.image && GLib.file_test(n.image, GLib.FileTest.EXISTS)) {
         return (
@@ -71,11 +85,25 @@ function NotificationIcon({ n }: { n: Notifd.Notification }) {
 }
 
 function NotificationCard({ n }: { n: Notifd.Notification }) {
-    const summaryLength = n.summary.length
-    const shouldShowExpandButton = summaryLength > 25
+    console.log(`[NotificationCard] Renderizando notificación ${n.id}`);
+    console.log(`[NotificationCard ${n.id}] Summary: "${n.summary}"`);
+    console.log(`[NotificationCard ${n.id}] Summary length: ${n.summary.length}`);
+    console.log(`[NotificationCard ${n.id}] Body: "${n.body || 'N/A'}"`);
+    console.log(`[NotificationCard ${n.id}] Body length: ${n.body ? n.body.length : 0}`);
 
-    const expandState = new NotificationExpandState()
+    const summaryLength = n.summary.length
+    const bodyLength = n.body ? n.body.length : 0
+
+    // Mostrar botón si el summary O el body son largos
+    const shouldShowExpandButton = summaryLength > 25 || bodyLength > 100
+
+    console.log(`[NotificationCard ${n.id}] shouldShowExpandButton: ${shouldShowExpandButton} (summary: ${summaryLength}, body: ${bodyLength})`);
+
+    const expandState = getExpandState(n.id)
+    console.log(`[NotificationCard ${n.id}] Estado actual: ${expandState.expanded}`);
+
     const expandedBinding = createBinding(expandState, "expanded")
+    console.log(`[NotificationCard ${n.id}] Binding creado`);
 
     return (
         <box
@@ -88,26 +116,43 @@ function NotificationCard({ n }: { n: Notifd.Notification }) {
             <box orientation={Gtk.Orientation.VERTICAL} spacing={4}>
                 <box spacing={5}>
                     <label
-                        label={n.summary}
+                        label={expandedBinding(expanded => {
+                            const result = expanded
+                                ? n.summary
+                                : (summaryLength > 25 ? n.summary.substring(0, 25) + "..." : n.summary);
+                            console.log(`[NotificationCard ${n.id}] label binding ejecutado: expanded=${expanded}, showing="${result}"`);
+                            return result;
+                        })}
                         halign={Gtk.Align.START}
                         hexpand
+                        wrap={expandedBinding(expanded => {
+                            console.log(`[NotificationCard ${n.id}] wrap binding: expanded=${expanded}`);
+                            return expanded;
+                        })}
                         css="font-weight: bold; font-size: 14px;"
-                        ellipsize={expandedBinding(exp => exp ? Pango.EllipsizeMode.NONE : Pango.EllipsizeMode.END)}
-                        maxWidthChars={expandedBinding(exp => exp ? -1 : 25)}
-                        wrap={expandedBinding(exp => exp)}
                     />
-                    <button
-                        onClicked={() => expandState.toggle()}
-                        css={shouldShowExpandButton
-                            ? "padding: 0; background: transparent; border: none; box-shadow: none;"
-                            : "padding: 0; background: transparent; border: none; box-shadow: none; opacity: 0; pointer-events: none;"}
-                        tooltipText={expandedBinding(exp => exp ? "Contraer" : "Expandir")}
-                    >
-                        <label
-                            label={expandedBinding(exp => exp ? "\u{f143}" : "\u{f140}")}
-                            css="font-size: 12px; color: #89b4fa;"
-                        />
-                    </button>
+
+                    {shouldShowExpandButton && (
+                        <button
+                            onClicked={() => {
+                                console.log(`[NotificationCard ${n.id}] Botón clickeado! Estado actual: ${expandState.expanded}`);
+                                expandState.toggle();
+                                console.log(`[NotificationCard ${n.id}] Después de toggle: ${expandState.expanded}`);
+                            }}
+                            css="padding: 0; background: transparent; border: none; box-shadow: none;"
+                        >
+                            <label
+                                label={expandedBinding(expanded => {
+                                    const icon = expanded ? "\u{f143}" : "\u{f140}";
+                                    console.log(`[NotificationCard ${n.id}] Icono del botón: expanded=${expanded}, icon=${icon}`);
+                                    return icon;
+                                })}
+                                css="font-size: 12px; color: #89b4fa;"
+                                tooltipText={expandedBinding(expanded => expanded ? "Contraer" : "Expandir")}
+                            />
+                        </button>
+                    )}
+
                     <button
                         onClicked={() => n.dismiss()}
                         css="padding: 0; background: transparent; border: none; box-shadow: none;"
@@ -118,13 +163,23 @@ function NotificationCard({ n }: { n: Notifd.Notification }) {
 
                 {n.body && (
                     <label
-                        label={n.body}
+                        label={expandedBinding(expanded => {
+                            if (expanded) {
+                                console.log(`[NotificationCard ${n.id}] body expandido, mostrando todo`);
+                                return n.body;
+                            }
+                            // Truncar el body si es muy largo
+                            if (bodyLength > 150) {
+                                const truncated = n.body.substring(0, 150) + "...";
+                                console.log(`[NotificationCard ${n.id}] body truncado a 150 chars`);
+                                return truncated;
+                            }
+                            console.log(`[NotificationCard ${n.id}] body completo (< 150 chars)`);
+                            return n.body;
+                        })}
                         halign={Gtk.Align.START}
                         wrap={true}
                         useMarkup={true}
-                        ellipsize={Pango.EllipsizeMode.END}
-                        lines={3}
-                        maxWidthChars={35}
                         css="color: #cdd6f4; font-size: 13px;"
                     />
                 )}

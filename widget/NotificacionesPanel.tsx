@@ -44,10 +44,6 @@ function getExpandState(notifId: number): NotificationExpandState {
         const newState = new NotificationExpandState();
         expandStates.set(notifId, newState);
 
-        // Conectar al evento notify para ver cuando cambia
-        newState.connect('notify::expanded', () => {
-            console.log(`[ExpandState ${notifId}] Estado cambió a: ${newState.expanded}`);
-        });
     }
     return expandStates.get(notifId)!;
 }
@@ -85,25 +81,15 @@ function NotificationIcon({ n }: { n: Notifd.Notification }) {
 }
 
 function NotificationCard({ n }: { n: Notifd.Notification }) {
-    console.log(`[NotificationCard] Renderizando notificación ${n.id}`);
-    console.log(`[NotificationCard ${n.id}] Summary: "${n.summary}"`);
-    console.log(`[NotificationCard ${n.id}] Summary length: ${n.summary.length}`);
-    console.log(`[NotificationCard ${n.id}] Body: "${n.body || 'N/A'}"`);
-    console.log(`[NotificationCard ${n.id}] Body length: ${n.body ? n.body.length : 0}`);
 
     const summaryLength = n.summary.length
     const bodyLength = n.body ? n.body.length : 0
+    const shouldShowExpandButton = summaryLength > 20 || bodyLength > 30
 
-    // Mostrar botón si el summary O el body son largos
-    const shouldShowExpandButton = summaryLength > 25 || bodyLength > 100
-
-    console.log(`[NotificationCard ${n.id}] shouldShowExpandButton: ${shouldShowExpandButton} (summary: ${summaryLength}, body: ${bodyLength})`);
 
     const expandState = getExpandState(n.id)
-    console.log(`[NotificationCard ${n.id}] Estado actual: ${expandState.expanded}`);
 
     const expandedBinding = createBinding(expandState, "expanded")
-    console.log(`[NotificationCard ${n.id}] Binding creado`);
 
     return (
         <box
@@ -117,11 +103,9 @@ function NotificationCard({ n }: { n: Notifd.Notification }) {
                 <box spacing={5}>
                     <label
                         label={expandedBinding(expanded => {
-                            const result = expanded
+                            return (expanded
                                 ? n.summary
-                                : (summaryLength > 25 ? n.summary.substring(0, 25) + "..." : n.summary);
-                            console.log(`[NotificationCard ${n.id}] label binding ejecutado: expanded=${expanded}, showing="${result}"`);
-                            return result;
+                                : (summaryLength > 25 ? n.summary.substring(0, 25) + "..." : n.summary));
                         })}
                         halign={Gtk.Align.START}
                         hexpand
@@ -135,9 +119,7 @@ function NotificationCard({ n }: { n: Notifd.Notification }) {
                     {shouldShowExpandButton && (
                         <button
                             onClicked={() => {
-                                console.log(`[NotificationCard ${n.id}] Botón clickeado! Estado actual: ${expandState.expanded}`);
                                 expandState.toggle();
-                                console.log(`[NotificationCard ${n.id}] Después de toggle: ${expandState.expanded}`);
                             }}
                             css="padding: 0; background: transparent; border: none; box-shadow: none;"
                         >
@@ -165,16 +147,13 @@ function NotificationCard({ n }: { n: Notifd.Notification }) {
                     <label
                         label={expandedBinding(expanded => {
                             if (expanded) {
-                                console.log(`[NotificationCard ${n.id}] body expandido, mostrando todo`);
                                 return n.body;
                             }
-                            // Truncar el body si es muy largo
-                            if (bodyLength > 150) {
-                                const truncated = n.body.substring(0, 150) + "...";
+                            if (bodyLength > 30) {
+                                const truncated = n.body.substring(0, 30) + "...";
                                 console.log(`[NotificationCard ${n.id}] body truncado a 150 chars`);
                                 return truncated;
                             }
-                            console.log(`[NotificationCard ${n.id}] body completo (< 150 chars)`);
                             return n.body;
                         })}
                         halign={Gtk.Align.START}

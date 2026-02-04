@@ -5,6 +5,7 @@ import "./service/BarState";
 import Bar from "./widget/Bar";
 import ProyectionMenu from "./widget/ProyectionMenu";
 import WorkspaceCarousel from "./widget/WorkspaceCarousel";
+import ChargingOverlay from "./widget/ChargingOverlay";
 
 app.start({
   css: style.toString().replace('@charset "UTF-8";', ""),
@@ -20,7 +21,8 @@ app.start({
       NotificationPopups(monitor)
       ProyectionMenu(monitor)
       WorkspaceCarousel(monitor)
-
     })
+
+    ChargingOverlay()
   },
 })

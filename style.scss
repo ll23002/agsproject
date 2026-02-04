@@ -702,3 +702,38 @@ window#workspace-carousel {
 
 
 
+/* ==============================================
+   CHARGING OVERLAY
+   ============================================== */
+window#charging-overlay {
+  background-color: transparent;
+
+  .overlay-bg {
+    background-color: transparent;
+    transition: background-color 0.5s ease;
+
+    &.visible {
+      background-color: rgba(24, 24, 37, 0.85);
+    }
+
+    &.hidden {
+      background-color: transparent;
+    }
+  }
+
+  .overlay-content {
+    background-color: rgba(19, 62, 124, 0.3);
+    border: 3px solid rgba(10, 189, 198, 0.6);
+    border-radius: 30px;
+    padding: 60px 80px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5),
+                0 0 40px rgba(10, 189, 198, 0.3);
+
+    .charging-icon {
+      font-size: 140px;
+      color: #f9e2af;
+    }
+  }
+}
+
+

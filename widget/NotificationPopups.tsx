@@ -28,13 +28,16 @@ function createNotificationWidget(n: any) {
     }
     else {
         iconWidget = (
-            <Gtk.Image
-                iconName="dialog-information-symbolic"
-                pixelSize={48}
+            <label
+                label={"\u{ea74}"}
+                css="font-size: 32px; color: #89b4fa;"
                 valign={Gtk.Align.START}
+                class="notif-icon"
             />
         );
     }
+
+    const bodyLength = n.body ? n.body.length : 0
 
     return (
         <box
@@ -55,13 +58,10 @@ function createNotificationWidget(n: any) {
                 />
                 {n.body && (
                     <label
-                        label={n.body}
+                        label={bodyLength > 30 ? n.body.substring(0, 30) + "..." : n.body}
                         halign={Gtk.Align.START}
-                        wrap
-                        useMarkup
-                        ellipsize={Pango.EllipsizeMode.END}
-                        lines={2}
-                        maxWidthChars={35}
+                        useMarkup={true}
+                        wrap={true}
                     />
                 )}
             </box>

@@ -105,12 +105,11 @@ function NotificationCard({ n }: { n: Notifd.Notification }) {
                         label={expandedBinding(expanded => {
                             return (expanded
                                 ? n.summary
-                                : (summaryLength > 25 ? n.summary.substring(0, 25) + "..." : n.summary));
+                                : (summaryLength > 20 ? n.summary.substring(0, 20) + "..." : n.summary));
                         })}
                         halign={Gtk.Align.START}
                         hexpand
                         wrap={expandedBinding(expanded => {
-                            console.log(`[NotificationCard ${n.id}] wrap binding: expanded=${expanded}`);
                             return expanded;
                         })}
                         css="font-weight: bold; font-size: 14px;"
@@ -125,11 +124,9 @@ function NotificationCard({ n }: { n: Notifd.Notification }) {
                         >
                             <label
                                 label={expandedBinding(expanded => {
-                                    const icon = expanded ? "\u{f143}" : "\u{f140}";
-                                    console.log(`[NotificationCard ${n.id}] Icono del botón: expanded=${expanded}, icon=${icon}`);
-                                    return icon;
+                                    return expanded ? "\u{f005d}" : "\u{f0045}";
                                 })}
-                                css="font-size: 12px; color: #89b4fa;"
+                                css="font-size: 16px; color: #89b4fa;"
                                 tooltipText={expandedBinding(expanded => expanded ? "Contraer" : "Expandir")}
                             />
                         </button>
@@ -139,7 +136,7 @@ function NotificationCard({ n }: { n: Notifd.Notification }) {
                         onClicked={() => n.dismiss()}
                         css="padding: 0; background: transparent; border: none; box-shadow: none;"
                     >
-                        <label label={"\u{f467}"} css="font-size: 12px; color: #f38ba8;" />
+                        <label label={"\u{f467}"} css="font-size: 16px; color: #f38ba8;" />
                     </button>
                 </box>
 
@@ -150,9 +147,7 @@ function NotificationCard({ n }: { n: Notifd.Notification }) {
                                 return n.body;
                             }
                             if (bodyLength > 30) {
-                                const truncated = n.body.substring(0, 30) + "...";
-                                console.log(`[NotificationCard ${n.id}] body truncado a 150 chars`);
-                                return truncated;
+                                return  n.body.substring(0, 30) + "...";
                             }
                             return n.body;
                         })}

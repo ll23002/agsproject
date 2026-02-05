@@ -703,11 +703,13 @@ window#workspace-carousel {
 
 
 /* ==============================================
-   CHARGING OVERLAY - PREMIMUM ANIMATION
+   CHARGING OVERLAY
    ============================================== */
 window#charging-overlay {
+
   .overlay-bg.visible {
     background-color: rgba(17, 17, 27, 0.85);
+    border-radius: 40px;
   }
 
   .overlay-content {
@@ -715,24 +717,19 @@ window#charging-overlay {
     border: 2px solid rgba(137, 220, 235, 0.5); // Sky
     border-radius: 40px;
     padding: 80px;
-    box-shadow: 0 0 50px rgba(137, 220, 235, 0.2);
 
-    // El contenedor del icono para efectos adicionales
     label.charging-icon {
       font-size: 160px;
-      color: #f9e2af; // Yellow
+      color: #f9e2af;
 
-      // Animación 1: El pulso de energía
       animation: energy-pulse 1.5s infinite ease-in-out;
 
-      // Animación 2: El brillo de carga (Simulado con text-shadow)
       text-shadow: 0 0 20px rgba(249, 226, 175, 0.6),
       0 0 40px rgba(249, 226, 175, 0.3);
     }
   }
 }
 
-/* Animación de pulso de escala y brillo */
 @keyframes energy-pulse {
   0% {
     transform: scale(0.95);

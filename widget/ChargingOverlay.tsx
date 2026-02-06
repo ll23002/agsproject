@@ -46,7 +46,7 @@ export default function ChargingOverlay() {
         layer={Astal.Layer.OVERLAY}
         exclusivity={Astal.Exclusivity.IGNORE}
         keymode={Astal.Keymode.NONE}
-        visible={true}
+        visible={false}
         anchor={Astal.WindowAnchor.TOP | Astal.WindowAnchor.BOTTOM | Astal.WindowAnchor.LEFT | Astal.WindowAnchor.RIGHT}
         application={app}>
         <box
@@ -71,16 +71,15 @@ export default function ChargingOverlay() {
         if (bat.charging) {
             win.visible = true;
             overlayState.visible = true;
-            console.log("⚡ Overlay visible - cargando batería");
+            GLib.spawn_command_line_async(`paplay ${GLib.get_home_dir()}/Music/charging.wav`);
 
-            GLib.timeout_add(GLib.PRIORITY_DEFAULT, 800, () => {
+            GLib.timeout_add(GLib.PRIORITY_DEFAULT, 1000, () => {
                 overlayState.visible = false;
                 return GLib.SOURCE_REMOVE;
             });
 
-            GLib.timeout_add(GLib.PRIORITY_DEFAULT, 1000, () => {
+            GLib.timeout_add(GLib.PRIORITY_DEFAULT, 1150, () => {
                 win.visible = false;
-                console.log("✓ Overlay oculto - ventana cerrada");
                 return GLib.SOURCE_REMOVE;
             });
         }

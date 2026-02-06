@@ -32,6 +32,7 @@ export default function BatteryPanel() {
         const p = levelBinding();
 
         if (charging) return "charging";
+
         if (p < 0.15) return "critical";
         if (p < 0.30) return "low";
         return "normal";

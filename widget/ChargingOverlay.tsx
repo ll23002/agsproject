@@ -66,25 +66,6 @@ export default function ChargingOverlay() {
         </box>
     </window> as Astal.Window;
 
-    // Mostrar overlay automáticamente al iniciar (modo prueba)
-    GLib.timeout_add(GLib.PRIORITY_DEFAULT, 500, () => {
-        win.visible = true;
-        overlayState.visible = true;
-        console.log("⚡ Overlay visible - modo prueba");
-
-        GLib.timeout_add(GLib.PRIORITY_DEFAULT, 5000, () => {
-            overlayState.visible = false;
-            return GLib.SOURCE_REMOVE;
-        });
-
-        GLib.timeout_add(GLib.PRIORITY_DEFAULT, 5500, () => {
-            win.visible = false;
-            console.log("✓ Overlay oculto - fin de prueba");
-            return GLib.SOURCE_REMOVE;
-        });
-
-        return GLib.SOURCE_REMOVE;
-    });
 
     bat.connect("notify::charging", () => {
         if (bat.charging) {

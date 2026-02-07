@@ -31,9 +31,20 @@ export default function BatteryPanel() {
         const charging = chargingBinding();
         const p = levelBinding();
 
-        if (charging) return "charging";
+        if (charging) {
+            GLib.spawn_command_line_async(`paplay ${GLib.get_home_dir()}/Music/charging2.mp3`);
+            return "charging";
+        }
+        if (p > 0.99) {
+            GLib.spawn_command_line_async(`paplay ${GLib.get_home_dir()}/Music/cargada.mp3`);
+            return "full";
+        }
 
-        if (p < 0.15) return "critical";
+        if (p < 0.15) {
+            GLib.spawn_command_line_async(`paplay ${GLib.get_home_dir()}/Music/low_battery.mp3`);
+            return "critical";
+        }
+
         if (p < 0.30) return "low";
         return "normal";
     });

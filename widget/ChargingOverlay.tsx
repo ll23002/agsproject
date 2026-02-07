@@ -65,11 +65,9 @@ export default function ChargingOverlay() {
     <script>
         const animationData = ${animationData};
         
-        console.log('[ChargingOverlay Lottie] Animation data:', animationData);
-        
         try {
             if (!animationData || !animationData.layers) {
-                throw new Error('Invalid animation data');
+                console.error('[ChargingOverlay Lottie] No animation data found');
             }
             
             const animation = lottie.loadAnimation({
@@ -80,7 +78,6 @@ export default function ChargingOverlay() {
                 animationData: animationData
             });
             
-            console.log('[ChargingOverlay Lottie] Animation loaded successfully');
             
         } catch (error) {
             console.error('[ChargingOverlay Lottie] Error:', error);

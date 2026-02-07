@@ -20,3 +20,15 @@ declare module "*.css" {
   export default content
 }
 
+
+//para que webView funcione
+export {}
+
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      webview: any;
+    }
+  }
+}
+

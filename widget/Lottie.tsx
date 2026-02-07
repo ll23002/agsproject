@@ -72,7 +72,7 @@ export default function LottieAnimation({
         
         try {
             if (!animationData || !animationData.layers) {
-                throw new Error('Invalid animation data');
+                console.error('No animation data found');
             }
             
             const animation = lottie.loadAnimation({

@@ -164,7 +164,7 @@ export default function BatteryPanel() {
                     <box spacing={8} halign={Gtk.Align.FILL}>
                         <box orientation={Gtk.Orientation.VERTICAL} hexpand>
                             <label
-                                label="\u{f0091}  Protección de batería"
+                                label={"\u{f0091}  Protección de batería"}
                                 class="sub-label"
                                 halign={Gtk.Align.START}
                             />

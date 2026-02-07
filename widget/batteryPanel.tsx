@@ -60,7 +60,6 @@ export default function BatteryPanel() {
         const p = levelBinding();
         const protectionEnabled = batteryProtectionEnabled();
 
-        console.log(`[BatteryPanel] batIcon memo - percentage: ${p}, charging: ${charging}, protection: ${protectionEnabled}`);
         return getBatteryIcon(p, charging, protectionEnabled);
     });
 
@@ -179,7 +178,6 @@ export default function BatteryPanel() {
                             active={batteryProtectionEnabled(e => e)}
                             // @ts-ignore
                             onStateSet={(_, state) => {
-                                console.log(`[BatteryPanel] Switch state changed - New state: ${state}`);
                                 setBatteryProtection(state);
                                 return false;
                             }}

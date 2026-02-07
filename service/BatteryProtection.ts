@@ -72,14 +72,13 @@ export const setBatteryProtection = (enabled: boolean) => {
     service.setProtection(enabled);
 };
 
-
 export const isBatteryAtProtectionLimit = (percentage: number, charging: boolean, protectionEnabled: boolean): boolean => {
     return charging && percentage >= (CHARGE_LIMIT / 100) && protectionEnabled;
 };
 
 export const getBatteryIcon = (percentage: number, charging: boolean, protectionEnabled: boolean): string => {
     if (isBatteryAtProtectionLimit(percentage, charging, protectionEnabled)) {
-        return "\u{f0091}"; // Por que no se muestra bien?
+        return "\u{f0091}";
     }
 
     if (charging) {

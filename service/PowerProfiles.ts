@@ -60,7 +60,6 @@ class PowerProfilesService extends GObject.Object {
 
         try {
             await execAsync(`powerprofilesctl set ${mode}`);
-            console.log(`Perfil cambiado a: ${mode}`);
         } catch (e) {
             console.error(`Error cambiando perfil a ${mode}:`, e);
             this.#profile = oldProfile;

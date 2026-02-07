@@ -94,11 +94,9 @@ export function ControlPanel() {
 
                 <popover
                     onShow={() => {
-                        console.log("[ControlPanel] Popover abierto - Activando Rendimiento");
                         rendimientoResult.setVisible(true);
                     }}
                     onHide={() => {
-                        console.log("[ControlPanel] Popover cerrado - Desactivando Rendimiento");
                         rendimientoResult.setVisible(false);
                     }}
                 >

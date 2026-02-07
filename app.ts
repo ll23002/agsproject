@@ -26,11 +26,6 @@ app.start({
     })
 
     ChargingOverlay()
-    // Mostrar animación de Lottie al inicio (se ocultará automáticamente después de 3 segundos)
-    LottieAnimation({
-      fileName: "animation.json",  // Archivo JSON de Lottie en ~/.config/ags/assets/
-      size: 400,                   // Tamaño de la animación
-      duration: 3000               // 3 segundos
-    })
+
   },
 })

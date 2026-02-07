@@ -7,7 +7,6 @@ import Bar from "./widget/Bar";
 import ProyectionMenu from "./widget/ProyectionMenu";
 import WorkspaceCarousel from "./widget/WorkspaceCarousel";
 import ChargingOverlay from "./widget/ChargingOverlay";
-import LottieAnimation from "./widget/Lottie";
 
 app.start({
   css: style.toString().replace('@charset "UTF-8";', ""),

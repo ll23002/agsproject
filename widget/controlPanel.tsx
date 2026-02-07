@@ -16,6 +16,7 @@ import Network from "gi://AstalNetwork"
 import Bluetooth from "gi://AstalBluetooth"
 // @ts-ignore
 import Battery from "gi://AstalBattery";
+import { batteryProtectionEnabled, getBatteryIcon } from "../service/BatteryProtection";
 
 
 
@@ -33,16 +34,6 @@ export function ControlPanel() {
     const batPercent = createBinding(battery, "percentage");
     const batCharging = createBinding(battery, "charging");
 
-    const getBatIcon = (p: number, charging: boolean) => {
-        if (charging) return "\u{f0084}";
-
-        if (p > 0.9) return "\u{f240}";
-        if (p > 0.7) return "\u{f241}";
-        if (p > 0.45) return "\u{f242}";
-        if (p > 0.20) return "\u{f243}";
-        if (p <= 0.10) return "\u{f244}";
-    };
-
     const getBatColor = (p: number, charging: boolean) => {
         if (p < 0.2) return "#f38ba8";
         if (p < 0.4) return "#fab387";
@@ -52,8 +43,10 @@ export function ControlPanel() {
     const batInfo = createMemo(() => {
         const p = batPercent();
         const c = batCharging();
+        const protectionEnabled = batteryProtectionEnabled();
+
         return {
-            icon: getBatIcon(p, c),
+            icon: getBatteryIcon(p, c, protectionEnabled),
             color: getBatColor(p, c),
             pct: Math.floor(p * 100)
         };

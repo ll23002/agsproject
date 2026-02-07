@@ -61,6 +61,7 @@ export default function ChargingOverlay() {
 </head>
 <body>
     <div id="lottie-container"></div>
+    <!-- noinspection HtmlUnknownTarget,JSUnresolvedLibraryURL -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
     <script>
         const animationData = ${animationData};
@@ -70,7 +71,8 @@ export default function ChargingOverlay() {
                 console.error('[ChargingOverlay Lottie] No animation data found');
             }
             
-            const animation = lottie.loadAnimation({
+            // noinspection JSUnresolvedVariable,JSUnresolvedFunction
+            lottie.loadAnimation({
                 container: document.getElementById('lottie-container'),
                 renderer: 'svg',
                 loop: true,

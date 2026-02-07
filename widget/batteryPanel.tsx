@@ -3,6 +3,12 @@ import { Gtk } from "ags/gtk4";
 import GLib from "gi://GLib"
 // @ts-ignore
 import Battery from "gi://AstalBattery";
+import {
+    batteryProtectionEnabled,
+    setBatteryProtection,
+    getBatteryIcon,
+    CHARGE_LIMIT
+} from "../service/BatteryProtection";
 
 
 const readFile = (path: string): string => {
@@ -52,27 +58,10 @@ export default function BatteryPanel() {
     const batIcon = createMemo(() => {
         const charging = chargingBinding();
         const p = levelBinding();
+        const protectionEnabled = batteryProtectionEnabled();
 
-        if (charging) return "\u{f0084}";
-
-
-        if (p <= 0.05) return "\u{f10cd}";
-
-        const icons = [
-            "\u{f007a}", // 10%
-            "\u{f007b}", // 20%
-            "\u{f007c}", // 30%
-            "\u{f007d}", // 40%
-            "\u{f007e}", // 50%
-            "\u{f007f}", // 60%
-            "\u{f0080}", // 70%
-            "\u{f0081}", // 80%
-            "\u{f0082}", // 90%
-            "\u{f0085}", // 100%
-        ];
-
-        const index = Math.min(Math.floor(p * 10), 9);
-        return icons[index];
+        console.log(`[BatteryPanel] batIcon memo - percentage: ${p}, charging: ${charging}, protection: ${protectionEnabled}`);
+        return getBatteryIcon(p, charging, protectionEnabled);
     });
 
     const formatTime = (seconds: number) => {
@@ -169,6 +158,34 @@ export default function BatteryPanel() {
                             </box>
                         )}
                     </With>
+
+                    <Gtk.Separator />
+
+                    <box spacing={8} halign={Gtk.Align.FILL}>
+                        <box orientation={Gtk.Orientation.VERTICAL} hexpand>
+                            <label
+                                label="\u{f0091}  Protección de batería"
+                                class="sub-label"
+                                halign={Gtk.Align.START}
+                            />
+                            <label
+                                label={`Limita la carga al ${CHARGE_LIMIT}%`}
+                                class="value-label"
+                                halign={Gtk.Align.START}
+                                css="font-size: 10px; opacity: 0.7;"
+                            />
+                        </box>
+                        <Gtk.Switch
+                            active={batteryProtectionEnabled(e => e)}
+                            // @ts-ignore
+                            onStateSet={(_, state) => {
+                                console.log(`[BatteryPanel] Switch state changed - New state: ${state}`);
+                                setBatteryProtection(state);
+                                return false;
+                            }}
+                            valign={Gtk.Align.CENTER}
+                        />
+                    </box>
 
                     <Gtk.Separator />
 

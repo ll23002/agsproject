@@ -57,106 +57,37 @@ class BatteryProtectionState extends GObject.Object {
 
     setProtection(enabled: boolean) {
         const newLimit = enabled ? CHARGE_LIMIT : 100;
-
         const cmd = `sh -c 'echo ${newLimit} | sudo -n tee ${THRESHOLD_PATH} > /dev/null'`;
         GLib.spawn_command_line_async(cmd);
-
         this.enabled = enabled;
-
-        // Verificar y reintentar si es necesario (el kernel a veces tarda en aplicar el cambio)
-        let retries = 0;
-        const maxRetries = 3;
-
-        const verifyAndRetry = () => {
-            const currentThreshold = getCurrentThreshold();
-            console.log(`[BatteryProtection] Verification attempt ${retries + 1}/${maxRetries} - Expected: ${newLimit}, Current: ${currentThreshold}`);
-
-            if (currentThreshold === newLimit) {
-                console.log(`[BatteryProtection] ✓ Threshold successfully set to ${newLimit}%`);
-                this.syncFromSystem();
-                return GLib.SOURCE_REMOVE;
-            }
-
-            retries++;
-            if (retries >= maxRetries) {
-                console.log(`[BatteryProtection] ✗ Failed to set threshold after ${maxRetries} attempts. Syncing state...`);
-                this.syncFromSystem();
-                return GLib.SOURCE_REMOVE;
-            }
-
-            // Reintentar
-            console.log(`[BatteryProtection] Retrying command...`);
-            GLib.spawn_command_line_async(cmd);
-            return GLib.SOURCE_CONTINUE;
-        };
-
-        // Verificar después de 1 segundo, luego cada 500ms
-        GLib.timeout_add(GLib.PRIORITY_DEFAULT, 1000, verifyAndRetry);
     }
 
-    syncFromSystem() {
-        const currentThreshold = getCurrentThreshold();
-        const shouldBeEnabled = currentThreshold === CHARGE_LIMIT;
-        console.log(`[BatteryProtection] syncFromSystem() - Threshold: ${currentThreshold}, Should be enabled: ${shouldBeEnabled}, Current state: ${this.#enabled}`);
-
-        if (this.#enabled !== shouldBeEnabled) {
-            console.log(`[BatteryProtection] syncFromSystem() - Syncing state to match system`);
-            this.enabled = shouldBeEnabled;
-        }
-    }
 }
 
 const service = new BatteryProtectionState();
 
-// Sincronizar periódicamente cada 5 segundos
-GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, 5, () => {
-    service.syncFromSystem();
-    return GLib.SOURCE_CONTINUE;
-});
-
-// Variable para controlar si la protección está activada
 export const batteryProtectionEnabled = createBinding(service, "enabled");
 
-// Función para activar/desactivar la protección
 export const setBatteryProtection = (enabled: boolean) => {
     service.setProtection(enabled);
 };
 
-// Función para sincronizar manualmente
-export const syncBatteryProtectionState = () => {
-    service.syncFromSystem();
-};
 
-// Función para obtener el límite actual
-export const getCurrentChargeLimit = (): number => {
-    return getCurrentThreshold();
-};
-
-// Función para verificar si la batería está en modo protección (alcanzó el límite)
 export const isBatteryAtProtectionLimit = (percentage: number, charging: boolean, protectionEnabled: boolean): boolean => {
-    const result = charging && percentage >= (CHARGE_LIMIT / 100) && protectionEnabled;
-    console.log(`[BatteryProtection] isBatteryAtProtectionLimit(${percentage.toFixed(2)}, ${charging}, ${protectionEnabled}) = ${result}`);
-    return result;
+    return charging && percentage >= (CHARGE_LIMIT / 100) && protectionEnabled;
 };
 
-// Función compartida para obtener el icono de batería
 export const getBatteryIcon = (percentage: number, charging: boolean, protectionEnabled: boolean): string => {
-    console.log(`[BatteryProtection] getBatteryIcon(${percentage.toFixed(2)}, charging=${charging}, protection=${protectionEnabled})`);
-
-    // Si está en modo protección (conectada, al límite y protección activada)
     if (isBatteryAtProtectionLimit(percentage, charging, protectionEnabled)) {
-        console.log(`[BatteryProtection] -> Returning protection icon`);
-        return "\u{f0091}"; // Icono de batería con protección/escudo
+        return "\u{f0091}"; // Por que no se muestra bien?
     }
 
     if (charging) {
-        console.log(`[BatteryProtection] -> Returning charging icon`);
-        return "\u{f0084}"; // Batería cargando
+        return "\u{f0084}";
     }
 
     if (percentage <= 0.05) {
-        console.log(`[BatteryProtection] -> Returning critical icon`);
-        return "\u{f10cd}"; // Batería crítica
+        return "\u{f10cd}";
     }
 
     const icons = [
@@ -173,7 +104,6 @@ export const getBatteryIcon = (percentage: number, charging: boolean, protection
     ];
 
     const index = Math.min(Math.floor(percentage * 10), 9);
-    console.log(`[BatteryProtection] -> Returning percentage icon (index ${index})`);
     return icons[index];
 };
 

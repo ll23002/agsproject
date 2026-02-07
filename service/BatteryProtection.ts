@@ -20,10 +20,7 @@ const readFile = (path: string): string => {
 
 const getCurrentThreshold = (): number => {
     const value = readFile(THRESHOLD_PATH);
-    const threshold = parseInt(value, 10);
-    const result = !isNaN(threshold) ? threshold : 100;
-    console.log(`[BatteryProtection] getCurrentThreshold() - Raw value: "${value}", Parsed: ${threshold}, Result: ${result}`);
-    return result;
+    return parseInt(value, 10) || 100;
 };
 
 class BatteryProtectionState extends GObject.Object {
@@ -45,36 +42,26 @@ class BatteryProtectionState extends GObject.Object {
         super();
         const currentThreshold = getCurrentThreshold();
         this.#enabled = currentThreshold === CHARGE_LIMIT;
-        console.log(`[BatteryProtection] Initialized - Current threshold: ${currentThreshold}, Enabled: ${this.#enabled}, CHARGE_LIMIT: ${CHARGE_LIMIT}`);
     }
 
     get enabled() {
-        console.log(`[BatteryProtection] get enabled() - Returning: ${this.#enabled}`);
         return this.#enabled;
     }
 
     set enabled(value: boolean) {
         if (this.#enabled !== value) {
-            console.log(`[BatteryProtection] set enabled() - Changing from ${this.#enabled} to ${value}`);
             this.#enabled = value;
             this.notify('enabled');
-        } else {
-            console.log(`[BatteryProtection] set enabled() - No change needed, already ${value}`);
         }
     }
 
     setProtection(enabled: boolean) {
         const newLimit = enabled ? CHARGE_LIMIT : 100;
 
-        console.log(`[BatteryProtection] setProtection(${enabled}) - Setting limit to ${newLimit}%`);
-
-        // Ejecutar el comando con sudo (sin bash -c para mejor compatibilidad)
         const cmd = `sh -c 'echo ${newLimit} | sudo -n tee ${THRESHOLD_PATH} > /dev/null'`;
-        console.log(`[BatteryProtection] Executing command: ${cmd}`);
         GLib.spawn_command_line_async(cmd);
 
         this.enabled = enabled;
-        console.log(`[BatteryProtection] Protection ${enabled ? "activada" : "desactivada"} - Límite: ${newLimit}%`);
 
         // Verificar y reintentar si es necesario (el kernel a veces tarda en aplicar el cambio)
         let retries = 0;

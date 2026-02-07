@@ -78,7 +78,7 @@ export const isBatteryAtProtectionLimit = (percentage: number, charging: boolean
 
 export const getBatteryIcon = (percentage: number, charging: boolean, protectionEnabled: boolean): string => {
     if (isBatteryAtProtectionLimit(percentage, charging, protectionEnabled)) {
-        return "\u{f0091}";
+        return "\u{f1211}";
     }
 
     if (charging) {

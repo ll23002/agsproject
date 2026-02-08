@@ -33,26 +33,45 @@ export default function BatteryPanel() {
     const timeToEmpty = createBinding(battery, "timeToEmpty");
     const timeToFull = createBinding(battery, "timeToFull");
 
+    let previousCharging: boolean | null = null;
+    let previousClass: string | null = null;
+    let hasPlayedLowBattery = false;
+
     const batClass = createMemo(() => {
         const charging = chargingBinding();
         const p = levelBinding();
 
+        let currentClass: string;
+
         if (charging) {
-            GLib.spawn_command_line_async(`paplay ${GLib.get_home_dir()}/Music/charging2.mp3`);
-            return "charging";
-        }
-        if (p > 0.99) {
-            GLib.spawn_command_line_async(`paplay ${GLib.get_home_dir()}/Music/cargada.mp3`);
-            return "full";
+            currentClass = "charging";
+            if (previousCharging === false) {
+                GLib.spawn_command_line_async(`paplay ${GLib.get_home_dir()}/Music/charging2.mp3`);
+            }
+        } else if (p > 0.99) {
+            currentClass = "full";
+            if (previousClass === "charging") {
+                GLib.spawn_command_line_async(`paplay ${GLib.get_home_dir()}/Music/cargada.mp3`);
+            }
+        } else if (p < 0.15) {
+            currentClass = "critical";
+            if (previousClass !== "critical" && !hasPlayedLowBattery) {
+                GLib.spawn_command_line_async(`paplay ${GLib.get_home_dir()}/Music/low_battery.mp3`);
+                hasPlayedLowBattery = true;
+            }
+        } else if (p < 0.30) {
+            currentClass = "low";
+            if (previousClass === "critical") {
+                hasPlayedLowBattery = false;
+            }
+        } else {
+            currentClass = "normal";
+            hasPlayedLowBattery = false;
         }
 
-        if (p < 0.15) {
-            GLib.spawn_command_line_async(`paplay ${GLib.get_home_dir()}/Music/low_battery.mp3`);
-            return "critical";
-        }
-
-        if (p < 0.30) return "low";
-        return "normal";
+        previousCharging = charging;
+        previousClass = currentClass;
+        return currentClass;
     });
 
     const batIcon = createMemo(() => {

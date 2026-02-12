@@ -216,13 +216,13 @@ export default function WorkspaceCarousel(gdkmonitor: Gdk.Monitor) {
                                 visibleIndices = [prevIdx, sel, nextIdx];
                             }
 
-                            // Determinar si necesitamos fantasmas y de qué tipo
+
                             const needsGhosts = totalWorkspaces < 3;
                             const ghostType = totalWorkspaces === 1 ? "full" : "reduced";
 
                             return (
                                 <box spacing={16} halign={Gtk.Align.CENTER}>
-                                    {/* Fantasma izquierdo */}
+
                                     {needsGhosts && (
                                         <box
                                             class={`ws-ghost ${ghostType}`}
@@ -265,7 +265,7 @@ export default function WorkspaceCarousel(gdkmonitor: Gdk.Monitor) {
                                         );
                                     })}
 
-                                    {/* Fantasma derecho */}
+
                                     {needsGhosts && (
                                         <box
                                             class={`ws-ghost ${ghostType}`}
@@ -276,6 +276,7 @@ export default function WorkspaceCarousel(gdkmonitor: Gdk.Monitor) {
                                             </box>
                                         </box>
                                     )}
+
                                 </box>
                             );
                         }}

@@ -700,3 +700,22 @@ window#workspace-carousel {
   }
 }
 
+/* Ventanas fantasma para mantener el tamaño consistente */
+.ws-ghost {
+  padding: 8px;
+  min-width: 200px;
+  opacity: 0;
+
+  &.full {
+    /* Fantasma completo - usado cuando hay 1 workspace */
+    transform: scale(0.85);
+  }
+
+  &.reduced {
+    /* Fantasma reducido - usado cuando hay 2 workspaces */
+    transform: scale(0.25);
+    min-width: 60px;
+  }
+}
+
+

@@ -216,8 +216,24 @@ export default function WorkspaceCarousel(gdkmonitor: Gdk.Monitor) {
                                 visibleIndices = [prevIdx, sel, nextIdx];
                             }
 
+                            // Determinar si necesitamos fantasmas y de qué tipo
+                            const needsGhosts = totalWorkspaces < 3;
+                            const ghostType = totalWorkspaces === 1 ? "full" : "reduced";
+
                             return (
                                 <box spacing={16} halign={Gtk.Align.CENTER}>
+                                    {/* Fantasma izquierdo */}
+                                    {needsGhosts && (
+                                        <box
+                                            class={`ws-ghost ${ghostType}`}
+                                        >
+                                            <box orientation={Gtk.Orientation.VERTICAL} spacing={8}>
+                                                <box css="min-width: 280px; min-height: 150px;" />
+                                                <label label="Ghost" css="font-size: 14px;" />
+                                            </box>
+                                        </box>
+                                    )}
+
                                     {visibleIndices.map((idx: number) => {
                                         const w = sortedList[idx];
                                         const isSelected = idx === sel;
@@ -248,6 +264,18 @@ export default function WorkspaceCarousel(gdkmonitor: Gdk.Monitor) {
                                             </button>
                                         );
                                     })}
+
+                                    {/* Fantasma derecho */}
+                                    {needsGhosts && (
+                                        <box
+                                            class={`ws-ghost ${ghostType}`}
+                                        >
+                                            <box orientation={Gtk.Orientation.VERTICAL} spacing={8}>
+                                                <box css="min-width: 280px; min-height: 150px;" />
+                                                <label label="Ghost" css="font-size: 14px;" />
+                                            </box>
+                                        </box>
+                                    )}
                                 </box>
                             );
                         }}

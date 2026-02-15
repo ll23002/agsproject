@@ -187,14 +187,12 @@ export default function CheatSheet(gdkmonitor: Gdk.Monitor) {
                         //@ts-ignore
                         onChanged={({ text }) => state.query = text || ""}
                         onActivate={() => {
-                            const q = state.query.toLowerCase();
-                            const filtered = COMMANDS.filter(c =>
-                                c.cmd.toLowerCase().includes(q) ||
-                                c.descripcion.toLowerCase().includes(q) ||
-                                c.categoria.toLowerCase().includes(q)
-                            );
-                            if (filtered.length === 1) {
-                                copyToClipboard(filtered[0].cmd);
+                            const filtered = getFilteredCommands();
+                            if (filtered.length > 0) {
+                                const selectedCmd = filtered[state.selectedIndex];
+                                if (selectedCmd) {
+                                    copyToClipboard(selectedCmd.cmd);
+                                }
                             }
                         }}
                         />

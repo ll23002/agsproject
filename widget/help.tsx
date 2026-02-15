@@ -63,7 +63,7 @@ class CheatState extends GObject.Object {
     set query(val: string) {
         if(this.#query !== val) {
             this.#query = val;
-            this.#selectedIndex = 0; // Reset al cambiar la búsqueda
+            this.#selectedIndex = 0;
             this.#revision++;
             this.notify("query");
             this.notify("selectedIndex");
@@ -136,14 +136,14 @@ export default function CheatSheet(gdkmonitor: Gdk.Monitor) {
         const filtered = getFilteredCommands();
         const maxIndex = filtered.length - 1;
 
-        if (keyval === Gdk.KEY_Up) {
+        if (keyval === Gdk.KEY_Up || keyval === Gdk.KEY_KP_Up) {
             if (filtered.length > 0) {
                 state.cycle(-1, maxIndex);
             }
             return true;
         }
 
-        if (keyval === Gdk.KEY_Down) {
+        if (keyval === Gdk.KEY_Down || keyval === Gdk.KEY_KP_Down) {
             if (filtered.length > 0) {
                 state.cycle(1, maxIndex);
             }

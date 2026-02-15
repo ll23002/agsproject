@@ -82,7 +82,7 @@ export default function CheatSheet(gdkmonitor: Gdk.Monitor) {
     });
 
 
-    return (
+    const win = (
         <window
             name="cheatsheet"
             visible={false}
@@ -146,7 +146,7 @@ export default function CheatSheet(gdkmonitor: Gdk.Monitor) {
                                             <label label="No sé que estas buscando..." css="opacity: 0.7;" />
                                         </box>
                                         ) : (
-                                            filtered.map((item, i) => (
+                                            filtered.map((item) => (
                                                 <button
                                                     class="cheat-item"
                                                     onClicked={() => copyToClipboard(item.cmd)}
@@ -183,7 +183,7 @@ export default function CheatSheet(gdkmonitor: Gdk.Monitor) {
                                                             />
                                                     </box>
                                                 </button>
-                                            ))
+                                                            ))
                                     )}
                                 </box>
                             );
@@ -192,11 +192,10 @@ export default function CheatSheet(gdkmonitor: Gdk.Monitor) {
                 </Gtk.ScrolledWindow>
             </box>
 
-            <dumy onRealize={(self) => {
-                const win = self.get_toplevel() as Gtk.Window;
-                if(win) win.add_controller(keyController);
-            }}/>
-
         </window>
     ) as Astal.Window;
+
+    win.add_controller(keyController);
+
+    return win;
 }

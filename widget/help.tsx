@@ -221,7 +221,7 @@ export default function CheatSheet(gdkmonitor: Gdk.Monitor) {
 
                             if (filtered.length === 0) {
                                 return (
-                                    <box orientation={Gtk.Orientation.VERTICAL} valing={Gtk.Align.CENTER} spacing={10} vexpand>
+                                    <box orientation={Gtk.Orientation.VERTICAL} valign={Gtk.Align.CENTER} spacing={10} vexpand>
                                         <label label={"\u{f059}"} css="font-size: 48px; opacity: 0.5;" />
                                         <label label="No sé que estas buscando..." css="opacity: 0.7;" />
                                     </box>

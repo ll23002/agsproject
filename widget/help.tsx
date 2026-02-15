@@ -33,25 +33,66 @@ const COMMANDS: Command[] = [
 class CheatState extends GObject.Object {
     static {
         GObject.registerClass({
+            GTypeName: "CheatState",
             Properties: {
                'query': GObject.ParamSpec.string(
                    'query', 'Query', 'Search query',
                    GObject.ParamFlags.READWRITE,
                    ""
                ),
+               'selectedIndex': GObject.ParamSpec.int(
+                   'selectedIndex', 'SelectedIndex', 'Índice del comando seleccionado',
+                   GObject.ParamFlags.READWRITE,
+                   -1, 999, 0
+               ),
+               'revision': GObject.ParamSpec.int(
+                   'revision', 'Revision', 'Revision para forzar actualizaciones',
+                   GObject.ParamFlags.READWRITE,
+                   0, 999999, 0
+               ),
             },
         }, this);
     }
 
     #query: string = "";
+    #selectedIndex: number = 0;
+    #revision: number = 0;
 
     get query() {return this.#query;}
 
     set query(val: string) {
         if(this.#query !== val) {
             this.#query = val;
+            this.#selectedIndex = 0; // Reset al cambiar la búsqueda
+            this.#revision++;
             this.notify("query");
+            this.notify("selectedIndex");
+            this.notify("revision");
         }
+    }
+
+    get selectedIndex() {return this.#selectedIndex;}
+
+    set selectedIndex(val: number) {
+        if(this.#selectedIndex !== val) {
+            this.#selectedIndex = val;
+            this.#revision++;
+            this.notify("selectedIndex");
+            this.notify("revision");
+        }
+    }
+
+    get revision() {return this.#revision;}
+
+    set revision(val: number) {
+        this.#revision = val;
+    }
+
+    cycle(step: number, maxIndex: number) {
+        let next = this.#selectedIndex + step;
+        if (next > maxIndex) next = 0;
+        if (next < 0) next = maxIndex;
+        this.selectedIndex = next;
     }
 }
 
@@ -60,7 +101,21 @@ const state = new CheatState();
 
 export default function CheatSheet(gdkmonitor: Gdk.Monitor) {
     const queryBinding = createBinding(state, "query");
-    const hide = () => App.toggle_window("cheatsheet");
+    const revision = createBinding(state, "revision");
+    const hide = () => {
+        App.toggle_window("cheatsheet");
+        state.query = "";
+        state.selectedIndex = 0;
+    };
+
+    const getFilteredCommands = () => {
+        const search = state.query.toLowerCase();
+        return COMMANDS.filter(c =>
+            c.cmd.toLowerCase().includes(search) ||
+            c.descripcion.toLowerCase().includes(search) ||
+            c.categoria.toLowerCase().includes(search)
+        );
+    };
 
     const copyToClipboard = (cmd: string) => {
         execAsync(["bash", "-c", `echo -n "${cmd}" | wl-copy`])
@@ -71,13 +126,40 @@ export default function CheatSheet(gdkmonitor: Gdk.Monitor) {
     };
 
     const keyController = new Gtk.EventControllerKey();
-    //@ts-ignore
-    keyController.connect("key-pressed", (_, keyval) => {
+
+    keyController.connect("key-pressed", (_: Gtk.EventControllerKey, keyval: number) => {
         if (keyval === Gdk.KEY_Escape) {
             hide();
-            state.query = "";
             return true;
         }
+
+        const filtered = getFilteredCommands();
+        const maxIndex = filtered.length - 1;
+
+        if (keyval === Gdk.KEY_Up) {
+            if (filtered.length > 0) {
+                state.cycle(-1, maxIndex);
+            }
+            return true;
+        }
+
+        if (keyval === Gdk.KEY_Down) {
+            if (filtered.length > 0) {
+                state.cycle(1, maxIndex);
+            }
+            return true;
+        }
+
+        if (keyval === Gdk.KEY_Return) {
+            if (filtered.length > 0) {
+                const selectedCmd = filtered[state.selectedIndex];
+                if (selectedCmd) {
+                    copyToClipboard(selectedCmd.cmd);
+                }
+            }
+            return true;
+        }
+
         return false;
     });
 
@@ -130,61 +212,67 @@ export default function CheatSheet(gdkmonitor: Gdk.Monitor) {
                     propagateNaturalHeight
                     css="padding: 10px;"
                 >
-                    <With value={queryBinding}>
-                        {(q) => {
-                            const search = q.toLowerCase();
+                    <With value={revision}>
+                        {(_rev) => {
+                            const search = state.query.toLowerCase();
                             const filtered = COMMANDS.filter(c =>
                             c.cmd.toLowerCase().includes(search) ||
                             c.descripcion.toLowerCase().includes(search) ||
                             c.categoria.toLowerCase().includes(search)
                             );
+
+                            if (filtered.length === 0) {
+                                return (
+                                    <box orientation={Gtk.Orientation.VERTICAL} valing={Gtk.Align.CENTER} spacing={10} vexpand>
+                                        <label label={"\u{f059}"} css="font-size: 48px; opacity: 0.5;" />
+                                        <label label="No sé que estas buscando..." css="opacity: 0.7;" />
+                                    </box>
+                                );
+                            }
+
+                            const sel = state.selectedIndex;
+
                             return (
                                 <box orientation={Gtk.Orientation.VERTICAL} spacing={6}>
-                                    {filtered.length === 0 ? (
-                                        <box orientation={Gtk.Orientation.VERTICAL} valing={Gtk.Align.CENTER} spacing={10} vexpand>
-                                            <label label={"\u{f059}"} css="font-size: 48px; opacity: 0.5;" />
-                                            <label label="No sé que estas buscando..." css="opacity: 0.7;" />
-                                        </box>
-                                        ) : (
-                                            filtered.map((item) => (
-                                                <button
-                                                    class="cheat-item"
-                                                    onClicked={() => copyToClipboard(item.cmd)}
-                                                >
-                                                    <box spacing={15}>
-                                                        <label
-                                                            class="cat-badge"
-                                                            label={item.categoria}
-                                                            widthRequest={90}
-                                                            xalign={0.5}
-                                                            ellipsize={3}
-                                                            />
+                                    {filtered.map((item, index) => (
+                                        <button
+                                            class={sel === index ? "cheat-item selected" : "cheat-item"}
+                                            focusable={false}
+                                            onClicked={() => copyToClipboard(item.cmd)}
+                                        >
+                                            <box spacing={15}>
+                                                <label
+                                                    class="cat-badge"
+                                                    label={item.categoria}
+                                                    widthRequest={90}
+                                                    xalign={0.5}
+                                                    ellipsize={3}
+                                                    />
 
-                                                        <box orientation={Gtk.Orientation.VERTICAL} hexpand>
-                                                            <label
-                                                                class="cmd-text"
-                                                                label={item.cmd}
-                                                                halign={Gtk.Align.START}
-                                                                selectable
-                                                                ellipsize={3}
-                                                                />
-                                                            <label
-                                                                class="desc-text"
-                                                                label={item.descripcion}
-                                                                halign={Gtk.Align.START}
-                                                                ellipsize={3}
-                                                                />
-                                                        </box>
+                                                <box orientation={Gtk.Orientation.VERTICAL} hexpand>
+                                                    <label
+                                                        class="cmd-text"
+                                                        label={item.cmd}
+                                                        halign={Gtk.Align.START}
+                                                        selectable
+                                                        ellipsize={3}
+                                                        />
+                                                    <label
+                                                        class="desc-text"
+                                                        label={item.descripcion}
+                                                        halign={Gtk.Align.START}
+                                                        ellipsize={3}
+                                                        />
+                                                </box>
 
-                                                        <label
-                                                            label={"\u{f0c5}"}
-                                                            class="copy-icon"
-                                                            halign={Gtk.Align.END}
-                                                            />
-                                                    </box>
-                                                </button>
-                                                            ))
-                                    )}
+                                                <label
+                                                    label={"\u{f0c5}"}
+                                                    class="copy-icon"
+                                                    halign={Gtk.Align.END}
+                                                    />
+                                            </box>
+                                        </button>
+                                    ))}
                                 </box>
                             );
                         }}

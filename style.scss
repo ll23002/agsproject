@@ -793,6 +793,13 @@ window#cheatsheet {
       border-color: $accent-color;
     }
 
+    &.selected {
+      background-color: rgba($accent-color, 0.25);
+      border-color: $accent-color;
+      box-shadow: 0 0 12px rgba($accent-color, 0.4);
+      transform: scale(1.02);
+    }
+
     .cat-badge {
       background-color: rgba($accent-color, 0.2);
       color: $accent-color;
@@ -825,6 +832,10 @@ window#cheatsheet {
     &:hover .copy-icon {
       color: $accent-color;
       transform: scale(1.1);
+    }
+
+    &.selected .copy-icon {
+      color: $accent-color;
     }
   }
 

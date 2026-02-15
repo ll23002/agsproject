@@ -122,9 +122,81 @@ export default function CheatSheet(gdkmonitor: Gdk.Monitor) {
                 </box>
 
                 <Gtk.Separator />
-                //
+
+                <Gtk.ScrolledWindow
+                    vexpand
+                    minContentHeight={500}
+                    minContentWidth={700}
+                    propagateNaturalHeight
+                    css="padding: 10px;"
+                >
+                    <With value={queryBinding}>
+                        {(q) => {
+                            const search = q.toLowerCase();
+                            const filtered = COMMANDS.filter(c =>
+                            c.cmd.toLowerCase().includes(search) ||
+                            c.descripcion.toLowerCase().includes(search) ||
+                            c.categoria.toLowerCase().includes(search)
+                            );
+                            return (
+                                <box orientation={Gtk.Orientation.VERTICAL} spacing={6}>
+                                    {filtered.length === 0 ? (
+                                        <box orientation={Gtk.Orientation.VERTICAL} valing={Gtk.Align.CENTER} spacing={10} vexpand>
+                                            <label label={"\u{f059}"} css="font-size: 48px; opacity: 0.5;" />
+                                            <label label="No sé que estas buscando..." css="opacity: 0.7;" />
+                                        </box>
+                                        ) : (
+                                            filtered.map((item, i) => (
+                                                <button
+                                                    class="cheat-item"
+                                                    onClicked={() => copyToClipboard(item.cmd)}
+                                                >
+                                                    <box spacing={15}>
+                                                        <label
+                                                            class="cat-badge"
+                                                            label={item.categoria}
+                                                            widthRequest={90}
+                                                            xalign={0.5}
+                                                            ellipsize={3}
+                                                            />
+
+                                                        <box orientation={Gtk.Orientation.VERTICAL} hexpand>
+                                                            <label
+                                                                class="cmd-text"
+                                                                label={item.cmd}
+                                                                halign={Gtk.Align.START}
+                                                                selectable
+                                                                ellipsize={3}
+                                                                />
+                                                            <label
+                                                                class="desc-text"
+                                                                label={item.descripcion}
+                                                                halign={Gtk.Align.START}
+                                                                ellipsize={3}
+                                                                />
+                                                        </box>
+
+                                                        <label
+                                                            label={"\u{f0c5}"}
+                                                            class="copy-icon"
+                                                            halign={Gtk.Align.END}
+                                                            />
+                                                    </box>
+                                                </button>
+                                            ))
+                                    )}
+                                </box>
+                            );
+                        }}
+                    </With>
+                </Gtk.ScrolledWindow>
             </box>
 
+            <dumy onRealize={(self) => {
+                const win = self.get_toplevel() as Gtk.Window;
+                if(win) win.add_controller(keyController);
+            }}/>
+
         </window>
-    )
+    ) as Astal.Window;
 }

@@ -27,6 +27,31 @@ const COMMANDS: Command[] = [
     { categoria: "Power Text", cmd: "grep -r 'texto' .", descripcion: "Buscar texto recursivamente"},
     { categoria: "Power Text", cmd: "grep -v 'patron' archivo", descripcion: "Buscar texto excluyendo patrones"},
     { categoria: "Power Text", cmd: "sed 's/patron/reemplazo/g' archivo", descripcion: "Reemplazar patrones"},
+    { categoria: "Power Text", cmd: "sed -i 's/patron/reemplazo/g' archivo", descripcion: "Reemplazar patrones y sobreescribir archivo"},
+    { categoria: "Power Text", cmd: "awk '{print $1}' archivo", descripcion: "Imprimir la primera columna de un archivo"},
+    { categoria: "Power Text", cmd: "awk -F',' '{print $2}' csv", descripcion: "Imprimir la segunda columna de un archivo CSV"},
+    { categoria: "Power Text", cmd: "xargs", descripcion: "Convertir stdin en argumentos para un comando"},
+
+    { categoria: "Archivos", cmd: "ls -lah", descripcion: "Listar archivos y directorios"},
+    { categoria: "Archivos", cmd: "cd -", descripcion: "Volver al directorio anterior"},
+    { categoria: "Archivos", cmd: "pwd", descripcion: "Mostrar el directorio actual"},
+    { categoria: "Archivos", cmd: "cp -r origen destino", descripcion: "Copiar directorios recursivamente"},
+    { categoria: "Archivos", cmd: "rsync -avhP origen destino", descripcion: "Copiar con barra de progreso"},
+    { categoria: "Archivos", cmd: "rm -rf ruta", descripcion: "Borrar sin preguntar"},
+    { categoria: "Archivos", cmd: "mkdir -p a/b/c", descripcion: "Crear directorios recursivamente"},
+    { categoria: "Archivos", cmd: "ln -s archivo link", descripcion: "Crear enlace simbolico"},
+    { categoria: "Archivos", cmd: "find . -type f -size +100M", descripcion: "Buscar archivos grandes"},
+    { categoria: "Archivos", cmd: "file archivo", descripcion: "Ver tipo de archivo"},
+
+    { categoria: "Compresión", cmd: "tar -czvf a.tar.gz carpeta", descripcion: "Comprimir carpeta a .tar.gz"},
+    { categoria: "Compresión", cmd: "tar -xzvf a.tar.gz", descripcion: "Descomprimir archivo .tar.gz"},
+    { categoria: "Compresión", cmd: "tar -cjvf a.tar.bz2 carpeta", descripcion: "Comprimir carpeta a .tar.bz2"},
+    { categoria: "Compresión", cmd: "zip -r a.zip carpeta", descripcion: "Comprimir carpeta a .zip"},
+    { categoria: "Compresión", cmd: "unzip archivo.zip", descripcion: "Descomprimir archivo .zip"},
+    { categoria: "Compresión", cmd: "7z a a.7z carpeta", descripcion: "Comprimir carpeta a .7z"},
+
+
+
 
 ];
 

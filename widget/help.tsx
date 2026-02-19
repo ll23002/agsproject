@@ -107,8 +107,27 @@ const COMMANDS: Command[] = [
     { categoria: "Red", cmd: "dig google.com +short", descripcion: "DNS Lookup rápido"},
     { categoria: "Red", cmd: "nmap -sC -sV IP", descripcion: "Escaneo de puertos y servicios de una IP"}, // no tengo nmap todavia
 
+    { categoria: "Git", cmd: "git status", descripcion: "Ver estado del repositorio"},
+    { categoria: "Git", cmd: "git init", descripcion: "Inicializar repositorio"},
+    { categoria: "Git", cmd: "git clone url", descripcion: "Clonar repositorio"},
+    { categoria: "Git", cmd: "git add .", descripcion: "Agregar todos los archivos al staging"},
+    { categoria: "Git", cmd: "git commit -m 'mensaje'", descripcion: "Guardar cambios"},
+    { categoria: "Git", cmd: "git push", descripcion: "Subir cambios"},
+    { categoria: "Git", cmd: "git pull", descripcion: "Descargar cambios"},
+    { categoria: "Git", cmd: "git log --oneline --graph --all", descripcion: "Ver arbol de historial de commits"},
+    { categoria: "Git", cmd: "git stash", descripcion: "Guardar cambios temporalmente"},
+    { categoria: "Git", cmd: "git checkout -b rama", descripcion: "Crear rama y cambiar a ella"},
 
+    //faltan más
+    { categoria: "Docker", cmd: "docker ps", descripcion: "Listar contenedores"},
 
+    { categoria: "Hyprland", cmd: "hyprctl reload", descripcion: "Reiniciar Hyprland"},
+    { categoria: "Hyprland", cmd: "hyprctl monitors", descripcion: "Info monitores"},
+    { categoria: "Hyprland", cmd: "hyprctl clients", descripcion: "Info ventanas"},
+    { categoria: "Hyprland", cmd: "ags -q; ags run", descripcion: "Reiniciar AGS"},
+    { categoria: "Hyprland", cmd: "hyprpicker -a", descripcion: "Color Picker"},
+    { categoria: "Hyprland", cmd: "wl-copy < archivo", descripcion: "Copiar archivo al portapapeles"},
+    { categoria: "Hyprland", cmd: "wl-paste > archivo", descripcion: "Pegar del portapapeles al archivo"},
 ];
 
 class CheatState extends GObject.Object {

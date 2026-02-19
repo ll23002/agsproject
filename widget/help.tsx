@@ -95,6 +95,19 @@ const COMMANDS: Command[] = [
     { categoria: "Hardware", cmd: "lscpu", descripcion: "Ver CPU"},
     { categoria: "Hardware", cmd: "uname -a", descripcion: "Ver información del kernel"},
 
+    { categoria: "Red", cmd: "ip a", descripcion: "Ver interfaces de red y sus IPs"},
+    { categoria: "Red", cmd: "ip r", descripcion: "Ver rutas de red (Gateway)"},
+    { categoria: "Red", cmd: "ping -c 4 1.1.1.1", descripcion: "Ping a un host"},
+    { categoria: "Red", cmd: "nmcli dev wifi connect SSID password PWD", descripcion: "Conectar a una red wifi (largo)"},
+    { categoria: "Red", cmd: "nmtui", descripcion: "Conectar a una red wifi (corto)"},
+    { categoria: "Red", cmd: "ss -tulpn", descripcion: "Ver puertos escuchando"},
+    { categoria: "Red", cmd: "curl ifconfig.me", descripcion: "Ver mi IP pública"},
+    { categoria: "Red", cmd: "curl -I url", descripcion: "Ver headers HTTP"},
+    { categoria: "Red", cmd: "wget url", descripcion: "Descargar archivo"},
+    { categoria: "Red", cmd: "dig google.com +short", descripcion: "DNS Lookup rápido"},
+    { categoria: "Red", cmd: "nmap -sC -sV IP", descripcion: "Escaneo de puertos y servicios de una IP"}, // no tengo nmap todavia
+
+
 
 ];
 

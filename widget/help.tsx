@@ -287,6 +287,7 @@ export default function CheatSheet(gdkmonitor: Gdk.Monitor) {
                 <Gtk.ScrolledWindow
                     vexpand
                     minContentHeight={500}
+                    maxContentHeight={700}
                     minContentWidth={700}
                     propagateNaturalHeight
                     css="padding: 10px;"

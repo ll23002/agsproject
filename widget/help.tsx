@@ -117,6 +117,8 @@ const COMMANDS: Command[] = [
     { categoria: "Git", cmd: "git log --oneline --graph --all", descripcion: "Ver arbol de historial de commits"},
     { categoria: "Git", cmd: "git stash", descripcion: "Guardar cambios temporalmente"},
     { categoria: "Git", cmd: "git checkout -b rama", descripcion: "Crear rama y cambiar a ella"},
+    { categoria: "Git", cmd: "git reset --hard HEAD~1", descripcion: "Deshacer commit anterior"},
+    { categoria: "Git", cmd: "git reset --hard HEAD", descripcion: "Borrar cambios no confirmados"},
 
     //faltan más
     { categoria: "Docker", cmd: "docker ps", descripcion: "Listar contenedores"},

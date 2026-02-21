@@ -30,7 +30,12 @@ class SavedNetworkService extends GObject.Object {
 
     constructor() {
         super();
-        this.update().catch(console.error);
+        this.update().catch(e => {
+            console.error("Error fetching saved networks:", e);
+            execAsync(`notify-send \"Error al actualizar redes \" ${e}`)
+                .catch(console.error);
+        });
+
     }
 
     async update() {
@@ -65,22 +70,39 @@ function WifiItem({ ap, onUpdate }: WifiItemProps) {
     let entry: Gtk.Entry;
     let revealer: Gtk.Revealer;
 
-    const connect = (password = "") => {
+    const connect = async (password = "") => {
         const savedList = savedService.saved;
         const isSaved = savedList.includes(ap.ssid);
 
         if (!isSaved && !password) return;
 
+        if (entry) entry.sensitive = false;
+
         const cmd = isSaved
             ? `nmcli device wifi connect "${ap.ssid}"`
             : `nmcli device wifi connect "${ap.ssid}" password "${password}"`;
 
-        execAsync(cmd)
-            .then(() => {
-                savedService.update().catch(console.error);
-                onUpdate();
-            })
-            .catch(e => console.error(e));
+
+        try {
+            await Promise.race([
+                execAsync(cmd),
+                new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error("Timeout")), 10000)
+                )
+            ]);
+
+            await savedService.update();
+            onUpdate();
+
+            if (revealer) revealer.reveal_child = false;
+        } catch (e) {
+            console.error("Error conectando a la red:", e);
+            execAsync(`notify-send \"Error al conectar a la red \" ${e}`)
+                .catch(console.error);
+        } finally {
+            if (entry) entry.sensitive = true;
+        }
+
     };
 
     const forgetNetwork = () => {

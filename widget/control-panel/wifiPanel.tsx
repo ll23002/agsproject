@@ -1,4 +1,4 @@
-import { createBinding, With } from "ags";
+import { createBinding, createMemo, With } from "ags";
 import { Gtk } from "ags/gtk4";
 import { execAsync } from "ags/process";
 import GObject from "gi://GObject";
@@ -62,26 +62,32 @@ interface WifiItemProps {
     onUpdate: () => void;
 }
 
+import wifiState from "../../service/WifiState";
+
 function WifiItem({ ap, onUpdate }: WifiItemProps) {
     const isSavedBinding = createBinding(savedService, "saved");
-
-    const currentSsid = createBinding(network.wifi, "ssid");
-
-    let entry: Gtk.Entry;
-    let revealer: Gtk.Revealer;
+    const networkSsid = createBinding(network.wifi, "ssid");
+    const overrideSsid = createBinding(wifiState, "active_ssid");
+    
+    // Fallback UI to apply instant disconnect/connect visual feedback before Astal catches up
+    const currentSsid = createMemo(() => {
+        const o = overrideSsid();
+        const n = networkSsid();
+        if (o === "<disconnected>") return null;
+        if (o !== "") return o;
+        return n;
+    });
+    
+    const expandedBinding = createBinding(wifiState, "expanded_ap");
+    const detailsBinding = createBinding(wifiState, "details");
 
     const connect = async (password = "") => {
-        const savedList = savedService.saved;
-        const isSaved = savedList.includes(ap.ssid);
-
+        const isSaved = savedService.saved.includes(ap.ssid);
         if (!isSaved && !password) return;
-
-        if (entry) entry.sensitive = false;
 
         const cmd = isSaved
             ? `nmcli device wifi connect "${ap.ssid}"`
             : `nmcli device wifi connect "${ap.ssid}" password "${password}"`;
-
 
         try {
             await Promise.race([
@@ -91,24 +97,25 @@ function WifiItem({ ap, onUpdate }: WifiItemProps) {
                 )
             ]);
 
+            wifiState.active_ssid = ap.ssid;
             await savedService.update();
             onUpdate();
-
-            if (revealer) revealer.reveal_child = false;
+            wifiState.expanded_ap = "";
         } catch (e) {
             console.error("Error conectando a la red:", e);
-            execAsync(`notify-send \"Error al conectar a la red \" ${e}`)
-                .catch(console.error);
-        } finally {
-            if (entry) entry.sensitive = true;
+            execAsync(`notify-send "Error al conectar a la red" "${e}"`).catch(console.error);
         }
-
     };
 
     const forgetNetwork = () => {
         execAsync(`nmcli connection delete id "${ap.ssid}"`)
-            .then(() => {
-                savedService.update().catch(console.error);
+            .then(async () => {
+                // If we are currently connected to this network, nmcli disconnect it
+                if (network.wifi.ssid === ap.ssid || wifiState.active_ssid === ap.ssid) {
+                    wifiState.active_ssid = "<disconnected>";
+                    await execAsync(`nmcli device disconnect wlan0`).catch(() => {});
+                }
+                await savedService.update();
                 onUpdate();
             })
             .catch(console.error);
@@ -122,20 +129,19 @@ function WifiItem({ ap, onUpdate }: WifiItemProps) {
                     hexpand
                     onClicked={() => {
                         const isConnected = currentSsid() === ap.ssid;
-                        if (isConnected) return;
-
                         if (savedService.saved.includes(ap.ssid)) {
+                            // Only early return if actually connected AND saved, preventing spam connects
+                            if (isConnected) return;
                             connect();
                         } else {
-                            revealer.reveal_child = !revealer.reveal_child;
-                            if (revealer.reveal_child) entry.grab_focus();
+                            wifiState.expanded_ap = wifiState.expanded_ap === ap.ssid ? "" : ap.ssid;
                         }
                     }}
                 >
                     <box spacing={8}>
                         <label
-                            label={currentSsid(ssid => ssid === ap.ssid ? "\u{f0928}" : "\u{f092f}")}
-                            css={currentSsid(ssid => ssid === ap.ssid ? "color: #0ABDC6;" : "")}
+                            label={currentSsid(ssid => ssid === ap.ssid ? "\u{f0928}" : "\u{f092f}")} // nf-md-wifi or nf-md-wifi_strength_outline
+                            css={currentSsid(ssid => `font-family: 'JetBrainsMono Nerd Font', 'FiraCode Nerd Font', sans-serif; ${ssid === ap.ssid ? "color: #0ABDC6;" : ""}`)}
                         />
 
                         <box orientation={Gtk.Orientation.VERTICAL} valign={Gtk.Align.CENTER}>
@@ -150,19 +156,29 @@ function WifiItem({ ap, onUpdate }: WifiItemProps) {
 
                             <With value={isSavedBinding}>
                                 {(savedList) => (
-                                    <label
-                                        label={currentSsid(ssid => {
-                                            if (ssid === ap.ssid) return "Conectado";
-                                            if (savedList.includes(ap.ssid)) return "Guardada";
-                                            return `${ap.strength}%`;
-                                        })}
-                                        css={currentSsid(ssid => `
-                                            font-size: 10px;
-                                            color: ${ssid === ap.ssid ? "#0ABDC6" : "#6c7086"};
-                                            ${ssid === ap.ssid ? "font-weight: bold;" : ""}
-                                        `)}
-                                        halign={Gtk.Align.START}
-                                    />
+                                    <box spacing={4}>
+                                        <label
+                                            label={currentSsid(ssid => {
+                                                if (ssid === ap.ssid) return "Conectado";
+                                                if (savedList.includes(ap.ssid)) return "Guardada";
+                                                return `${ap.strength}%`;
+                                            })}
+                                            css={currentSsid(ssid => `
+                                                font-size: 10px;
+                                                color: ${ssid === ap.ssid ? "#0ABDC6" : "#6c7086"};
+                                                ${ssid === ap.ssid ? "font-weight: bold;" : ""}
+                                            `)}
+                                            halign={Gtk.Align.START}
+                                        />
+                                        <label 
+                                            label={detailsBinding(d => {
+                                                const dt = d[ap.ssid];
+                                                if (!dt) return "";
+                                                return `• ${dt.security !== "--" ? dt.security : "Abierta"}`;
+                                            })}
+                                            css="font-size: 9px; color: #a6adc8; opacity: 0.7;"
+                                        />
+                                    </box>
                                 )}
                             </With>
                         </box>
@@ -184,17 +200,34 @@ function WifiItem({ ap, onUpdate }: WifiItemProps) {
                                     color: ${isSaved ? "#ffffff" : "rgba(255,255,255,0.2)"};
                                 `}
                             >
-                                <label label={"\u{f01d9}"} css="font-size: 16px;" />
+                                <label label={"\u{f01d9}"} css="font-size: 16px; font-family: 'JetBrainsMono Nerd Font', 'FiraCode Nerd Font';" />
                                 <popover>
                                     <box orientation={Gtk.Orientation.VERTICAL} spacing={4} widthRequest={150} css="padding: 5px;">
                                         <label label={ap.ssid} css="font-weight: bold; margin-bottom: 5px; opacity: 0.5;" halign={Gtk.Align.START}/>
+                                        <button
+                                            class="menu-item-btn"
+                                            onClicked={() => {
+                                                execAsync(`nmcli -s -g 802-11-wireless-security.psk connection show "${ap.ssid}"`)
+                                                    .then(psk => {
+                                                        const p = psk.trim();
+                                                        execAsync(`notify-send "Wi-Fi: ${ap.ssid}" "Contraseña: ${p ? p : 'Sin Contraseña'}"`).catch(console.error);
+                                                    })
+                                                    .catch(() => execAsync(`notify-send "Wi-Fi: ${ap.ssid}" "No se pudo obtener la información de seguridad"`));
+                                            }}
+                                            css="padding: 8px; border-radius: 6px; color: #a6e3a1;"
+                                        >
+                                            <box spacing={8}>
+                                                <label label={"\u{f084}"} css="font-family: 'JetBrainsMono Nerd Font', 'FiraCode Nerd Font';" /> 
+                                                <label label="Ver Contraseña" />
+                                            </box>
+                                        </button>
                                         <button
                                             class="menu-item-btn"
                                             onClicked={forgetNetwork}
                                             css="padding: 8px; border-radius: 6px; color: #ff5555;"
                                         >
                                             <box spacing={8}>
-                                                <label label={"\u{f16c5}"} />
+                                                <label label={"\u{f06a}"} css="font-family: 'JetBrainsMono Nerd Font', 'FiraCode Nerd Font';" /> 
                                                 <label label="Olvidar Red" />
                                             </box>
                                         </button>
@@ -206,27 +239,28 @@ function WifiItem({ ap, onUpdate }: WifiItemProps) {
                 </With>
             </box>
 
-            {revealer = (
-                <revealer
-                    transitionType={Gtk.RevealerTransitionType.SLIDE_DOWN}
-                    revealChild={false}
-                >
-                    <box spacing={8} css="padding: 10px; background-color: rgba(0,0,0,0.2); border-radius: 0 0 8px 8px;">
-                        {entry = (
-                            <Gtk.Entry
-                                placeholderText="Contraseña..."
-                                visibility={false}
-                                hexpand
-                                onActivate={() => connect(entry.text)}
-                                css={`background-color: rgba(9, 24, 51, 0.5); color: #ffffff; border: 1px solid #0ABDC6; border-radius: 8px; padding: 4px 8px; caret-color: #ffffff; margin-top: 4px;`}
-                            />
-                        )}
-                        <button class="scan-button" onClicked={() => connect(entry.text)}>
-                            <label label={"\u{f00d9}"} css="font-size: 16px;" />
-                        </button>
-                    </box>
-                </revealer>
-            ) as Gtk.Revealer}
+            <revealer
+                transitionType={Gtk.RevealerTransitionType.SLIDE_DOWN}
+                revealChild={expandedBinding(ssid => ssid === ap.ssid)}
+            >
+                <box spacing={8} css="padding: 10px; background-color: rgba(0,0,0,0.2); border-radius: 0 0 8px 8px;">
+                    <Gtk.Entry
+                        placeholderText="Contraseña..."
+                        visibility={false}
+                        hexpand
+                        onActivate={(self: Gtk.Entry) => connect(self.text)}
+                        css={`background-color: rgba(9, 24, 51, 0.5); color: #ffffff; border: 1px solid #0ABDC6; border-radius: 8px; padding: 4px 8px; caret-color: #ffffff; margin-top: 4px;`}
+                    />
+                    <button class="scan-button" onClicked={(self: Gtk.Button) => {
+                        // Traverse to entry sibling to get text
+                        const parent = self.get_parent() as Gtk.Box;
+                        const entry = parent.get_first_child() as Gtk.Entry;
+                        if (entry) connect(entry.text);
+                    }}>
+                        <label label={"\u{f00d9}"} css="font-size: 16px; font-family: 'JetBrainsMono Nerd Font', 'FiraCode Nerd Font';" />
+                    </button>
+                </box>
+            </revealer>
         </box>
     );
 }
@@ -236,18 +270,24 @@ export default function WifiPanel() {
     const wifiSsid = createBinding(network.wifi, "ssid");
     const accessPoints = createBinding(network.wifi, "accessPoints");
 
+    const combinedWifiState = createMemo(() => ({
+        enabled: wifiEnabled(),
+        ssid: wifiSsid()
+    }));
+
     let scanInterval: number | null = null;
 
     const scanWifi = () => {
         if (network.wifi.enabled) {
             network.wifi.scan();
             savedService.update().catch(console.error);
+            wifiState.scanDetails().catch(console.error);
         }
     };
 
     const startScanning = () => {
-        scanWifi();
-        scanInterval = setInterval(scanWifi, 6000);
+        scanWifi(); // Initial scan
+        scanInterval = setInterval(scanWifi, 10000); // Poll every 10s to save CPU
     };
 
     const stopScanning = () => {
@@ -271,7 +311,7 @@ export default function WifiPanel() {
             <box spacing={8} halign={Gtk.Align.CENTER}>
                 <label label={wifiEnabled(e => e ? "\u{f0928}" : "\u{f092d}")} />
                 <label
-                    label={wifiSsid(s => s || "Desconectado")}
+                    label={combinedWifiState((state: { enabled: boolean, ssid: string }) => state.enabled ? (state.ssid || "Desconectado") : "Apagado")}
                     maxWidthChars={10}
                     ellipsize={Pango.EllipsizeMode.END}
                 />

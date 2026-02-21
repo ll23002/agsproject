@@ -55,25 +55,15 @@ function NotificationIcon({ n }: { n: Notifd.Notification }) {
                 file={n.image}
                 pixelSize={48}
                 valign={Gtk.Align.START}
-            />
-        )
-    }
-
-    if (n.appIcon) {
-        return (
-            <Gtk.Image
-                iconName={n.appIcon}
-                pixelSize={48}
-                valign={Gtk.Align.START}
-                class="notif-icon"
+                css="border-radius: 8px;"
             />
         )
     }
 
     return (
         <label
-            label={"\u{ea74}"}
-            css="font-size: 32px; color: #89b4fa;"
+            label={"\u{ea74}"} // nf-cod-bell
+            css="font-size: 32px; color: #89b4fa; font-family: 'JetBrainsMono Nerd Font', 'FiraCode Nerd Font', sans-serif;"
             valign={Gtk.Align.START}
             class="notif-icon"
         />
@@ -153,7 +143,6 @@ function NotificationCard({ n }: { n: Notifd.Notification }) {
                         })}
                         halign={Gtk.Align.START}
                         wrap={true}
-                        useMarkup={true}
                         css="color: #cdd6f4; font-size: 13px;"
                     />
                 )}

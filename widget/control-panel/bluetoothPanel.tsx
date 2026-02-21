@@ -4,6 +4,7 @@ import GLib from "gi://GLib";
 import GObject from "gi://GObject";
 // @ts-ignore
 import Bluetooth from "gi://AstalBluetooth";
+import batteryService from "../../service/BluetoothBattery";
 
 class ScanningState extends GObject.Object {
     static {
@@ -43,7 +44,8 @@ export default function BluetoothPanel() {
     const combinedBinding = createMemo(() => ({
         powered: btBinding(),
         devs: devices(),
-        scanning: scanningBinding()
+        scanning: scanningBinding(),
+        batteries: createBinding(batteryService, "batteries")(),
     }));
 
     let scanTimeoutId: number | null = null;
@@ -257,7 +259,7 @@ export default function BluetoothPanel() {
                         propagateNaturalHeight
                     >
                         <With value={combinedBinding}>
-                            {({powered, devs, scanning}) => (
+                            {({powered, devs, scanning, batteries}) => (
                                 <box orientation={Gtk.Orientation.VERTICAL} spacing={4}>
                                     {!powered ? (
                                         <label label="El Bluetooth está apagado" class="empty-devices"/>
@@ -292,17 +294,26 @@ export default function BluetoothPanel() {
                                                     >
                                                         <box spacing={8} hexpand>
                                                             <label
-                                                                label={device.connected ? "\u{f00b1}" : device.paired ? "\u{f00b0}" : "\u{f00af}"}
+                                                                label={device.connected ? "\u{f00b1}" : device.paired ? "\u{f00b0}" : "\u{f00af}"} // nf-fa-bluetooth_b, nf-fa-bluetooth, etc
+                                                                css="font-family: 'JetBrainsMono Nerd Font', 'FiraCode Nerd Font';"
                                                             />
                                                             <label
                                                                 label={device.name || device.address}
                                                                 hexpand
                                                                 halign={Gtk.Align.START}
                                                             />
-                                                            <label
-                                                                label={device.connected ? "Conectado" : device.paired ? "Emparejado" : ""}
-                                                                halign={Gtk.Align.END}
-                                                            />
+                                                            <box spacing={6} halign={Gtk.Align.END}>
+                                                                {device.connected && batteries && batteries[device.address.toUpperCase()] !== undefined && (
+                                                                    <box spacing={4}>
+                                                                        <label label={"\u{f240}"} css="font-family: 'JetBrainsMono Nerd Font', 'FiraCode Nerd Font'; font-size: 12px; color: #a6e3a1;" />
+                                                                        <label label={`${batteries[device.address.toUpperCase()]}%`} css="font-size: 10px; color: #a6e3a1;" />
+                                                                    </box>
+                                                                )}
+                                                                <label
+                                                                    label={device.connected ? "Conectado" : device.paired ? "Emparejado" : ""}
+                                                                    css="font-size: 10px; color: #6c7086;"
+                                                                />
+                                                            </box>
                                                         </box>
                                                     </button>
                                                 ))

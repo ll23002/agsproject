@@ -27,7 +27,6 @@ export function ControlPanel() {
     const battery = Battery.get_default();
 
     const dndBinding = createBinding(notifd, "dontDisturb");
-    const wifiIcon = createBinding(network.wifi, "iconName");
     const wifiEnabled = createBinding(network.wifi, "enabled");
     const btOn = createBinding(bluetooth, "isPowered");
 
@@ -57,9 +56,9 @@ export function ControlPanel() {
     const mainBarContent = (
         <box spacing={12}>
             <NetworkStats/>
-            <Gtk.Image
-                iconName={wifiIcon(n => n)}
-                css={wifiEnabled(e => e ? "" : "color: #a6adc8;")}
+            <label
+                label={wifiEnabled(e => e ? "\u{f0928}" : "\u{f092d}")} // nf-md-wifi or nf-md-wifi_off
+                css={wifiEnabled(e => `font-family: 'JetBrainsMono Nerd Font', 'FiraCode Nerd Font', sans-serif; font-size: 16px; ${!e ? "color: #a6adc8;" : ""}`)}
             />
 
             <label

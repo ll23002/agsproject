@@ -84,9 +84,9 @@ export default function OSD(monitor: Gdk.Monitor) {
                 spacing={16}
                 valign={Gtk.Align.CENTER}
             >
-                <Gtk.Image 
-                    iconName={icon(i => i)} 
-                    css="font-size: 24px; color: #89b4fa;" 
+                <label 
+                    label={icon(i => i)} 
+                    css="font-size: 24px; color: #89b4fa; font-family: 'JetBrainsMono Nerd Font', 'FiraCode Nerd Font', sans-serif;" 
                 />
                 
                 {/* Mode: Volume / Brightness (Shows the custom Box progress bar) */}
@@ -144,14 +144,14 @@ export default function OSD(monitor: Gdk.Monitor) {
                 spacing={12}
                 valign={Gtk.Align.CENTER}
             >
-                <Gtk.Image 
-                    iconName={icon(i => i)} 
-                    css={icon(i => `font-size: 20px; color: ${i === "microphone-disabled-symbolic" ? "#f38ba8" : "#a6e3a1"};`)} 
+                <label 
+                    label={icon(i => i)} 
+                    css={icon(i => `font-size: 20px; font-family: 'JetBrainsMono Nerd Font', 'FiraCode Nerd Font', sans-serif; color: ${i === "\u{f035f}" ? "#f38ba8" : "#a6e3a1"};`)} 
                 />
                 
                 <label 
-                    label={icon(i => i === "microphone-disabled-symbolic" ? "Micrófono Silenciado" : "Micrófono Activado")} 
-                    css={icon(i => `font-weight: bold; min-width: 150px; color: ${i === "microphone-disabled-symbolic" ? "#f38ba8" : "#a6e3a1"};`)}
+                    label={icon(i => i === "\u{f035f}" ? "Micrófono Silenciado" : "Micrófono Activado")} 
+                    css={icon(i => `font-weight: bold; min-width: 150px; color: ${i === "\u{f035f}" ? "#f38ba8" : "#a6e3a1"};`)}
                 />
             </box>
         </window>
@@ -183,16 +183,23 @@ export default function OSD(monitor: Gdk.Monitor) {
         });
     };
 
+    const getVolumeIcon = (isMuted: boolean, vol: number) => {
+        if (isMuted) return "\u{f02a0}"; // nf-fa-volume_mute
+        if (vol > 0.6) return "\u{f02a2}"; // nf-fa-volume_up
+        if (vol > 0.3) return "\u{f02a3}"; // nf-fa-volume_down
+        return "\u{f02a1}"; // nf-fa-volume_off
+    };
+
     if (speaker) {
         speaker.connect("notify::volume", () => {
-            state.icon = speaker.volumeIcon || "audio-volume-high-symbolic";
+            state.icon = getVolumeIcon(speaker.mute, speaker.volume);
             state.value = speaker.volume;
             state.isCaps = false;
             state.isMic = false;
             showMainOSD();
         });
         speaker.connect("notify::mute", () => {
-            state.icon = speaker.volumeIcon || "audio-volume-muted-symbolic";
+            state.icon = getVolumeIcon(speaker.mute, speaker.volume);
             state.value = speaker.volume;
             state.isCaps = false;
             state.isMic = false;
@@ -202,14 +209,14 @@ export default function OSD(monitor: Gdk.Monitor) {
 
     if (mic) {
         mic.connect("notify::volume", () => {
-            state.icon = mic.volumeIcon || "audio-input-microphone-symbolic";
+            state.icon = mic.mute ? "\u{f035f}" : "\u{f03b8}"; // nf-fa-microphone_slash : nf-fa-microphone
             state.value = mic.volume;
             state.isCaps = false;
             state.isMic = true;
             showMicOSD();
         });
         mic.connect("notify::mute", () => {
-            state.icon = mic.mute ? "microphone-disabled-symbolic" : "audio-input-microphone-symbolic";
+            state.icon = mic.mute ? "\u{f035f}" : "\u{f03b8}";
             state.value = mic.volume;
             state.isCaps = false;
             state.isMic = true;
@@ -218,7 +225,7 @@ export default function OSD(monitor: Gdk.Monitor) {
     }
 
     Brightness.connect("notify::screen", () => {
-        state.icon = "display-brightness-symbolic";
+        state.icon = "\u{f00de}"; // nf-md-brightness_6
         state.value = Brightness.screen;
         state.isCaps = false;
         state.isMic = false;
@@ -242,7 +249,7 @@ export default function OSD(monitor: Gdk.Monitor) {
                         const valStr = await execAsync(`cat ${capsPath}`);
                         const isLocked = valStr.trim() === "1";
                         if (state.isCaps !== isLocked) {
-                            state.icon = isLocked ? "input-keyboard-symbolic" : "input-keyboard-symbolic";
+                            state.icon = isLocked ? "\u{f0111}" : "\u{f0111}"; // nf-fa-keyboard_o
                             state.value = isLocked ? 1 : 0;
                             state.isCaps = true;
                             state.isMic = false;

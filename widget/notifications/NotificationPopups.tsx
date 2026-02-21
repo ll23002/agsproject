@@ -14,23 +14,14 @@ function createNotificationWidget(n: any) {
                 file={n.image}
                 pixelSize={48}
                 valign={Gtk.Align.START}
+                css="border-radius: 8px;"
             />
         );
-    }
-    else if (n.appIcon) {
-        iconWidget = (
-            <Gtk.Image
-                iconName={n.appIcon}
-                pixelSize={48}
-                valign={Gtk.Align.START}
-            />
-        );
-    }
-    else {
+    } else {
         iconWidget = (
             <label
-                label={"\u{ea74}"}
-                css="font-size: 32px; color: #89b4fa;"
+                label={"\u{ea74}"} // nf-cod-bell
+                css="font-size: 32px; color: #89b4fa; font-family: 'JetBrainsMono Nerd Font', 'FiraCode Nerd Font', sans-serif;"
                 valign={Gtk.Align.START}
                 class="notif-icon"
             />
@@ -60,7 +51,6 @@ function createNotificationWidget(n: any) {
                     <label
                         label={bodyLength > 30 ? n.body.substring(0, 30) + "..." : n.body}
                         halign={Gtk.Align.START}
-                        useMarkup={true}
                         wrap={true}
                     />
                 )}

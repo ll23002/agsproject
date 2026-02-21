@@ -8,7 +8,7 @@ import {
     setBatteryProtection,
     getBatteryIcon,
     CHARGE_LIMIT
-} from "../service/BatteryProtection";
+} from "../../service/BatteryProtection";
 
 
 const readFile = (path: string): string => {

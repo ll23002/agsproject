@@ -1,6 +1,6 @@
 import { Gtk } from "ags/gtk4";
 import { createBinding, With } from "ags";
-import {showWidget} from "../service/BarState";
+import {showWidget} from "../../service/BarState";
 //@ts-ignore
 import Hyprland from "gi://AstalHyprland";
 

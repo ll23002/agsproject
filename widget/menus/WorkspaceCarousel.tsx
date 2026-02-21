@@ -3,7 +3,7 @@ import { createBinding, With } from "ags";
 import GObject from "gi://GObject";
 import Gio from "gi://Gio"
 import app from "ags/gtk4/app";
-import PreviewService from "../service/WorkspaceReview";
+import PreviewService from "../../service/WorkspaceReview";
 //@ts-ignore
 import Hyprland from "gi://AstalHyprland";
 

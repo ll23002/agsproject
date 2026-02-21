@@ -1,9 +1,9 @@
 import { createPoll } from "ags/time"
 import { Gtk } from "ags/gtk4"
 import GLib from "gi://GLib"
-import {showWidget} from "../service/BarState";
-import MediaPlayer from "./MediaPlayer";
-import NotificacionesPanel from "./NotificacionesPanel";
+import {showWidget} from "../../service/BarState";
+import MediaPlayer from "../control-panel/MediaPlayer";
+import NotificacionesPanel from "../notifications/NotificacionesPanel";
 
 export function Calendar() {
 

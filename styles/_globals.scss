@@ -1,0 +1,31 @@
+@use "variables" as *;
+@use "sass:color";
+
+* {
+  all: unset;
+
+  selection {
+    background-color: $active-color;
+    color: $text-color;
+  }
+}
+
+
+
+window#control-panel,
+window#calendar,
+window#hover-zone,
+window.Bar,
+window.Workspaces,
+window#projection-menu {
+  background-color: transparent;
+  min-height: 0px;
+}
+
+.ghost-killer {
+  background-color: transparent;
+  margin: 0px;
+  padding: 0px;
+  border: none;
+  min-height: 0px;
+}

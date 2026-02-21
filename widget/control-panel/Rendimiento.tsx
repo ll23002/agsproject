@@ -1,6 +1,6 @@
 import { Gtk } from "ags/gtk4"
 import Cairo from "cairo"
-import Performance from "../service/Performance"
+import Performance from "../../service/Performance"
 
 function CircularProgress({
                               service,

@@ -1,0 +1,29 @@
+/* ==============================================
+   1. PREMIUM VARIABLES & PALETTE
+   ============================================== */
+$base-dark:    #11111b; // Deep smooth dark
+$mantle:       #181825; // Slightly lighter
+$crust:        #1e1e2e; // Elevated surface
+
+$accent-blue:  #89b4fa;
+$accent-teal:  #94e2d5;
+$accent-pink:  #f5c2e7;
+$error-red:    #f38ba8;
+$text-main:    #cdd6f4;
+$text-muted:   #a6adc8;
+
+// Re-map to the existing variables to avoid breaking existing styles
+$cp-purple:    $accent-pink;
+$cp-magenta:   $accent-pink;
+$cp-cyan:      $accent-teal;
+$cp-blue:      rgba($mantle, 0.8);
+$cp-dark:      $base-dark;
+$cp-cyan-dark: $accent-blue;
+
+$bg-color:     rgba($base-dark, 0.75); // Translucent Dark for glass effect
+$accent-color: $accent-blue;
+$border-color: rgba(255, 255, 255, 0.08); // Very subtle white border
+$text-color:   $text-main;
+$error-color:  $error-red;
+$hover-color:  rgba(255, 255, 255, 0.06); // Soft white overlay for hover
+$active-color: rgba($accent-blue, 0.2); // Translucent accent for active elements

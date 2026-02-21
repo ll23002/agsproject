@@ -4,7 +4,7 @@ import BatteryPanel from "./batteryPanel";
 import PowerPanel from "./PowerPanel";
 import Rendimiento from "./Rendimiento";
 import NoDisturbPanel from "./NoDisturbPanel";
-import { showWidget } from "../service/BarState";
+import { showWidget } from "../../service/BarState";
 import NetworkStats from "./NetworkStats";
 import {createBinding, createMemo} from "ags"
 import { Gtk } from "ags/gtk4"
@@ -16,7 +16,7 @@ import Network from "gi://AstalNetwork"
 import Bluetooth from "gi://AstalBluetooth"
 // @ts-ignore
 import Battery from "gi://AstalBattery";
-import { batteryProtectionEnabled, getBatteryIcon } from "../service/BatteryProtection";
+import { batteryProtectionEnabled, getBatteryIcon } from "../../service/BatteryProtection";
 
 
 

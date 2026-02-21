@@ -1,0 +1,73 @@
+@use "variables" as *;
+@use "sass:color";
+
+.ControlPanel revealer > box,
+.Calendar revealer > box {
+  margin-top: 12px;
+  margin-right: 12px;
+}
+
+window.Workspaces revealer > box {
+  margin-top: 12px;
+  margin-left: 12px;
+}
+
+.panel-container menubutton.active > button {
+  background-color: $active-color;
+  color: $text-color;
+  border-color: $active-color;
+  box-shadow: 0 0 12px rgba($cp-cyan-dark, 0.4);
+
+  &:hover {
+    background-color: color.mix($active-color, white, 90%);
+    box-shadow: 0 0 15px rgba($cp-cyan-dark, 0.6);
+  }
+}
+
+popover {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+
+  arrow { background: $bg-color; border: none; }
+
+  > contents {
+    background-color: $bg-color;
+    border-radius: 24px;
+    padding: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0,0,0, 0.5);
+  }
+}
+
+.panel-container {
+  label { color: $text-color; }
+
+  button {
+    background-color: rgba($cp-blue, 0.2);
+    color: $text-color;
+    border: 1px solid $border-color;
+    border-radius: 8px;
+    padding: 8px;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background-color: rgba($cp-blue, 0.4);
+      border-color: $accent-color;
+    }
+  }
+
+  levelbar {
+    trough {
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+    }
+    block.filled {
+      background-color: $accent-color;
+      border-radius: 4px;
+      box-shadow: 0 0 5px rgba($cp-cyan, 0.5);
+    }
+  }
+
+  separator { background-color: $border-color; }
+}

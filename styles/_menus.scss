@@ -1,0 +1,251 @@
+@use "variables" as *;
+
+/* PROJECTION MENU */
+.projection-widget {
+  background-color: $bg-color;
+  border: 1px solid $border-color;
+  border-radius: 20px;
+  padding: 15px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+
+  .option {
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    padding: 10px;
+    min-width: 100px;
+    min-height: 100px;
+    transition: all 0.2s ease;
+    box-shadow: none;
+
+    label {
+      font-weight: bold;
+      color: $text-color;
+      font-size: 13px;
+    }
+
+    image {
+      color: $text-color;
+    }
+
+    &:hover {
+      background-color: $hover-color;
+      border-color: rgba($accent-color, 0.3);
+    }
+
+    &.active {
+      background-color: $active-color;
+      border-color: $active-color;
+      box-shadow: 0 0 10px rgba($active-color, 0.4);
+
+      label, image {
+        color: $text-color;
+      }
+    }
+  }
+}
+
+/* WORKSPACE CAROUSEL */
+window#workspace-carousel {
+  background-color: rgba(0, 0, 0, 0.85);
+}
+
+.carousel-container {
+  background-color: transparent;
+}
+
+.ws-preview-card {
+  background-color: rgba($cp-blue, 0.25);
+  border: 2px solid rgba($border-color, 0.5);
+  border-radius: 12px;
+  padding: 8px;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  opacity: 0.6;
+  transform: scale(0.85);
+  min-width: 200px;
+
+  .image-container {
+    border-radius: 8px;
+    background-color: rgba($cp-dark, 0.6);
+    border: 1px solid rgba($border-color, 0.3);
+  }
+
+  label {
+    color: rgba($text-color, 0.7);
+    opacity: 0.7;
+    font-size: 12px;
+  }
+
+  &:hover {
+    background-color: rgba($cp-blue, 0.4);
+    border-color: rgba($accent-color, 0.4);
+    opacity: 0.8;
+    transform: scale(0.88);
+  }
+
+  &.selected {
+    background-color: rgba($cp-cyan, 0.25);
+    border-color: $accent-color;
+    border-width: 3px;
+    box-shadow: 0 0 24px rgba($accent-color, 0.6), 0 8px 20px rgba(0, 0, 0, 0.5);
+    opacity: 1;
+    transform: scale(1.0);
+    padding: 8px;
+    min-width: 220px;
+
+    .image-container {
+      border: 2px solid rgba($accent-color, 0.6);
+      box-shadow: 0 0 8px rgba($accent-color, 0.3);
+    }
+
+    label {
+      color: $accent-color;
+      font-weight: bold;
+      font-size: 14px;
+      opacity: 1;
+    }
+  }
+}
+
+.ws-ghost {
+  padding: 8px;
+  min-width: 200px;
+  opacity: 0;
+
+  &.full {
+    transform: scale(1.0);
+    min-width: 220px;
+  }
+
+  &.reduced {
+    transform: scale(0.25);
+    min-width: 60px;
+  }
+}
+
+/* CHEATSHEET */
+window#cheatsheet {
+  background-color: rgba(0, 0, 0, 0.9);
+}
+
+.cheatsheet-window {
+  background-color: $cp-dark;
+  border: 2px solid $border-color;
+  border-radius: 20px;
+  padding: 0;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
+  min-width: 700px;
+  min-height: 500px;
+
+  .search-box {
+    background-color: rgba($cp-blue, 0.2);
+    border-bottom: 1px solid $border-color;
+    padding: 12px 16px;
+    border-radius: 20px 20px 0 0;
+
+    entry {
+      background-color: rgba($cp-blue, 0.3);
+      color: $text-color;
+      border: 1px solid $border-color;
+      border-radius: 8px;
+      padding: 8px 12px;
+      caret-color: $accent-color;
+
+      &:focus {
+        border-color: $accent-color;
+        box-shadow: 0 0 8px rgba($accent-color, 0.3);
+      }
+
+      selection {
+        background-color: $accent-color;
+        color: $cp-dark;
+      }
+    }
+
+    .close-btn {
+      background-color: transparent;
+      border: 1px solid $border-color;
+      border-radius: 8px;
+      padding: 8px 12px;
+      color: $text-color;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background-color: rgba($error-color, 0.2);
+        border-color: $error-color;
+        color: $error-color;
+      }
+    }
+  }
+
+  .cheat-item {
+    background-color: rgba($cp-blue, 0.15);
+    border: 1px solid transparent;
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin: 3px 0;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background-color: rgba($cp-blue, 0.3);
+      border-color: rgba($accent-color, 0.5);
+      box-shadow: 0 2px 8px rgba($accent-color, 0.2);
+    }
+
+    &:active {
+      background-color: rgba($accent-color, 0.2);
+      border-color: $accent-color;
+    }
+
+    &.selected {
+      background-color: rgba($accent-color, 0.3);
+      border: 2px solid $accent-color;
+      box-shadow: 0 0 16px rgba($accent-color, 0.5), inset 0 0 20px rgba($accent-color, 0.1);
+      padding: 9px 11px;
+    }
+
+    .cat-badge {
+      background-color: rgba($accent-color, 0.2);
+      color: $accent-color;
+      border: 1px solid rgba($accent-color, 0.4);
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 11px;
+      font-weight: bold;
+    }
+
+    .cmd-text {
+      color: $text-color;
+      font-family: monospace;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .desc-text {
+      color: rgba($text-color, 0.7);
+      font-size: 12px;
+      margin-top: 2px;
+    }
+
+    .copy-icon {
+      color: rgba($accent-color, 0.6);
+      font-size: 16px;
+      transition: all 0.2s ease;
+    }
+
+    &:hover .copy-icon {
+      color: $accent-color;
+      transform: scale(1.1);
+    }
+
+    &.selected .copy-icon {
+      color: $accent-color;
+    }
+  }
+
+  scrolledwindow {
+    background: transparent;
+    border: none;
+  }
+}

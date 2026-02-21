@@ -1,6 +1,6 @@
 import { Gtk } from "ags/gtk4"
 import { createBinding } from "ags"
-import powerService from "../service/PowerProfiles"
+import powerService from "../../service/PowerProfiles"
 
 export default function PowerPanel() {
     const currentProfile = createBinding(powerService, "profile")

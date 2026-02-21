@@ -1,6 +1,6 @@
 import {createBinding} from "ags";
 import { Gtk } from "ags/gtk4";
-import networkService from "../service/Network";
+import networkService from "../../service/Network";
 
 export default function NetworkStats() {
 

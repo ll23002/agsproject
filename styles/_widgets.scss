@@ -1,0 +1,178 @@
+@use "variables" as *;
+@use "sass:color";
+
+.wifi-header, .bluetooth-header {
+  padding: 8px 12px;
+  border-bottom: 1px solid $border-color;
+  margin-bottom: 8px;
+
+  label {
+    font-weight: bold;
+    color: $text-color;
+  }
+}
+
+button.scan-button {
+  background: transparent;
+  background-image: none;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  margin: 0;
+  border-radius: 9999px;
+
+  > image {
+    margin: 0;
+    padding: 8px;
+    -gtk-icon-shadow: none;
+  }
+
+  &:hover { background-color: $hover-color; }
+  &:active { background-color: $accent-color; color: $cp-dark; }
+}
+
+button.network-item, button.device-item {
+  background-image: none;
+  background-color: transparent;
+  color: $text-color;
+  border: 1px solid transparent;
+  box-shadow: none;
+  border-radius: 8px;
+  padding: 8px;
+  margin: 2px 4px;
+  transition: all 0.2s ease;
+
+  label { color: $text-color; }
+
+  &:hover {
+    background-color: $hover-color;
+    border-color: rgba($cp-cyan, 0.3);
+  }
+
+  &:active {
+    background-color: $accent-color;
+    color: $cp-dark;
+    label { color: $cp-dark; font-weight: bold; }
+  }
+}
+
+label.empty-networks, label.empty-devices {
+  color: $text-color;
+  opacity: 0.6;
+  padding: 20px;
+}
+
+switch {
+  background-color: rgba($cp-blue, 0.3);
+  border: 1px solid $border-color;
+  border-radius: 9999px;
+
+  slider {
+    background-color: $text-color;
+    border-radius: 9999px;
+    margin: 2px;
+    min-width: 20px;
+    min-height: 20px;
+    box-shadow: none;
+  }
+
+  &:checked {
+    background-color: $accent-color;
+    border-color: $accent-color;
+    box-shadow: 0 0 5px rgba($cp-cyan, 0.4);
+    slider { background-color: $cp-dark; }
+  }
+}
+
+button.dnd-button {
+  background-image: none;
+  box-shadow: none;
+  background-color: rgba($cp-blue, 0.2);
+  color: $text-color;
+  border: 1px solid $border-color;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+
+  &.active {
+    background-color: $active-color;
+    border-color: $active-color;
+    color: $text-color;
+    box-shadow: 0 0 10px rgba($active-color, 0.3);
+
+    label { color: $text-color; font-weight: bold; }
+    &:hover { background-color: color.mix($active-color, white, 90%); }
+  }
+
+  &:hover {
+    background-color: $hover-color;
+    border-color: $accent-color;
+  }
+}
+
+.profile-btn {
+  background-image: none;
+  box-shadow: none;
+  border: none;
+  text-shadow: none;
+  background-color: rgba($cp-blue, 0.2);
+  color: $text-color;
+  border-radius: 12px;
+  padding: 12px 5px;
+  margin: 0px 4px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: $hover-color;
+    color: $text-color;
+    border: 1px solid $accent-color;
+    padding: 11px 4px;
+  }
+
+  &.active {
+    background-color: $active-color;
+    color: $text-color;
+    box-shadow: 0 0 8px rgba($active-color, 0.4);
+    border: none;
+    padding: 12px 5px;
+  }
+
+  > box { all: unset; }
+}
+
+/* BATTERY PANEL */
+.battery-panel {
+  background-color: rgba($cp-blue, 0.2);
+  border: 1px solid transparent;
+  border-radius: 12px;
+  padding: 0;
+
+  .bat-icon { -gtk-icon-size: 20px; color: $text-color; margin-right: 8px; }
+  .bat-percentage { font-weight: bold; font-size: 14px; color: $text-color; }
+  .bat-state { font-size: 10px; color: rgba($text-color, 0.7); }
+
+  &.charging {
+    background-color: rgba($cp-cyan, 0.15);
+    border-color: rgba($cp-cyan, 0.5);
+    .bat-icon, .bat-percentage {
+      color: $cp-cyan;
+    }
+  }
+
+  &.low {
+    border-color: rgba($cp-purple, 0.5);
+    .bat-icon { color: $cp-magenta; }
+  }
+
+  &.critical {
+    background-color: rgba($error-color, 0.2);
+    border-color: $error-color;
+    animation: pulse-critical 2s infinite;
+    .bat-icon, .bat-percentage { color: $error-color; font-weight: 800; }
+  }
+}
+
+.header-label { font-weight: bold; color: $accent-color; margin-bottom: 4px; }
+.sub-label { font-size: 14px; color: rgba($text-color, 0.6); }
+.value-label { font-weight: bold; color: $text-color; }
+.value-label.health { color: $cp-cyan; }
+.time-label { font-weight: bold; color: $active-color; }

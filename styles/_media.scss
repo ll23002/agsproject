@@ -1,0 +1,85 @@
+@use "variables" as *;
+@use "sass:color";
+
+.media-player {
+  background-color: rgba($cp-blue, 0.2);
+  border: 2px solid $border-color;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 4px;
+
+  .cover-art-static {
+    background-color: rgba($cp-cyan, 0.1);
+    border: 1px solid rgba($cp-cyan, 0.2);
+    color: $accent-color;
+    border-radius: 12px;
+    margin-right: 4px;
+    > image { all: unset; -gtk-icon-size: 32px; }
+  }
+
+  .title { font-weight: bold; font-size: 14px; color: $text-color; }
+  .artist { font-size: 12px; color: rgba($text-color, 0.7); }
+
+  .controls button {
+    background: transparent;
+    border: 1px solid transparent;
+    box-shadow: none;
+    border-radius: 99px;
+    padding: 6px;
+    color: $text-color;
+
+    &:hover {
+      background-color: $hover-color;
+      border-color: rgba($cp-cyan, 0.3);
+    }
+
+    &.play-btn {
+      background-color: $accent-color;
+      color: $cp-dark;
+      &:hover {
+        background-color: color.adjust($accent-color, $lightness: -10%);
+        box-shadow: 0 0 8px rgba($cp-cyan, 0.4);
+      }
+    }
+  }
+}
+
+/* VISUALIZER */
+@keyframes wave {
+  0% { min-height: 4px; }
+  50% { min-height: 36px; }
+  100% { min-height: 4px; }
+}
+
+.visualizer-box {
+  min-height: 24px;
+}
+
+.visualizer-bar {
+  min-width: 4px;
+  border-radius: 2px;
+  background-color: #bd93f9;
+  margin: 0 1px;
+}
+
+.visualizer-bar.playing {
+  animation-name: wave;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+}
+
+.network-stats {
+  background-color: rgba($cp-blue, 0.2);
+  border: 1px solid rgba($cp-cyan, 0.1);
+  border-radius: 12px;
+  padding: 0 8px;
+  margin: 4px 4px;
+  label { font-size: 11px; color: $text-color; }
+}
+
+.network-icon {
+  min-width: 12px;
+  min-height: 12px;
+  &.down { color: $accent-color; }
+  &.up { color: $active-color; }
+}

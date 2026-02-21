@@ -1,13 +1,14 @@
 import app from "ags/gtk4/app"
 //@ts-ignore
-import style from "./style.scss"
-import NotificationPopups from "./widget/NotificationPopups"
+import style from "./styles/main.scss"
+import NotificationPopups from "./widget/notifications/NotificationPopups"
 import "./service/BarState";
-import Bar from "./widget/Bar";
-import ProyectionMenu from "./widget/ProyectionMenu";
-import WorkspaceCarousel from "./widget/WorkspaceCarousel";
-import ChargingOverlay from "./widget/ChargingOverlay";
-import CheatSheet from "./widget/help";
+import Bar from "./widget/bar/Bar";
+import ProyectionMenu from "./widget/menus/ProyectionMenu";
+import WorkspaceCarousel from "./widget/menus/WorkspaceCarousel";
+import ChargingOverlay from "./widget/osd/ChargingOverlay";
+import CheatSheet from "./widget/menus/help";
+import OSD from "./widget/osd/OSD";
 
 app.start({
   css: style.toString().replace('@charset "UTF-8";', ""),
@@ -24,6 +25,7 @@ app.start({
       ProyectionMenu(monitor)
       WorkspaceCarousel(monitor)
       CheatSheet(monitor)
+      OSD(monitor)
     })
 
     ChargingOverlay()

@@ -28,7 +28,7 @@ class BluetoothBatteryService extends GObject.Object {
     async update() {
         try {
             // Using upower to list devices, filtering for bluetooth
-            const activeDevicesStr = await execAsync("upower -e");
+            const activeDevicesStr = await execAsync("upower -e").catch(() => "");
             const activeDevices = activeDevicesStr.split("\n").filter(Boolean);
             
             const newBatteries: Record<string, number> = {};
@@ -57,12 +57,10 @@ class BluetoothBatteryService extends GObject.Object {
                             newBatteries[mac] = percentage;
                         }
                     } catch (e) {
-                        // ignore errors for specific devices
                     }
                 }
             }
 
-            // Fallback for devices not managed by upower (e.g., experimental bluez battery feature)
             try {
                 const btDevices = await execAsync("bluetoothctl devices Connected");
                 const connectedMacs = btDevices.split("\n").map(l => l.split(" ")[1]).filter(Boolean);

@@ -3,21 +3,29 @@
 popover calendar {
   background-color: rgba($cp-blue, 0.2);
   color: $text-color;
-  border: 2px solid $border-color;
-  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 12px;
+  font-size: 1.3em; // Increase base size
 
-  &.view { background-color: rgba($cp-blue, 0.2); }
+  &.view { background-color: transparent; }
 
   header {
     background: transparent;
     border: none;
+    font-size: 1.2em;
+    padding-bottom: 8px;
+    
     button {
       background: transparent;
       border: none;
       box-shadow: none;
       color: $text-color;
       font-weight: bold;
-      &:hover { background-color: $hover-color; }
+      border-radius: 50%;
+      min-width: 32px;
+      min-height: 32px;
+      &:hover { background-color: rgba($accent-color, 0.2); }
     }
   }
 
@@ -26,22 +34,27 @@ popover calendar {
     label {
       background: transparent;
       color: $text-color;
+      min-width: 36px;
+      min-height: 36px;
+      
       &.today {
         background-color: $accent-color;
         color: $cp-dark;
         border-radius: 50%;
         font-weight: bold;
-        box-shadow: 0 0 5px $accent-color;
+        box-shadow: 0 0 8px $accent-color;
       }
     }
+    
     &:selected {
       background-color: $active-color;
       color: $text-color;
       border-radius: 50%;
     }
+    
     label:hover {
-      background-color: $hover-color;
-      border-radius: 5px;
+      background-color: rgba($text-color, 0.1);
+      border-radius: 50%;
     }
   }
 }

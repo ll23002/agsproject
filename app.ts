@@ -9,6 +9,7 @@ import WorkspaceCarousel from "./widget/menus/WorkspaceCarousel";
 import ChargingOverlay from "./widget/osd/ChargingOverlay";
 import CheatSheet from "./widget/menus/help";
 import OSD from "./widget/osd/OSD";
+import WifiDetailsWindow from "./widget/control-panel/WifiDetailsWindow";
 
 app.start({
   css: style.toString().replace('@charset "UTF-8";', ""),
@@ -26,6 +27,7 @@ app.start({
       WorkspaceCarousel(monitor)
       CheatSheet(monitor)
       OSD(monitor)
+      WifiDetailsWindow(monitor)
     })
 
     ChargingOverlay()

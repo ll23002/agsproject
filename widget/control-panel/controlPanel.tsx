@@ -6,6 +6,7 @@ import Rendimiento from "./Rendimiento";
 import NoDisturbPanel from "./NoDisturbPanel";
 import { showWidget } from "../../service/BarState";
 import NetworkStats from "./NetworkStats";
+import AudioPanel from "./AudioPanel";
 import {createBinding, createMemo} from "ags"
 import { Gtk } from "ags/gtk4"
 // @ts-ignore
@@ -118,6 +119,8 @@ export function ControlPanel() {
                                 <NoDisturbPanel />
                                 <BatteryPanel />
                             </box>
+
+                            <AudioPanel />
                         </box>
                     </box>
                 </popover>

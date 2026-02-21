@@ -63,13 +63,13 @@ interface WifiItemProps {
 }
 
 import wifiState from "../../service/WifiState";
+import { showWifiDetailsFor } from "./WifiDetailsWindow";
 
 function WifiItem({ ap, onUpdate }: WifiItemProps) {
     const isSavedBinding = createBinding(savedService, "saved");
     const networkSsid = createBinding(network.wifi, "ssid");
     const overrideSsid = createBinding(wifiState, "active_ssid");
     
-    // Fallback UI to apply instant disconnect/connect visual feedback before Astal catches up
     const currentSsid = createMemo(() => {
         const o = overrideSsid();
         const n = networkSsid();
@@ -110,10 +110,10 @@ function WifiItem({ ap, onUpdate }: WifiItemProps) {
     const forgetNetwork = () => {
         execAsync(`nmcli connection delete id "${ap.ssid}"`)
             .then(async () => {
-                // If we are currently connected to this network, nmcli disconnect it
                 if (network.wifi.ssid === ap.ssid || wifiState.active_ssid === ap.ssid) {
                     wifiState.active_ssid = "<disconnected>";
-                    await execAsync(`nmcli device disconnect wlan0`).catch(() => {});
+                    const dev = network?.wifi?.deviceName || "wlan0";
+                    await execAsync(`nmcli device disconnect ${dev}`).catch(() => {});
                 }
                 await savedService.update();
                 onUpdate();
@@ -130,7 +130,6 @@ function WifiItem({ ap, onUpdate }: WifiItemProps) {
                     onClicked={() => {
                         const isConnected = currentSsid() === ap.ssid;
                         if (savedService.saved.includes(ap.ssid)) {
-                            // Only early return if actually connected AND saved, preventing spam connects
                             if (isConnected) return;
                             connect();
                         } else {
@@ -207,18 +206,13 @@ function WifiItem({ ap, onUpdate }: WifiItemProps) {
                                         <button
                                             class="menu-item-btn"
                                             onClicked={() => {
-                                                execAsync(`nmcli -s -g 802-11-wireless-security.psk connection show "${ap.ssid}"`)
-                                                    .then(psk => {
-                                                        const p = psk.trim();
-                                                        execAsync(`notify-send "Wi-Fi: ${ap.ssid}" "Contraseña: ${p ? p : 'Sin Contraseña'}"`).catch(console.error);
-                                                    })
-                                                    .catch(() => execAsync(`notify-send "Wi-Fi: ${ap.ssid}" "No se pudo obtener la información de seguridad"`));
+                                                showWifiDetailsFor.setValue(ap.ssid);
                                             }}
-                                            css="padding: 8px; border-radius: 6px; color: #a6e3a1;"
+                                            css="padding: 8px; border-radius: 6px; color: #89dceb;"
                                         >
                                             <box spacing={8}>
-                                                <label label={"\u{f084}"} css="font-family: 'JetBrainsMono Nerd Font', 'FiraCode Nerd Font';" /> 
-                                                <label label="Ver Contraseña" />
+                                                <label label={"\u{f05a}"} css="font-family: 'JetBrainsMono Nerd Font', 'FiraCode Nerd Font';" /> 
+                                                <label label="Detalles de la Red" />
                                             </box>
                                         </button>
                                         <button

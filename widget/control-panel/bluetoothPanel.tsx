@@ -1,5 +1,6 @@
 import {createBinding, With, createMemo} from "ags";
 import {Gtk} from "ags/gtk4"
+import {execAsync} from "ags/process"
 import GLib from "gi://GLib";
 import GObject from "gi://GObject";
 // @ts-ignore
@@ -287,10 +288,12 @@ export default function BluetoothPanel() {
                                                 />
                                             ) : (
                                                 devs.map((device: any) => (
+                                                <box orientation={Gtk.Orientation.HORIZONTAL} spacing={4}>
                                                     <button
                                                         class="device-item"
                                                         onClicked={() => connectToDevice(device)}
                                                         tooltip_text={device.address}
+                                                        hexpand
                                                     >
                                                         <box spacing={8} hexpand>
                                                             <label
@@ -316,6 +319,20 @@ export default function BluetoothPanel() {
                                                             </box>
                                                         </box>
                                                     </button>
+                                                    {device.paired && (
+                                                        <button
+                                                            class="menu-item-btn"
+                                                            onClicked={() => {
+                                                                execAsync(`bluetoothctl remove ${device.address}`)
+                                                                    .catch(() => execAsync(`notify-send "Bluetooth" "Error al desvincular ${device.name}"`));
+                                                            }}
+                                                            css="padding: 6px; border-radius: 6px; color: #f38ba8; background: transparent; border: none; box-shadow: none;"
+                                                            tooltip_text="Desvincular"
+                                                        >
+                                                            <label label={"\u{f014}"} css="font-family: 'JetBrainsMono Nerd Font', 'FiraCode Nerd Font';" />
+                                                        </button>
+                                                    )}
+                                                </box>
                                                 ))
                                             )}
                                         </box>

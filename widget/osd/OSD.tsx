@@ -5,10 +5,11 @@ import GLib from "gi://GLib";
 import GObject from "gi://GObject";
 import Gio from "gi://Gio";
 import { execAsync } from "ags/process";
-// @ts-ignore
-import Wp from "gi://AstalWp";
 import Brightness from "../../service/Brightness";
 import KbdBrightness from "../../service/KbdBrightness";
+// @ts-ignore
+import Wp from "gi://AstalWp";
+
 
 class OsdState extends GObject.Object {
     static {

@@ -1,10 +1,8 @@
-import { Astal } from "ags/gtk4";
-//@ts-ignore
-import Battery from "gi://AstalBattery";
 import app from "ags/gtk4/app";
 import GLib from "gi://GLib";
+import { Astal, Gdk } from "ags/gtk4";
 //@ts-ignore
-import {Gdk} from "ags/gtk4";
+import Battery from "gi://AstalBattery";
 //@ts-ignore
 import WebKit from "gi://WebKit?version=6.0";
 

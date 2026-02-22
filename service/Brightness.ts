@@ -1,6 +1,5 @@
 import GObject from "gi://GObject";
 import { execAsync } from "ags/process";
-import GLib from "gi://GLib";
 import Gio from "gi://Gio";
 
 class BrightnessService extends GObject.Object {
@@ -27,6 +26,8 @@ class BrightnessService extends GObject.Object {
     set screen(percent) {
         if (percent < 0) percent = 0;
         if (percent > 1) percent = 1;
+
+
         execAsync(`brightnessctl s ${Math.ceil(percent * 100)}% -q`).then(() => {
             this.#screen = percent;
             this.notify("screen");
@@ -35,7 +36,7 @@ class BrightnessService extends GObject.Object {
 
     constructor() {
         super();
-        this.#init();
+        this.#init().catch(console.error);
     }
 
     async #init() {

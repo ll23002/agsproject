@@ -81,6 +81,9 @@ const COMMANDS: Command[] = [
     { categoria: "Sistema", cmd: "htop", descripcion: "Monitor de recursos"},
     { categoria: "Sistema", cmd: "btop", descripcion: "Monitor de recursos avanzado"},
     { categoria: "Sistema", cmd: "free -h", descripcion: "Ver RAM disponible"},
+    { categoria: "Sistema", cmd: "swapon --show", descripcion: "Ver swap activo"},
+    { categoria: "Sistema", cmd: "sudo systemctl daemon-reload", descripcion: "Recargar systemd"},
+
 
     { categoria: "Hardware", cmd: "lsblk", descripcion: "Ver arbol de discos y particiones"},
     { categoria: "Hardware", cmd: "df -h", descripcion: "Ver espacio libre en disco"},
@@ -152,6 +155,8 @@ const COMMANDS: Command[] = [
     { categoria: "Hyprland", cmd: "hyprpm list", descripcion: "Listar plugins instalados"},
     { categoria: "Hyprland", cmd: "hyprpm install nombre_plugin", descripcion: "Instalar plugin"},
     { categoria: "Hyprland", cmd: "hyprpm update", descripcion: "Actualizar plugins"},
+
+    { categoria: "CSS", cmd: "sass --watch main.scss:main.css --style compressed", descripcion: "Compilar SASS"},
 ];
 
 class CheatState extends GObject.Object {

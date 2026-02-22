@@ -21,7 +21,7 @@ export default function Bar(gdkmonitor: Gdk.Monitor) {
             application={app}
             css="background-color: transparent;"
         >
-            <box css="padding: 4px 12px; margin-top: 4px;">
+            <box css="padding: 4px 12px; margin-top: 4px;" homogeneous={true}>
                 <box halign={Gtk.Align.START} hexpand>
                     <Workspaces />
                 </box>

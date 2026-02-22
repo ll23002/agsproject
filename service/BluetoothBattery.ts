@@ -18,16 +18,34 @@ class BluetoothBatteryService extends GObject.Object {
 
     get batteries() { return this.#batteries; }
 
+
+    #intervalId: number | null = null;
+    #isRunning = false;
+
+    start() {
+        if (this.#isRunning) return;
+        this.#isRunning = true;
+        this.update().catch(console.error);
+        this.#intervalId = setInterval(() => this.update(), 15000);
+    }
+
+    stop() {
+        if (!this.#isRunning) return;
+        this.#isRunning = false;
+        if (this.#intervalId !== null) {
+            clearInterval(this.#intervalId);
+            this.#intervalId = null;
+        }
+    }
+
+
+
     constructor() {
         super();
-        this.update();
-        // Update periodically
-        setInterval(() => this.update(), 15000);
     }
 
     async update() {
         try {
-            // Using upower to list devices, filtering for bluetooth
             const activeDevicesStr = await execAsync("upower -e").catch(() => "");
             const activeDevices = activeDevicesStr.split("\n").filter(Boolean);
             
@@ -40,14 +58,12 @@ class BluetoothBatteryService extends GObject.Object {
                         
                         let mac = "";
                         let percentage = -1;
-                        
-                        // Extract MAC address from D-Bus path (e.g., /org/freedesktop/UPower/devices/mouse_dev_B4_2E_99_A2_2A_73)
+
                         const macMatch = devPath.match(/dev_([a-zA-Z0-9_]+)/);
                         if (macMatch && macMatch[1]) {
                             mac = macMatch[1].replace(/_/g, ":").toUpperCase();
                         }
 
-                        // Extract percentage
                         const pctMatch = info.match(/percentage:\s+(\d+)%/);
                         if (pctMatch && pctMatch[1]) {
                             percentage = parseInt(pctMatch[1], 10);
@@ -66,21 +82,20 @@ class BluetoothBatteryService extends GObject.Object {
                 const connectedMacs = btDevices.split("\n").map(l => l.split(" ")[1]).filter(Boolean);
                 
                 for (const mac of connectedMacs) {
-                    if (newBatteries[mac] !== undefined) continue; // already found
+                    if (newBatteries[mac] !== undefined) continue;
                     
                     try {
                         const info = await execAsync(`bluetoothctl info ${mac}`);
-                        // Matches both 'Battery Percentage: 0x64 (100)' and 'Battery Percentage: 100'
                         const pctMatch = info.match(/Battery Percentage:\s*(?:0x[a-fA-F0-9]+\s*\()?(\d+)/);
                         if (pctMatch && pctMatch[1]) {
                             newBatteries[mac] = parseInt(pctMatch[1], 10);
                         }
                     } catch (e) {
-                        // ignore
+                        console.error("Error getting bluetoothctl info:", e);
                     }
                 }
             } catch (e) {
-                // ignore if bluetoothctl fails
+                console.error("Error getting bluetoothctl devices:", e);
             }
             
             if (JSON.stringify(this.#batteries) !== JSON.stringify(newBatteries)) {

@@ -53,7 +53,7 @@ export default function BluetoothPanel() {
 
     const connectToDevice = (device: any) => {
         if (!device || !device.address) {
-            console.error("✗ Dispositivo no válido");
+            console.error("Dispositivo no válido");
             return;
         }
 
@@ -69,31 +69,7 @@ export default function BluetoothPanel() {
         }
     }
 
-    const getErrorMessage = (error: any): string => {
-        const errorStr = String(error);
 
-        if (errorStr.includes("Page Timeout") || errorStr.includes("ConnectionAttemptFailed")) {
-            return "Dispositivo fuera de rango o no disponible";
-        } else if (errorStr.includes("AlreadyConnected")) {
-            return "El dispositivo ya está conectado";
-        } else if (errorStr.includes("NotReady")) {
-            return "El dispositivo no está listo. Inténtalo de nuevo";
-        } else if (errorStr.includes("InProgress")) {
-            return "Operación ya en progreso";
-        } else if (errorStr.includes("AuthenticationCanceled")) {
-            return "Autenticación cancelada";
-        } else if (errorStr.includes("AuthenticationFailed") || errorStr.includes("AuthenticationRejected")) {
-            return "Autenticación fallida. Verifica el código PIN";
-        } else if (errorStr.includes("AuthenticationTimeout")) {
-            return "Tiempo de autenticación agotado";
-        } else if (errorStr.includes("DoesNotExist") || errorStr.includes("UnknownObject")) {
-            return "El dispositivo ya no está disponible";
-        } else if (errorStr.includes("AlreadyExists")) {
-            return "El dispositivo ya está emparejado";
-        }
-
-        return "Error desconocido";
-    }
 
     const performDeviceAction = (device: any) => {
         if (device.connected) {
@@ -101,56 +77,46 @@ export default function BluetoothPanel() {
                 device.disconnect_device((source: any, result: any) => {
                     try {
                         device.disconnect_device_finish(result);
-                        console.log("✓ Dispositivo desconectado:", device.name);
                     } catch (e) {
-                        const msg = getErrorMessage(e);
-                        console.error("✗ Error al desconectar:", msg);
+                        console.error("Error al desconectar:", e);
                     }
                 });
             } catch (e) {
-                const msg = getErrorMessage(e);
-                console.error("✗ Error al desconectar:", msg);
+                console.error("Error al desconectar:", e);
             }
         } else if (device.paired) {
             try {
                 device.connect_device((source: any, result: any) => {
                     try {
                         device.connect_device_finish(result);
-                        console.log("✓ Dispositivo conectado:", device.name);
                     } catch (e) {
-                        const msg = getErrorMessage(e);
-                        console.error("✗ Error al conectar:", msg);
+                        console.error("Error al conectar:", e);
                     }
                 });
             } catch (e) {
-                const msg = getErrorMessage(e);
-                console.error("✗ Error al conectar:", msg);
+                console.error("Error al conectar:", e);
             }
         } else {
             try {
                 device.pair();
-                console.log("⟳ Emparejando dispositivo:", device.name);
+                console.log("Emparejando dispositivo:", device.name);
 
                 GLib.timeout_add(GLib.PRIORITY_DEFAULT, 2000, () => {
                     try {
                         device.connect_device((src: any, res: any) => {
                             try {
                                 device.connect_device_finish(res);
-                                console.log("✓ Conectado después de emparejar:", device.name);
                             } catch (e) {
-                                const msg = getErrorMessage(e);
-                                console.error("✗ Error al conectar después de emparejar:", msg);
+                                console.error("Error al conectar después de emparejar:", e);
                             }
                         });
                     } catch (e) {
-                        const msg = getErrorMessage(e);
-                        console.error("✗ Error al intentar conectar después de emparejar:", msg);
+                        console.error("Error al intentar conectar después de emparejar:", e);
                     }
                     return GLib.SOURCE_REMOVE;
                 });
             } catch (e) {
-                const msg = getErrorMessage(e);
-                console.error("✗ Error al emparejar:", msg);
+                console.error("Error al emparejar:", e);
             }
         }
     }
@@ -234,7 +200,10 @@ export default function BluetoothPanel() {
                 <label label={btBinding(p => p ? "\u{f00af}" : "\u{f00b2}")}/>
                 <label label={btBinding(p => p ? "Bluetooth" : "Apagado")}/>
             </box>
-            <popover>
+            <popover
+                onShow={() => batteryService.start()}
+                onHide={() => batteryService.stop()}
+            >
                 <box orientation={Gtk.Orientation.VERTICAL} spacing={8} widthRequest={350}>
                     <box class="bluetooth-header">
                         <label

@@ -8,14 +8,16 @@ popover calendar {
   padding: 12px;
   font-size: 1.3em; // Increase base size
 
-  &.view { background-color: transparent; }
+  &.view {
+    background-color: transparent;
+  }
 
   header {
     background: transparent;
     border: none;
     font-size: 1.2em;
     padding-bottom: 8px;
-    
+
     button {
       background: transparent;
       border: none;
@@ -25,7 +27,9 @@ popover calendar {
       border-radius: 50%;
       min-width: 32px;
       min-height: 32px;
-      &:hover { background-color: rgba($accent-color, 0.2); }
+      &:hover {
+        background-color: rgba($accent-color, 0.2);
+      }
     }
   }
 
@@ -36,7 +40,7 @@ popover calendar {
       color: $text-color;
       min-width: 36px;
       min-height: 36px;
-      
+
       &.today {
         background-color: $accent-color;
         color: $cp-dark;
@@ -45,16 +49,59 @@ popover calendar {
         box-shadow: 0 0 8px $accent-color;
       }
     }
-    
+
     &:selected {
       background-color: $active-color;
       color: $text-color;
       border-radius: 50%;
     }
-    
+
     label:hover {
       background-color: rgba($text-color, 0.1);
       border-radius: 50%;
     }
   }
 }
+
+.calendar-card {
+  background-color: $mantle; // Fully opaque
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+
+  margin-bottom: 8px;
+}
+
+.calendar-left-pane {
+  padding-right: 24px;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.calendar-huge-day {
+  font-size: 6em;
+  font-weight: 900;
+  color: $text-color;
+  font-family: "JetBrainsMono Nerd Font", "FiraCode Nerd Font", sans-serif;
+  line-height: 1;
+}
+
+.calendar-day-name {
+  font-size: 1.2em;
+  font-weight: bold;
+  color: $accent-color;
+  letter-spacing: 2px;
+  margin-top: 8px;
+}
+
+.calendar-month-name {
+  font-size: 1.8em;
+  font-weight: 800;
+  color: $text-color;
+  padding-left: 8px;
+}
+
+.calendar-widget {
+  padding: 8px;
+}
+

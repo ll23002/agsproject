@@ -8,6 +8,7 @@ import { execAsync } from "ags/process";
 // @ts-ignore
 import Wp from "gi://AstalWp";
 import Brightness from "../../service/Brightness";
+import KbdBrightness from "../../service/KbdBrightness";
 
 class OsdState extends GObject.Object {
     static {
@@ -232,6 +233,14 @@ export default function OSD(monitor: Gdk.Monitor) {
         showMainOSD();
     });
 
+    KbdBrightness.connect("notify::kbd", () => {
+        state.icon = "\u{f11c}"; // nf-fa-keyboard_o 
+        state.value = KbdBrightness.kbd;
+        state.isCaps = false;
+        state.isMic = false;
+        showMainOSD();
+    });
+
     // CapsLock Monitor
     try {
         execAsync("sh -c 'ls -w1 /sys/class/leds | grep capslock | head -1'").then(out => {
@@ -267,6 +276,8 @@ export default function OSD(monitor: Gdk.Monitor) {
     winMain._mic = mic;
     // @ts-ignore
     winMain._wp = wp;
+    // @ts-ignore
+    winMain._kbdBrightness = KbdBrightness;
 
     // We can return an array of windows
     return [winMain, winMic] as any;

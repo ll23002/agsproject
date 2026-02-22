@@ -1,5 +1,4 @@
 import GObject from "gi://GObject";
-import { execAsync } from "ags/process";
 import Gio from "gi://Gio";
 
 class BrightnessService extends GObject.Object {
@@ -27,11 +26,21 @@ class BrightnessService extends GObject.Object {
         if (percent < 0) percent = 0;
         if (percent > 1) percent = 1;
 
-
-        execAsync(`brightnessctl s ${Math.ceil(percent * 100)}% -q`).then(() => {
+        try {
+            const value = Math.floor(percent * this.#max);
+            const file = Gio.File.new_for_path(this.#path);
+            file.replace_contents(
+                new TextEncoder().encode(value.toString()),
+                null,
+                false,
+                Gio.FileCreateFlags.REPLACE_DESTINATION,
+                null
+            );
             this.#screen = percent;
             this.notify("screen");
-        }).catch(console.error);
+        } catch (error) {
+            console.error("Error setting brightness:", error);
+        }
     }
 
     constructor() {
@@ -41,13 +50,24 @@ class BrightnessService extends GObject.Object {
 
     async #init() {
         try {
-            const out = await execAsync("sh -c 'ls -w1 /sys/class/backlight | head -1'");
-            const device = out.trim();
-            if (!device) return;
+            const backlight = Gio.File.new_for_path("/sys/class/backlight");
+            const enumerator = backlight.enumerate_children("standard::name", Gio.FileQueryInfoFlags.NONE, null);
+            const info = enumerator.next_file(null);
 
+            if (!info) return;
+
+            const device = info.get_name();
             this.#path = `/sys/class/backlight/${device}/brightness`;
-            const maxStr = await execAsync("brightnessctl m");
-            this.#max = Number(maxStr);
+            const maxPath = `/sys/class/backlight/${device}/max_brightness`;
+
+            const maxFile = Gio.File.new_for_path(maxPath);
+            const [success, contents] = maxFile.load_contents(null);
+
+            if (success) {
+                this.#max = Number(new TextDecoder().decode(contents).trim());
+            }
+
+
             
             await this.#update();
 
@@ -62,17 +82,20 @@ class BrightnessService extends GObject.Object {
     async #update() {
         if (!this.#max) return;
         try {
-            const currentStr = await execAsync("brightnessctl g");
-            const raw = Number(currentStr);
-            const percent = raw / this.#max;
-            
-            // Round to 2 decimal places to prevent float precision spam
-            const rounded = Math.round(percent * 100) / 100;
-            
-            if (this.#screen !== rounded) {
-                this.#screen = rounded;
-                this.notify("screen");
+            const file = Gio.File.new_for_path(this.#path);
+            const [success, contents] = file.load_contents(null);
+
+            if (success) {
+                const raw = Number(new TextDecoder().decode(contents).trim());
+                const percent = raw / this.#max;
+                const rounded = Math.round(percent * 100) / 100;
+
+                if (this.#screen !== rounded) {
+                    this.#screen = rounded;
+                    this.notify("screen");
+                }
             }
+
         } catch (error) {
             console.error("Error updating Brightness:", error);
         }

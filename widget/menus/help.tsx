@@ -121,7 +121,25 @@ const COMMANDS: Command[] = [
     { categoria: "Git", cmd: "git reset --hard HEAD", descripcion: "Borrar cambios no confirmados"},
 
     //faltan más
-    { categoria: "Docker", cmd: "docker ps", descripcion: "Listar contenedores"},
+    { categoria: "Docker", cmd: "docker ps", descripcion: "Listar contenedores corriendo"},
+    { categoria: "Docker", cmd: "docker ps -a", descripcion: "Listar todos los contenedores"},
+    { categoria: "Docker", cmd: "docker compose up -d", descripcion: "Iniciar contenedores"},
+    { categoria: "Docker", cmd: "docker compose down", descripcion: "Detener contenedores"},
+    { categoria: "Docker", cmd: "docker exec -it nombre_cont contenido", descripcion: "Ejecutar comando en contenedor"},
+    { categoria: "Docker", cmd: "docker logs nombre_cont", descripcion: "Ver logs de contenedor"},
+    { categoria: "Docker", cmd: "docker compose build", descripcion: "Reconstruir imagenes"},
+    { categoria: "Docker", cmd: "docker images", descripcion: "Listar imágenes descargadas"},
+    { categoria: "Docker", cmd: "docker rmi imagen", descripcion: "Eliminar imagen"},
+    { categoria: "Docker", cmd: "docker stop nombre_cont", descripcion: "Detener contenedor"},
+    { categoria: "Docker", cmd: "docker rm nombre_cont", descripcion: "Eliminar contenedor"},
+    { categoria: "Docker", cmd: "docker pull imagen", descripcion: "Descargar imagen"},
+    { categoria: "Docker", cmd: "docker run -it imagen bash", descripcion: "Crear contenedor interactivo"},
+    { categoria: "Docker", cmd: "docker system prune -a", descripcion: "Limpiar todo (imágenes, contenedores, redes)"},
+    { categoria: "Docker", cmd: "docker stats", descripcion: "Ver uso de recursos en tiempo real"},
+    { categoria: "Docker", cmd: "docker inspect nombre_cont", descripcion: "Ver configuración completa del contenedor"},
+    { categoria: "Docker", cmd: "docker network ls", descripcion: "Listar redes"},
+    { categoria: "Docker", cmd: "docker volume ls", descripcion: "Listar volúmenes"},
+    { categoria: "Docker", cmd: "docker cp archivo nombre_cont:/ruta", descripcion: "Copiar archivo a contenedor"},
 
     { categoria: "Hyprland", cmd: "hyprctl reload", descripcion: "Reiniciar Hyprland"},
     { categoria: "Hyprland", cmd: "hyprctl monitors", descripcion: "Info monitores"},
@@ -130,6 +148,10 @@ const COMMANDS: Command[] = [
     { categoria: "Hyprland", cmd: "hyprpicker -a", descripcion: "Color Picker"},
     { categoria: "Hyprland", cmd: "wl-copy < archivo", descripcion: "Copiar archivo al portapapeles"},
     { categoria: "Hyprland", cmd: "wl-paste > archivo", descripcion: "Pegar del portapapeles al archivo"},
+    { categoria: "Hyprland", cmd: "hyprpm reload", descripcion: "Reiniciar plugins"},
+    { categoria: "Hyprland", cmd: "hyprpm list", descripcion: "Listar plugins instalados"},
+    { categoria: "Hyprland", cmd: "hyprpm install nombre_plugin", descripcion: "Instalar plugin"},
+    { categoria: "Hyprland", cmd: "hyprpm update", descripcion: "Actualizar plugins"},
 ];
 
 class CheatState extends GObject.Object {

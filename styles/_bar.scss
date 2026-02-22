@@ -71,3 +71,25 @@ window.Bar menubutton > button {
     color: $text-color;
   }
 }
+
+.systray {
+  button.systray-item {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 4px;
+    min-width: 24px;
+    min-height: 24px;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background-color: rgba($accent-color, 0.1);
+    }
+
+    &:active {
+      background-color: rgba($accent-color, 0.2);
+    }
+  }
+}
+

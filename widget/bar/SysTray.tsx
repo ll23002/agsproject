@@ -1,4 +1,3 @@
-import { createBinding } from "ags";
 import { Gtk } from "ags/gtk4";
 // @ts-ignore
 import AstalTray from "gi://AstalTray";
@@ -21,22 +20,32 @@ export function SysTray() {
             // Add new children
             const items = tray.get_items();
             items.forEach((item: any) => {
-                const tooltipBinding = createBinding(item, "tooltipMarkup");
-                const actionBinding = createBinding(item, "actionGroup");
-                const menuModelBinding = createBinding(item, "menuModel");
-                const iconBinding = createBinding(item, "gicon");
+                // Create button using GTK directly instead of JSX
+                const btn = new Gtk.Button();
+                btn.set_tooltip_markup(item.tooltipMarkup);
+                btn.set_css_classes(["flat", "systray-item"]);
+                btn.set_has_frame(false);
 
-                const btn = (
-                    <menubutton
-                        tooltipMarkup={tooltipBinding(t => t)}
-                        usePopover={false}
-                        actionGroup={actionBinding(a => a)}
-                        menuModel={menuModelBinding(m => m)}
-                        css="background: transparent; border: none; box-shadow: none; padding: 4px;"
-                    >
-                        <Gtk.Image gicon={iconBinding(g => g)} />
-                    </menubutton>
-                ) as Gtk.MenuButton;
+                // Create and add icon
+                const icon = new Gtk.Image();
+                icon.set_from_gicon(item.gicon);
+                icon.set_icon_size(Gtk.IconSize.NORMAL);
+                btn.set_child(icon);
+
+                // Handle click
+                btn.connect("clicked", () => {
+                    item.activate(0, 0);
+                });
+
+                // Update tooltip when it changes
+                item.connect("notify::tooltip-markup", () => {
+                    btn.set_tooltip_markup(item.tooltipMarkup);
+                });
+
+                // Update icon when it changes
+                item.connect("notify::gicon", () => {
+                    icon.set_from_gicon(item.gicon);
+                });
 
                 box.append(btn);
             });

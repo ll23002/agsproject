@@ -1,6 +1,5 @@
 import GObject from "gi://GObject";
 import { execAsync } from "ags/process";
-import GLib from "gi://GLib";
 import Gio from "gi://Gio";
 
 class KbdBrightnessService extends GObject.Object {
@@ -20,7 +19,6 @@ class KbdBrightnessService extends GObject.Object {
     #kbd = 0;
     #max = 0;
     #path = "";
-    #monitor: any = null;
 
     get kbd() { return this.#kbd; }
     
@@ -35,7 +33,7 @@ class KbdBrightnessService extends GObject.Object {
 
     constructor() {
         super();
-        this.#init();
+        this.#init().catch(console.error);
     }
 
     async #init() {
@@ -46,28 +44,51 @@ class KbdBrightnessService extends GObject.Object {
             const maxStr = await execAsync(`brightnessctl -d ${device} m`);
             this.#max = Number(maxStr);
             
-            await this.#update();
+            await this.update();
 
-            // ACPI changes to kbd_backlight by EC do NOT trigger inotify/Gio.FileMonitor.
-            // We MUST poll it.
-            GLib.timeout_add(GLib.PRIORITY_DEFAULT, 250, () => {
-                this.#update();
-                return GLib.SOURCE_CONTINUE;
+            Gio.bus_get(Gio.BusType.SYSTEM, null, (obj, res) => {
+                try {
+                    const connection = Gio.bus_get_finish(res);
+                    connection.signal_subscribe(
+                        null,
+                        "org.freedesktop.UPower.KbdBacklight",
+                        null,
+                        null,
+                        null,
+                        Gio.DBusSignalFlags.NONE,
+                        () => {
+                            this.update();
+                        }
+                    );
+                } catch (e) {
+                    console.error("Failed to subscribe to UPower KbdBacklight D-Bus signals:", e);
+                }
             });
+
         } catch (error) {
             console.error("Error initializing KbdBrightness service:", error);
         }
     }
 
-    async #update() {
-        if (!this.#max) return;
+    async update() {
+        if (!this.#max || !this.#path) return;
         try {
-            // Read file directly (much cheaper than spawning brightnessctl every 250ms)
-            const currentStr = await execAsync(`cat ${this.#path}`);
-            const raw = Number(currentStr.trim());
+            const file = Gio.File.new_for_path(this.#path);
+            const [, contents] = await new Promise<[boolean, Uint8Array]>((resolve, reject) => {
+                file.load_contents_async(null, (file, res) => {
+                    try {
+                        // @ts-ignore
+                        resolve(file.load_contents_finish(res));
+                    } catch (e) {
+                        reject(e);
+                    }
+                });
+            });
+
+            const currentStr = new TextDecoder("utf-8").decode(contents).trim();
+            const raw = Number(currentStr);
             const percent = raw / this.#max;
             
-            // Round to 2 decimal places to prevent float precision spam
             const rounded = Math.round(percent * 100) / 100;
             
             if (this.#kbd !== rounded) {
@@ -75,7 +96,7 @@ class KbdBrightnessService extends GObject.Object {
                 this.notify("kbd");
             }
         } catch (error) {
-            // Ignore temporary read errors
+            console.error("Error updating keyboard brightness:", error);
         }
     }
 }

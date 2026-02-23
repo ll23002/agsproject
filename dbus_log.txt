@@ -1,0 +1,42 @@
+signal time=1771809864.976612 sender=org.freedesktop.DBus -> destination=:1.168 serial=4294967295 path=/org/freedesktop/DBus; interface=org.freedesktop.DBus; member=NameAcquired
+   string ":1.168"
+signal time=1771809976.156122 sender=:1.31 -> destination=(null destination) serial=6592 path=/org/freedesktop/UPower/KbdBacklight; interface=org.freedesktop.UPower.KbdBacklight; member=BrightnessChanged
+   int32 2
+signal time=1771809976.156214 sender=:1.31 -> destination=(null destination) serial=6593 path=/org/freedesktop/UPower/KbdBacklight; interface=org.freedesktop.UPower.KbdBacklight; member=BrightnessChangedWithSource
+   int32 2
+   string "internal"
+signal time=1771809976.156233 sender=:1.31 -> destination=(null destination) serial=6594 path=/org/freedesktop/UPower/KbdBacklight/tpacpiookbd_backlight; interface=org.freedesktop.UPower.KbdBacklight; member=BrightnessChanged
+   int32 2
+signal time=1771809976.156247 sender=:1.31 -> destination=(null destination) serial=6595 path=/org/freedesktop/UPower/KbdBacklight/tpacpiookbd_backlight; interface=org.freedesktop.UPower.KbdBacklight; member=BrightnessChangedWithSource
+   int32 2
+   string "internal"
+signal time=1771809977.375143 sender=:1.31 -> destination=(null destination) serial=6596 path=/org/freedesktop/UPower/KbdBacklight; interface=org.freedesktop.UPower.KbdBacklight; member=BrightnessChanged
+   int32 0
+signal time=1771809977.375218 sender=:1.31 -> destination=(null destination) serial=6597 path=/org/freedesktop/UPower/KbdBacklight; interface=org.freedesktop.UPower.KbdBacklight; member=BrightnessChangedWithSource
+   int32 0
+   string "internal"
+signal time=1771809977.375237 sender=:1.31 -> destination=(null destination) serial=6598 path=/org/freedesktop/UPower/KbdBacklight/tpacpiookbd_backlight; interface=org.freedesktop.UPower.KbdBacklight; member=BrightnessChanged
+   int32 0
+signal time=1771809977.375251 sender=:1.31 -> destination=(null destination) serial=6599 path=/org/freedesktop/UPower/KbdBacklight/tpacpiookbd_backlight; interface=org.freedesktop.UPower.KbdBacklight; member=BrightnessChangedWithSource
+   int32 0
+   string "internal"
+signal time=1771809978.768664 sender=:1.31 -> destination=(null destination) serial=6600 path=/org/freedesktop/UPower/KbdBacklight; interface=org.freedesktop.UPower.KbdBacklight; member=BrightnessChanged
+   int32 1
+signal time=1771809978.768727 sender=:1.31 -> destination=(null destination) serial=6601 path=/org/freedesktop/UPower/KbdBacklight; interface=org.freedesktop.UPower.KbdBacklight; member=BrightnessChangedWithSource
+   int32 1
+   string "internal"
+signal time=1771809978.768752 sender=:1.31 -> destination=(null destination) serial=6602 path=/org/freedesktop/UPower/KbdBacklight/tpacpiookbd_backlight; interface=org.freedesktop.UPower.KbdBacklight; member=BrightnessChanged
+   int32 1
+signal time=1771809978.768771 sender=:1.31 -> destination=(null destination) serial=6603 path=/org/freedesktop/UPower/KbdBacklight/tpacpiookbd_backlight; interface=org.freedesktop.UPower.KbdBacklight; member=BrightnessChangedWithSource
+   int32 1
+   string "internal"
+signal time=1771809979.572831 sender=:1.31 -> destination=(null destination) serial=6604 path=/org/freedesktop/UPower/KbdBacklight; interface=org.freedesktop.UPower.KbdBacklight; member=BrightnessChanged
+   int32 2
+signal time=1771809979.572895 sender=:1.31 -> destination=(null destination) serial=6605 path=/org/freedesktop/UPower/KbdBacklight; interface=org.freedesktop.UPower.KbdBacklight; member=BrightnessChangedWithSource
+   int32 2
+   string "internal"
+signal time=1771809979.572922 sender=:1.31 -> destination=(null destination) serial=6606 path=/org/freedesktop/UPower/KbdBacklight/tpacpiookbd_backlight; interface=org.freedesktop.UPower.KbdBacklight; member=BrightnessChanged
+   int32 2
+signal time=1771809979.572935 sender=:1.31 -> destination=(null destination) serial=6607 path=/org/freedesktop/UPower/KbdBacklight/tpacpiookbd_backlight; interface=org.freedesktop.UPower.KbdBacklight; member=BrightnessChangedWithSource
+   int32 2
+   string "internal"

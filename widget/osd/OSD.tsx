@@ -65,7 +65,6 @@ export default function OSD(monitor: Gdk.Monitor) {
     const isCaps = createBinding(state, "isCaps");
     const isMic = createBinding(state, "isMic");
 
-    // ------------- MAIN OSD (Volume, Brightness, Caps) -------------
     const winMain = (
         <window
             name={`osd-main-${monitor}`}
@@ -90,8 +89,7 @@ export default function OSD(monitor: Gdk.Monitor) {
                     label={icon(i => i)} 
                     css="font-size: 24px; color: #89b4fa; font-family: 'JetBrainsMono Nerd Font', 'FiraCode Nerd Font', sans-serif;" 
                 />
-                
-                {/* Mode: Volume / Brightness (Shows the custom Box progress bar) */}
+
                 <revealer
                     transitionType={Gtk.RevealerTransitionType.SLIDE_RIGHT}
                     revealChild={isCaps(c => !c)}
@@ -111,7 +109,6 @@ export default function OSD(monitor: Gdk.Monitor) {
                     </box>
                 </revealer>
 
-                {/* Mode: CapsLock */}
                 <revealer
                     transitionType={Gtk.RevealerTransitionType.SLIDE_RIGHT}
                     revealChild={isCaps(c => c)}
@@ -125,7 +122,6 @@ export default function OSD(monitor: Gdk.Monitor) {
         </window>
     ) as Astal.Window;
 
-    // ------------- MIC OSD (Top anchor, pill shape) -------------
     const winMic = (
         <window
             name={`osd-mic-${monitor}`}
@@ -186,10 +182,10 @@ export default function OSD(monitor: Gdk.Monitor) {
     };
 
     const getVolumeIcon = (isMuted: boolean, vol: number) => {
-        if (isMuted) return "\u{f02a0}"; // nf-fa-volume_mute
-        if (vol > 0.6) return "\u{f02a2}"; // nf-fa-volume_up
-        if (vol > 0.3) return "\u{f02a3}"; // nf-fa-volume_down
-        return "\u{f02a1}"; // nf-fa-volume_off
+        if (isMuted) return "\u{f02a0}";
+        if (vol > 0.6) return "\u{f02a2}";
+        if (vol > 0.3) return "\u{f02a3}";
+        return "\u{f02a1}";
     };
 
     if (speaker) {
@@ -211,7 +207,7 @@ export default function OSD(monitor: Gdk.Monitor) {
 
     if (mic) {
         mic.connect("notify::volume", () => {
-            state.icon = mic.mute ? "\u{f035f}" : "\u{f03b8}"; // nf-fa-microphone_slash : nf-fa-microphone
+            state.icon = mic.mute ? "\u{f035f}" : "\u{f03b8}";
             state.value = mic.volume;
             state.isCaps = false;
             state.isMic = true;
@@ -227,7 +223,7 @@ export default function OSD(monitor: Gdk.Monitor) {
     }
 
     Brightness.connect("notify::screen", () => {
-        state.icon = "\u{f00de}"; // nf-md-brightness_6
+        state.icon = "\u{f00de}";
         state.value = Brightness.screen;
         state.isCaps = false;
         state.isMic = false;
@@ -235,14 +231,13 @@ export default function OSD(monitor: Gdk.Monitor) {
     });
 
     KbdBrightness.connect("notify::kbd", () => {
-        state.icon = "\u{f11c}"; // nf-fa-keyboard_o 
+        state.icon = "\u{f11c}";
         state.value = KbdBrightness.kbd;
         state.isCaps = false;
         state.isMic = false;
         showMainOSD();
     });
 
-    // CapsLock Monitor
     try {
         execAsync("sh -c 'ls -w1 /sys/class/leds | grep capslock | head -1'").then(out => {
             const capsDevice = out.trim();
@@ -252,14 +247,14 @@ export default function OSD(monitor: Gdk.Monitor) {
                 const monitor = file.monitor_file(Gio.FileMonitorFlags.NONE, null);
                 
                 // @ts-ignore
-                winMain._capsMonitor = monitor; // Prevent GC
+                winMain._capsMonitor = monitor;
 
                 monitor.connect("changed", async () => {
                     try {
                         const valStr = await execAsync(`cat ${capsPath}`);
                         const isLocked = valStr.trim() === "1";
                         if (state.isCaps !== isLocked) {
-                            state.icon = isLocked ? "\u{f0111}" : "\u{f0111}"; // nf-fa-keyboard_o
+                            state.icon = isLocked ? "\u{f0111}" : "\u{f0111}";
                             state.value = isLocked ? 1 : 0;
                             state.isCaps = true;
                             state.isMic = false;
@@ -280,6 +275,5 @@ export default function OSD(monitor: Gdk.Monitor) {
     // @ts-ignore
     winMain._kbdBrightness = KbdBrightness;
 
-    // We can return an array of windows
     return [winMain, winMic] as any;
 }

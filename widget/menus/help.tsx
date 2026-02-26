@@ -129,8 +129,9 @@ const COMMANDS: Command[] = [
     { categoria: "Git", cmd: "git checkout -b rama", descripcion: "Crear rama y cambiar a ella"},
     { categoria: "Git", cmd: "git reset --hard HEAD~1", descripcion: "Deshacer commit anterior"},
     { categoria: "Git", cmd: "git reset --hard HEAD", descripcion: "Borrar cambios no confirmados"},
+    { categoria: "Git", cmd: "git remote -v", descripcion: "Ver remotos"},
+    { categoria: "Git", cmd: "git remote set-url origin url", descripcion: "Cambiar url de remoto"},
 
-    //faltan más
     { categoria: "Docker", cmd: "docker ps", descripcion: "Listar contenedores corriendo"},
     { categoria: "Docker", cmd: "docker ps -a", descripcion: "Listar todos los contenedores"},
     { categoria: "Docker", cmd: "docker compose up -d", descripcion: "Iniciar contenedores"},
@@ -164,6 +165,14 @@ const COMMANDS: Command[] = [
     { categoria: "Hyprland", cmd: "hyprpm update", descripcion: "Actualizar plugins"},
 
     { categoria: "CSS", cmd: "sass --watch main.scss:main.css --style compressed", descripcion: "Compilar SASS"},
+
+    { categoria: "LazyVim", cmd: "nvim", descripcion: "Editor de texto"},
+    { categoria: "LazyVim", cmd: "dd", descripcion: "Cortar texto"},
+    { categoria: "LazyVim", cmd: "ggVG", descripcion: "Seleccionar todo el texto"},
+    { categoria: "LazyVim", cmd: "+p", descripcion: "Pegar texto"},
+    { categoria: "LazyVim", cmd: "yy", descripcion: "Copiar texto"},
+
+
 ];
 
 class CheatState extends GObject.Object {

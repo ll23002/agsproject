@@ -131,7 +131,7 @@ function WifiItem({ ap, onUpdate }: WifiItemProps) {
                         const isConnected = currentSsid() === ap.ssid;
                         if (savedService.saved.includes(ap.ssid)) {
                             if (isConnected) return;
-                            connect();
+                            connect().catch(console.error);
                         } else {
                             wifiState.expanded_ap = wifiState.expanded_ap === ap.ssid ? "" : ap.ssid;
                         }
@@ -280,8 +280,8 @@ export default function WifiPanel() {
     };
 
     const startScanning = () => {
-        scanWifi(); // Initial scan
-        scanInterval = setInterval(scanWifi, 10000); // Poll every 10s to save CPU
+        scanWifi();
+        scanInterval = setInterval(scanWifi, 10000);
     };
 
     const stopScanning = () => {

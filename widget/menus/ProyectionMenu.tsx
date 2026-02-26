@@ -30,27 +30,33 @@ class ProjectionService extends GObject.Object {
         const m = this.mode;
         console.log(`Aplicando modo de proyección: ${m}`);
 
+        const run = async (args: string[]) => {
+            const out = await execAsync(args);
+            console.log(`[hyprctl] ${args.slice(2).join(" ")} →`, out.trim() || "(sin salida)");
+        };
+
         try {
             switch (m) {
                 case 0: // Solo PC
-                    await execAsync(`hyprctl keyword monitor "HDMI-A-1, disable"`);
-                    await execAsync(`hyprctl keyword monitor "eDP-1, preferred, auto, 1"`);
+                    await run(["hyprctl", "keyword", "monitor", "eDP-1,preferred,auto,1"]);
+                    await run(["hyprctl", "keyword", "monitor", "HDMI-A-1,disable"]);
                     break;
                 case 1: // Duplicar
-                    await execAsync(`hyprctl keyword monitor "eDP-1, preferred, auto, 1"`);
-                    await execAsync(`hyprctl keyword monitor "HDMI-A-1, preferred, auto, 1, mirror, eDP-1"`);
+                    await run(["hyprctl", "keyword", "monitor", "eDP-1,preferred,auto,1"]);
+                    await run(["hyprctl", "keyword", "monitor", "HDMI-A-1,preferred,auto,1,mirror,eDP-1"]);
                     break;
                 case 2: // Extender
-                    await execAsync(`hyprctl keyword monitor "eDP-1, preferred, auto, 1"`);
-                    await execAsync(`hyprctl keyword monitor "HDMI-A-1, preferred, auto, 1, transform, 0"`);
+                    await run(["hyprctl", "keyword", "monitor", "eDP-1,preferred,0x0,1"]);
+                    await run(["hyprctl", "keyword", "monitor", "HDMI-A-1,preferred,auto,1"]);
                     break;
                 case 3: // Solo Proyector
-                    await execAsync(`hyprctl keyword monitor "eDP-1, disable"`);
-                    await execAsync(`hyprctl keyword monitor "HDMI-A-1, preferred, auto, 1"`);
+                    await run(["hyprctl", "keyword", "monitor", "HDMI-A-1,preferred,auto,1"]);
+                    await run(["hyprctl", "keyword", "monitor", "eDP-1,disable"]);
                     break;
             }
         } catch (e) {
-            console.error("Error cambiando proyección:", e);
+            const msg = e instanceof Error ? e.message : String(e);
+            console.error(`[ProyectionMenu] Error en modo ${m}:`, msg);
         }
     }
 }

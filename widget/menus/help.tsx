@@ -23,6 +23,9 @@ const COMMANDS: Command[] = [
     { categoria: "Texto", cmd: "uniq archivo", descripcion: "Eliminar lineas duplicadas adyacentes"},
     { categoria: "Texto", cmd: "grep patron archivo", descripcion: "Buscar patron en archivo"},
     { categoria: "Texto", cmd: "diff archivo1 archivo2", descripcion: "Comparar archivos"},
+    { categoria: "Texto", cmd: "ocrmypdf -l eng+spa --sidecar output.txt archivo.pdf output_ocr.pdf", descripcion: "Aplicar OCR de PDF"},
+    { categoria: "Texto", cmd: "ocrmypdf --skip-text --sidecar output.txt archivo.pdf output_ocr.pdf", descripcion: "Aplicar OCR donde falte"},
+    { categoria: "Texto", cmd: "pandoc input.html -o output.docx", descripcion: "Convertir HTML a Word"},
 
     { categoria: "Power Text", cmd: "grep -r 'texto' .", descripcion: "Buscar texto recursivamente"},
     { categoria: "Power Text", cmd: "grep -v 'patron' archivo", descripcion: "Buscar texto excluyendo patrones"},
@@ -56,6 +59,7 @@ const COMMANDS: Command[] = [
     { categoria: "Permisos", cmd: "chown user:group archivo", descripcion: "Cambiar propietario y grupo de un archivo"},
     { categoria: "Permisos", cmd: "chown -R user:group carpeta", descripcion: "Cambiar propietario y grupo recursivamente de un directorio"},
     { categoria: "Permisos", cmd: "sudo !!", descripcion: "Ejecutar el comando anterior como root"},
+    { categoria: "Permisos", cmd: "sudo usermod  -aG docker $USER", descripcion: "Agregar usuario a grupo docker"},
 
     { categoria: "Arch", cmd: "sudo pacman -Syu", descripcion: "Actualizar TODO"},
     { categoria: "Arch", cmd: "sudo pacman -S paquete", descripcion: "Instalar un paquete"},
@@ -69,6 +73,8 @@ const COMMANDS: Command[] = [
     { categoria: "Arch", cmd: "yay -Rs paquete", descripcion: "Desinstalar un paquete de AUR"},
     { categoria: "Arch", cmd: "yay -Yc", descripcion: "Limpiar deps de AUR innecesarios"},
     { categoria: "Arch", cmd: "paccache -rk1", descripcion: "Limpiar cache de paquetes (dejar solo una version)"},
+    { categoria: "Arch", cmd: "sudo pkgfile -u", descripcion: "Actualizar BD de pkgfile"},
+    { categoria: "Arch", cmd: "pkgfile paquete", descripcion: "Buscar paquetes no instalados"},
 
     { categoria: "Sistema", cmd: "systemctl start servicio", descripcion: "Iniciar servicio"},
     { categoria: "Sistema", cmd: "systemctl enable --now servicio", descripcion: "Iniciar servicio y habilitar en boot"},
@@ -83,6 +89,7 @@ const COMMANDS: Command[] = [
     { categoria: "Sistema", cmd: "free -h", descripcion: "Ver RAM disponible"},
     { categoria: "Sistema", cmd: "swapon --show", descripcion: "Ver swap activo"},
     { categoria: "Sistema", cmd: "sudo systemctl daemon-reload", descripcion: "Recargar systemd"},
+    { categoria: "Sistema", cmd: "nohup comando &", descripcion: "Ejecutar comando en background"},
 
 
     { categoria: "Hardware", cmd: "lsblk", descripcion: "Ver arbol de discos y particiones"},

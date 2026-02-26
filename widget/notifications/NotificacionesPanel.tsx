@@ -62,7 +62,7 @@ function NotificationIcon({ n }: { n: Notifd.Notification }) {
 
     return (
         <label
-            label={"\u{ea74}"} // nf-cod-bell
+            label={"\u{ea74}"}
             css="font-size: 32px; color: #89b4fa; font-family: 'JetBrainsMono Nerd Font', 'FiraCode Nerd Font', sans-serif;"
             valign={Gtk.Align.START}
             class="notif-icon"

@@ -15,6 +15,7 @@ import Notifd from "gi://AstalNotifd"
 import Network from "gi://AstalNetwork"
 // @ts-ignore
 import Bluetooth from "gi://AstalBluetooth"
+import wifiState from "../../service/WifiState"
 // @ts-ignore
 import Battery from "gi://AstalBattery";
 import { batteryProtectionEnabled, getBatteryIcon } from "../../service/BatteryProtection";
@@ -29,6 +30,26 @@ export function ControlPanel() {
 
     const dndBinding = createBinding(notifd, "dontDisturb");
     const wifiEnabled = createBinding(network.wifi, "enabled");
+    const wifiSsid = createBinding(network.wifi, "ssid");
+    const wifiActiveSsid = createBinding(wifiState, "active_ssid");
+
+    const wifiIcon = createMemo(() => {
+        const enabled = wifiEnabled();
+        if (!enabled) return "\u{f092d}"; // wifi_off
+        const ssid = wifiActiveSsid();
+        const netSsid = wifiSsid();
+        const connected = ssid !== "<disconnected>" && (ssid !== "" || netSsid);
+        return connected ? "\u{f0928}" : "\u{f092f}"; // wifi vs wifi_strength_outline
+    });
+
+    const wifiIconCss = createMemo(() => {
+        const enabled = wifiEnabled();
+        const ssid = wifiActiveSsid();
+        const netSsid = wifiSsid();
+        const connected = enabled && ssid !== "<disconnected>" && (ssid !== "" || netSsid);
+        const color = !enabled || !connected ? "color: #a6adc8;" : "";
+        return `font-family: 'JetBrainsMono Nerd Font', 'FiraCode Nerd Font', sans-serif; font-size: 16px; ${color}`;
+    });
     const btOn = createBinding(bluetooth, "isPowered");
 
     const batPercent = createBinding(battery, "percentage");
@@ -58,8 +79,8 @@ export function ControlPanel() {
         <box spacing={12}>
             <NetworkStats/>
             <label
-                label={wifiEnabled(e => e ? "\u{f0928}" : "\u{f092d}")} // nf-md-wifi or nf-md-wifi_off
-                css={wifiEnabled(e => `font-family: 'JetBrainsMono Nerd Font', 'FiraCode Nerd Font', sans-serif; font-size: 16px; ${!e ? "color: #a6adc8;" : ""}`)}
+                label={wifiIcon(v => v)}
+                css={wifiIconCss(v => v)}
             />
 
             <label

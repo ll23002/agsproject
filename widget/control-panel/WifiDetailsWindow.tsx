@@ -46,23 +46,34 @@ class WifiDetailsState extends GObject.Object {
     #password = "N/A"; get password() { return this.#password; } set password(val) { this.#password=val; this.notify("password"); }
 
     async refreshData(ssid: string) {
+        const withTimeout = (p: Promise<string>, ms = 8000): Promise<string> =>
+            Promise.race([
+                p,
+                new Promise<never>((_, reject) =>
+                    setTimeout(() => reject(new Error(`nmcli timeout after ${ms}ms`)), ms)
+                ),
+            ]);
+
+        const nmcli = (...args: string[]) =>
+            withTimeout(execAsync(["nmcli", ...args]));
+
         try {
             const network = Network.get_default();
             const dev = network?.wifi?.deviceName || "wlp2s0";
-            
-            const connOut = await execAsync(`nmcli connection show "${ssid}"`);
+
+            const connOut = await nmcli("connection", "show", ssid);
             const secMatch = connOut.match(/802-11-wireless-security.key-mgmt:\s*(.*)/);
             if (secMatch) this.security = secMatch[1].trim() === "wpa-psk" ? "WPA/WPA2-Personal" : secMatch[1].trim();
             else this.security = "WPA/WPA2";
-            
+
             try {
-                const pskOut = await execAsync(`nmcli -s -g 802-11-wireless-security.psk connection show "${ssid}"`);
+                const pskOut = await nmcli("-s", "-g", "802-11-wireless-security.psk", "connection", "show", ssid);
                 this.password = pskOut.trim() || "N/A";
-            } catch (e) {
+            } catch {
                 this.password = "N/A";
             }
-            
-            const devOut = await execAsync(`nmcli device show ${dev}`);
+
+            const devOut = await nmcli("device", "show", dev);
             for (const line of devOut.split("\n")) {
                 if (line.includes("IP4.ADDRESS[1]:")) {
                     const parts = line.split(":")[1].trim().split("/");
@@ -75,7 +86,7 @@ class WifiDetailsState extends GObject.Object {
                 if (line.includes("GENERAL.HWADDR:")) this.mac = line.substring(line.indexOf(":") + 1).trim();
             }
 
-            const activeList = await execAsync(`nmcli device wifi list`).catch(()=>"");
+            const activeList = await nmcli("device", "wifi", "list").catch(() => "");
             const activeLine = activeList.split("\n").find(l => l.startsWith("*"));
             if (activeLine) {
                 const matchRate = activeLine.match(/(\d+)\s*Mbit\/s/);
@@ -87,7 +98,8 @@ class WifiDetailsState extends GObject.Object {
                 else this.freq = "Wi-Fi";
             }
         } catch (e) {
-            console.error(e);
+            const msg = e instanceof Error ? e.message : String(e);
+            console.warn("[WifiDetails] refreshData abortado:", msg);
         }
     }
 }

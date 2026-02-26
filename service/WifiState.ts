@@ -49,16 +49,20 @@ class WifiStateService extends GObject.Object {
     }
 
     async scanDetails() {
+        const timeout = (ms: number) =>
+            new Promise<never>((_, reject) =>
+                setTimeout(() => reject(new Error(`nmcli timeout after ${ms}ms`)), ms)
+            );
+
         try {
-            // Get detailed list of networks including SECURITY and BSSID/FREQ
-            const out = await execAsync("nmcli -t -f SSID,SECURITY,CHAN,FREQ device wifi list");
+            const out = await Promise.race([
+                execAsync(["nmcli", "-t", "-f", "SSID,SECURITY,CHAN,FREQ", "device", "wifi", "list"]),
+                timeout(8000),
+            ]);
+
             const newDetails: Record<string, { security: string, freq: string }> = {};
-            
             const lines = out.split("\n").filter(Boolean);
             for (const line of lines) {
-                // FORMAT: SSID:SECURITY:CHAN:FREQ
-                // Note: nmcli escapes colons in SSIDs with backslash, but splitting might be tricky
-                // For simplicity, we split by colon
                 const parts = line.split(":");
                 if (parts.length >= 4) {
                     const ssid = parts[0];
@@ -71,7 +75,8 @@ class WifiStateService extends GObject.Object {
             }
             this.details = newDetails;
         } catch (e) {
-            console.error("Failed to scan nmcli wifi details", e);
+            const msg = e instanceof Error ? e.message : String(e);
+            console.warn("[WifiState] scanDetails abortado:", msg);
         }
     }
 }

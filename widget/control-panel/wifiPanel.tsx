@@ -108,12 +108,14 @@ function WifiItem({ ap, onUpdate }: WifiItemProps) {
     };
 
     const forgetNetwork = () => {
-        execAsync(`nmcli connection delete id "${ap.ssid}"`)
+        execAsync(["nmcli", "connection", "delete", "id", ap.ssid])
             .then(async () => {
-                if (network.wifi.ssid === ap.ssid || wifiState.active_ssid === ap.ssid) {
-                    wifiState.active_ssid = "<disconnected>";
+                // Always clear the override SSID — network.wifi.ssid may lag after deletion
+                const wasConnected = network.wifi.ssid === ap.ssid || wifiState.active_ssid === ap.ssid;
+                wifiState.active_ssid = "<disconnected>";
+                if (wasConnected) {
                     const dev = network?.wifi?.deviceName || "wlan0";
-                    await execAsync(`nmcli device disconnect ${dev}`).catch(() => {});
+                    await execAsync(["nmcli", "device", "disconnect", dev]).catch(() => {});
                 }
                 await savedService.update();
                 onUpdate();
@@ -263,11 +265,25 @@ export default function WifiPanel() {
     const wifiEnabled = createBinding(network.wifi, "enabled");
     const wifiSsid = createBinding(network.wifi, "ssid");
     const accessPoints = createBinding(network.wifi, "accessPoints");
+    const overrideSsid = createBinding(wifiState, "active_ssid");
 
-    const combinedWifiState = createMemo(() => ({
-        enabled: wifiEnabled(),
-        ssid: wifiSsid()
-    }));
+    // Use wifiState.active_ssid as primary source — it updates immediately on connect/disconnect
+    // Fall back to network.wifi.ssid (AstalNetwork) only when no override is set
+    const displaySsid = createMemo(() => {
+        const enabled = wifiEnabled();
+        if (!enabled) return "Apagado";
+        const override = overrideSsid();
+        if (override === "<disconnected>") return "Desconectado";
+        if (override !== "") return override;
+        return wifiSsid() || "Desconectado";
+    });
+
+    const wifiIcon = createMemo(() => {
+        if (!wifiEnabled()) return "\u{f092d}"; // wifi_off
+        const override = overrideSsid();
+        const connected = override !== "<disconnected>" && (override !== "" || wifiSsid());
+        return connected ? "\u{f0928}" : "\u{f092f}";
+    });
 
     let scanInterval: number | null = null;
 
@@ -303,9 +319,9 @@ export default function WifiPanel() {
             halign={Gtk.Align.CENTER}
         >
             <box spacing={8} halign={Gtk.Align.CENTER}>
-                <label label={wifiEnabled(e => e ? "\u{f0928}" : "\u{f092d}")} />
+                <label label={wifiIcon(v => v)} />
                 <label
-                    label={combinedWifiState((state: { enabled: boolean, ssid: string }) => state.enabled ? (state.ssid || "Desconectado") : "Apagado")}
+                    label={displaySsid(v => v)}
                     maxWidthChars={10}
                     ellipsize={Pango.EllipsizeMode.END}
                 />

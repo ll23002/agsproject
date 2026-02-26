@@ -6,9 +6,21 @@ import Pango from "gi://Pango";
 // @ts-ignore
 import Network from "gi://AstalNetwork";
 
+const withTimeout = async (p: Promise<string>, ms = 8000): Promise<string> => {
+    let timerId: ReturnType<typeof setTimeout>;
+    const timeout = new Promise<never>((_, reject) => {
+        timerId = setTimeout(() => reject(new Error(`nmcli timeout after ${ms}ms`)), ms);
+    });
+    timeout.catch(() => {}); // Prevenir warning GJS
 
+    try {
+        return await Promise.race([p, timeout]);
+    } finally {
+        clearTimeout(timerId!);
+    }
+};
 
-
+const nmcli = (...args: string[]) => withTimeout(execAsync(["nmcli", ...args]));
 class SavedNetworkService extends GObject.Object {
     static {
         GObject.registerClass({
@@ -40,7 +52,7 @@ class SavedNetworkService extends GObject.Object {
 
     async update() {
         try {
-            const out = await execAsync("nmcli -t -f NAME connection show");
+            const out = await nmcli("-t", "-f", "NAME", "connection", "show");
             const list = out.split("\n").filter(Boolean);
 
             if (JSON.stringify(this.#saved) !== JSON.stringify(list)) {
@@ -67,16 +79,7 @@ import { showWifiDetailsFor } from "./WifiDetailsWindow";
 
 function WifiItem({ ap, onUpdate }: WifiItemProps) {
     const isSavedBinding = createBinding(savedService, "saved");
-    const networkSsid = createBinding(network.wifi, "ssid");
-    const overrideSsid = createBinding(wifiState, "active_ssid");
-    
-    const currentSsid = createMemo(() => {
-        const o = overrideSsid();
-        const n = networkSsid();
-        if (o === "<disconnected>") return null;
-        if (o !== "") return o;
-        return n;
-    });
+    const currentSsid = createBinding(wifiState, "active_ssid");
     
     const expandedBinding = createBinding(wifiState, "expanded_ap");
     const detailsBinding = createBinding(wifiState, "details");
@@ -86,16 +89,11 @@ function WifiItem({ ap, onUpdate }: WifiItemProps) {
         if (!isSaved && !password) return;
 
         const cmd = isSaved
-            ? `nmcli device wifi connect "${ap.ssid}"`
-            : `nmcli device wifi connect "${ap.ssid}" password "${password}"`;
+            ? ["device", "wifi", "connect", ap.ssid]
+            : ["device", "wifi", "connect", ap.ssid, "password", password];
 
         try {
-            await Promise.race([
-                execAsync(cmd),
-                new Promise((_, reject) =>
-                    setTimeout(() => reject(new Error("Timeout")), 10000)
-                )
-            ]);
+            await nmcli(...cmd);
 
             wifiState.active_ssid = ap.ssid;
             await savedService.update();
@@ -108,14 +106,13 @@ function WifiItem({ ap, onUpdate }: WifiItemProps) {
     };
 
     const forgetNetwork = () => {
-        execAsync(["nmcli", "connection", "delete", "id", ap.ssid])
+        nmcli("connection", "delete", "id", ap.ssid)
             .then(async () => {
-                // Always clear the override SSID — network.wifi.ssid may lag after deletion
-                const wasConnected = network.wifi.ssid === ap.ssid || wifiState.active_ssid === ap.ssid;
+                const wasConnected = wifiState.active_ssid === ap.ssid;
                 wifiState.active_ssid = "<disconnected>";
                 if (wasConnected) {
-                    const dev = network?.wifi?.deviceName || "wlan0";
-                    await execAsync(["nmcli", "device", "disconnect", dev]).catch(() => {});
+                    // Try to disconnect wlan0 explicitly, ignore errors
+                    await nmcli("device", "disconnect", "wlan0").catch(() => {});
                 }
                 await savedService.update();
                 onUpdate();
@@ -262,34 +259,30 @@ function WifiItem({ ap, onUpdate }: WifiItemProps) {
 }
 
 export default function WifiPanel() {
-    const wifiEnabled = createBinding(network.wifi, "enabled");
-    const wifiSsid = createBinding(network.wifi, "ssid");
-    const accessPoints = createBinding(network.wifi, "accessPoints");
+    const wifiEnabled = createBinding(wifiState, "enabled");
+    const accessPoints = createBinding(wifiState, "access_points");
     const overrideSsid = createBinding(wifiState, "active_ssid");
 
-    // Use wifiState.active_ssid as primary source — it updates immediately on connect/disconnect
-    // Fall back to network.wifi.ssid (AstalNetwork) only when no override is set
     const displaySsid = createMemo(() => {
         const enabled = wifiEnabled();
         if (!enabled) return "Apagado";
         const override = overrideSsid();
-        if (override === "<disconnected>") return "Desconectado";
-        if (override !== "") return override;
-        return wifiSsid() || "Desconectado";
+        if (override === "<disconnected>" || override === "") return "Desconectado";
+        return override;
     });
 
     const wifiIcon = createMemo(() => {
         if (!wifiEnabled()) return "\u{f092d}"; // wifi_off
         const override = overrideSsid();
-        const connected = override !== "<disconnected>" && (override !== "" || wifiSsid());
+        const connected = override !== "<disconnected>" && override !== "";
         return connected ? "\u{f0928}" : "\u{f092f}";
     });
 
     let scanInterval: number | null = null;
 
     const scanWifi = () => {
-        if (network.wifi.enabled) {
-            network.wifi.scan();
+        if (wifiState.enabled) {
+            nmcli("device", "wifi", "rescan").catch(() => {});
             savedService.update().catch(console.error);
             wifiState.scanDetails().catch(console.error);
         }
@@ -334,9 +327,9 @@ export default function WifiPanel() {
                         <Gtk.Switch
                             active={wifiEnabled(e => e)}
                             onStateSet={(_: Gtk.Switch, state:boolean) => {
-                                network.wifi.enabled = state;
+                                wifiState.enabled = state;
                                 if (state) setTimeout(scanWifi, 1000);
-                                return false;
+                                return true;
                             }}
                         />
                     </box>

@@ -90,6 +90,8 @@ const COMMANDS: Command[] = [
     { categoria: "Sistema", cmd: "swapon --show", descripcion: "Ver swap activo"},
     { categoria: "Sistema", cmd: "sudo systemctl daemon-reload", descripcion: "Recargar systemd"},
     { categoria: "Sistema", cmd: "nohup comando &", descripcion: "Ejecutar comando en background"},
+    { categoria: "Sistema", cmd: "ssh-keygen -t ed25519 -C \"comentario\"", descripcion: "Generar clave SSH"},
+    { categoria: "Sistema", cmd: "cat ~/.ssh/id_ed25519.pub", descripcion: "Ver clave SSH"},
 
 
     { categoria: "Hardware", cmd: "lsblk", descripcion: "Ver arbol de discos y particiones"},

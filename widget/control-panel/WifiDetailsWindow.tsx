@@ -46,13 +46,19 @@ class WifiDetailsState extends GObject.Object {
     #password = "N/A"; get password() { return this.#password; } set password(val) { this.#password=val; this.notify("password"); }
 
     async refreshData(ssid: string) {
-        const withTimeout = (p: Promise<string>, ms = 8000): Promise<string> =>
-            Promise.race([
-                p,
-                new Promise<never>((_, reject) =>
-                    setTimeout(() => reject(new Error(`nmcli timeout after ${ms}ms`)), ms)
-                ),
-            ]);
+        const withTimeout = async (p: Promise<string>, ms = 8000): Promise<string> => {
+            let timerId: ReturnType<typeof setTimeout>;
+            const timeout = new Promise<never>((_, reject) => {
+                timerId = setTimeout(() => reject(new Error(`nmcli timeout after ${ms}ms`)), ms);
+            });
+            timeout.catch(() => {}); // Prevenir warning GJS
+
+            try {
+                return await Promise.race([p, timeout]);
+            } finally {
+                clearTimeout(timerId!);
+            }
+        };
 
         const nmcli = (...args: string[]) =>
             withTimeout(execAsync(["nmcli", ...args]));

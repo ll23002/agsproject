@@ -29,24 +29,21 @@ export function ControlPanel() {
     const battery = Battery.get_default();
 
     const dndBinding = createBinding(notifd, "dontDisturb");
-    const wifiEnabled = createBinding(network.wifi, "enabled");
-    const wifiSsid = createBinding(network.wifi, "ssid");
+    const wifiEnabled = createBinding(wifiState, "enabled");
     const wifiActiveSsid = createBinding(wifiState, "active_ssid");
 
     const wifiIcon = createMemo(() => {
         const enabled = wifiEnabled();
         if (!enabled) return "\u{f092d}"; // wifi_off
         const ssid = wifiActiveSsid();
-        const netSsid = wifiSsid();
-        const connected = ssid !== "<disconnected>" && (ssid !== "" || netSsid);
+        const connected = ssid !== "<disconnected>" && ssid !== "";
         return connected ? "\u{f0928}" : "\u{f092f}"; // wifi vs wifi_strength_outline
     });
 
     const wifiIconCss = createMemo(() => {
         const enabled = wifiEnabled();
         const ssid = wifiActiveSsid();
-        const netSsid = wifiSsid();
-        const connected = enabled && ssid !== "<disconnected>" && (ssid !== "" || netSsid);
+        const connected = enabled && ssid !== "<disconnected>" && ssid !== "";
         const color = !enabled || !connected ? "color: #a6adc8;" : "";
         return `font-family: 'JetBrainsMono Nerd Font', 'FiraCode Nerd Font', sans-serif; font-size: 16px; ${color}`;
     });

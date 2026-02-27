@@ -3,22 +3,9 @@ import { Gtk } from "ags/gtk4";
 import { execAsync } from "ags/process";
 import GObject from "gi://GObject";
 import Pango from "gi://Pango";
-// @ts-ignore
-import Network from "gi://AstalNetwork";
-
-const withTimeout = async (p: Promise<string>, ms = 8000): Promise<string> => {
-    let timerId: ReturnType<typeof setTimeout>;
-    const timeout = new Promise<never>((_, reject) => {
-        timerId = setTimeout(() => reject(new Error(`nmcli timeout after ${ms}ms`)), ms);
-    });
-    timeout.catch(() => {}); // Prevenir warning GJS
-
-    try {
-        return await Promise.race([p, timeout]);
-    } finally {
-        clearTimeout(timerId!);
-    }
-};
+import { withTimeout } from '../../service/WifiState';
+import wifiState from "../../service/WifiState";
+import { showWifiDetailsFor } from "./WifiDetailsWindow";
 
 const nmcli = (...args: string[]) => withTimeout(execAsync(["nmcli", ...args]));
 class SavedNetworkService extends GObject.Object {
@@ -67,15 +54,14 @@ class SavedNetworkService extends GObject.Object {
 
 
 const savedService = new SavedNetworkService();
-const network = Network.get_default();
+
 
 interface WifiItemProps {
     ap: any;
     onUpdate: () => void;
 }
 
-import wifiState from "../../service/WifiState";
-import { showWifiDetailsFor } from "./WifiDetailsWindow";
+
 
 function WifiItem({ ap, onUpdate }: WifiItemProps) {
     const isSavedBinding = createBinding(savedService, "saved");
@@ -111,7 +97,6 @@ function WifiItem({ ap, onUpdate }: WifiItemProps) {
                 const wasConnected = wifiState.active_ssid === ap.ssid;
                 wifiState.active_ssid = "<disconnected>";
                 if (wasConnected) {
-                    // Try to disconnect wlan0 explicitly, ignore errors
                     await nmcli("device", "disconnect", "wlan0").catch(() => {});
                 }
                 await savedService.update();
@@ -138,7 +123,7 @@ function WifiItem({ ap, onUpdate }: WifiItemProps) {
                 >
                     <box spacing={8}>
                         <label
-                            label={currentSsid(ssid => ssid === ap.ssid ? "\u{f0928}" : "\u{f092f}")} // nf-md-wifi or nf-md-wifi_strength_outline
+                            label={currentSsid(ssid => ssid === ap.ssid ? "\u{f0928}" : "\u{f092f}")}
                             css={currentSsid(ssid => `font-family: 'JetBrainsMono Nerd Font', 'FiraCode Nerd Font', sans-serif; ${ssid === ap.ssid ? "color: #0ABDC6;" : ""}`)}
                         />
 
@@ -245,10 +230,9 @@ function WifiItem({ ap, onUpdate }: WifiItemProps) {
                         css={`background-color: rgba(9, 24, 51, 0.5); color: #ffffff; border: 1px solid #0ABDC6; border-radius: 8px; padding: 4px 8px; caret-color: #ffffff; margin-top: 4px;`}
                     />
                     <button class="scan-button" onClicked={(self: Gtk.Button) => {
-                        // Traverse to entry sibling to get text
                         const parent = self.get_parent() as Gtk.Box;
                         const entry = parent.get_first_child() as Gtk.Entry;
-                        if (entry) connect(entry.text);
+                        if (entry) connect(entry.text).catch(console.error);
                     }}>
                         <label label={"\u{f00d9}"} css="font-size: 16px; font-family: 'JetBrainsMono Nerd Font', 'FiraCode Nerd Font';" />
                     </button>

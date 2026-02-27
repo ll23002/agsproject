@@ -150,4 +150,5 @@ class WifiStateService extends GObject.Object {
 }
 
 const wifiState = new WifiStateService();
+export { withTimeout};
 export default wifiState;

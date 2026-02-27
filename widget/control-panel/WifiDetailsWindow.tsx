@@ -51,7 +51,7 @@ class WifiDetailsState extends GObject.Object {
             const timeout = new Promise<never>((_, reject) => {
                 timerId = setTimeout(() => reject(new Error(`nmcli timeout after ${ms}ms`)), ms);
             });
-            timeout.catch(() => {}); // Prevenir warning GJS
+            timeout.catch(() => {});
 
             try {
                 return await Promise.race([p, timeout]);

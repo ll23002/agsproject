@@ -32,7 +32,7 @@ class WifiDetailsState extends GObject.Object {
         if (this.#activeSsid !== val) {
             this.#activeSsid = val;
             this.notify("active_ssid");
-            if (val) this.refreshData(val);
+            if (val) this.refreshData(val).catch(e => console.error("[WifiDetails] refreshData error:", e));
         }
     }
 
@@ -213,7 +213,7 @@ export default function WifiDetailsWindow(gdkmonitor: Gdk.Monitor) {
                     <box>
                         <label label="Proxy" hexpand halign={Gtk.Align.START} css="font-weight: bold;" />
                         <label label="Ninguno" css="color: #a6adc8;" />
-                        <label label={"\u{f107}"} css="font-family: 'JetBrainsMono Nerd Font'; margin-left: 8px; color: #a6adc8;" />
+                        <label label={"\u{f107}"} css="font-family: 'JetBrainsMono Ne rd Font'; margin-left: 8px; color: #a6adc8;" />
                     </box>
                     <box>
                         <label label="Configuración de IP" hexpand halign={Gtk.Align.START} css="font-weight: bold;" />

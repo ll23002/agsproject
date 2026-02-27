@@ -86,7 +86,6 @@ class WifiStateService extends GObject.Object {
         if (this.#enabled !== val) {
             this.#enabled = val;
             this.notify("enabled");
-            // Also toggle actual system wifi state
             nmcli("radio", "wifi", val ? "on" : "off").catch(() => {});
         }
     }
@@ -99,7 +98,6 @@ class WifiStateService extends GObject.Object {
 
     async scanDetails() {
         try {
-            // Get wifi status
             const radioOut = await nmcli("radio", "wifi");
             const isEnabled = radioOut.trim() === "enabled";
             if (this.#enabled !== isEnabled) {
@@ -114,6 +112,7 @@ class WifiStateService extends GObject.Object {
             }
 
             const out = await nmcli("-t", "-f", "IN-USE,SSID,SECURITY,CHAN,FREQ,SIGNAL,BSSID", "device", "wifi", "list");
+            console.log("[WifiState] scanDetails:", out);
 
             const newDetails: Record<string, { security: string, freq: string }> = {};
             const aps: AccessPoint[] = [];
@@ -121,9 +120,6 @@ class WifiStateService extends GObject.Object {
             
             const lines = out.split("\n").filter(Boolean);
             for (const line of lines) {
-                // FORMAT: IN-USE:SSID:SECURITY:CHAN:FREQ:SIGNAL:BSSID
-                // Colons in SSID are escaped by nmcli with \, so a simple split might technically fail on weird SSIDs,
-                // but for standard SSIDs it works fine.
                 const parts = line.split(":");
                 if (parts.length >= 7) {
                     const inUse = parts[0] === "*";
@@ -136,7 +132,6 @@ class WifiStateService extends GObject.Object {
                     if (ssid) {
                         if (!newDetails[ssid]) {
                             newDetails[ssid] = { security, freq };
-                            // Only add one AP per SSID to simplify list viewing
                             aps.push({ ssid, strength, bssid, freq, security });
                         }
                         if (inUse) connectedSsid = ssid;

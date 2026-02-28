@@ -70,8 +70,56 @@ function WifiItem({ ap, onUpdate }: WifiItemProps) {
     const expandedBinding = createBinding(wifiState, "expanded_ap");
     const detailsBinding = createBinding(wifiState, "details");
 
+    let advEap = "peap";
+    let advPhase2 = "mschapv2";
+    let advCert = "system";
+    let advMac = "random";
+
+    let identityEntry: Gtk.Entry | null = null;
+    let anonIdentityEntry: Gtk.Entry | null = null;
+
     const connect = async (password = "") => {
         const isSaved = savedService.saved.includes(ap.ssid);
+        const advIdentity = identityEntry ? identityEntry.text : "";
+        const advAnonIdentity = anonIdentityEntry ? anonIdentityEntry.text : "";
+
+        if (advIdentity !== "") {
+            try {
+                if (isSaved) {
+                    await nmcli("connection", "delete", "id", ap.ssid).catch(() => {});
+                }
+                
+                const cmd = [
+                    "connection", "add",
+                    "type", "wifi",
+                    "ifname", "wlan0", 
+                    "con-name", ap.ssid,
+                    "ssid", ap.ssid,
+                    "wifi-sec.key-mgmt", "wpa-eap",
+                    "802-1x.eap", advEap,
+                    "802-1x.phase2-auth", advPhase2,
+                    "802-1x.identity", advIdentity,
+                ];
+                
+                if (password) cmd.push("802-1x.password", password);
+                if (advAnonIdentity) cmd.push("802-1x.anonymous-identity", advAnonIdentity);
+                cmd.push("802-1x.system-ca-certs", advCert === "system" ? "true" : "false");
+                cmd.push("wifi.cloned-mac-address", advMac);
+
+                await nmcli(...cmd);
+                await nmcli("connection", "up", "id", ap.ssid);
+
+                wifiState.active_ssid = ap.ssid;
+                await savedService.update();
+                onUpdate();
+                wifiState.expanded_ap = "";
+            } catch (e) {
+                console.error("Error conectando a la red enterprise:", e);
+                execAsync(`notify-send "Error al conectar" "${e}"`).catch(console.error);
+            }
+            return;
+        }
+
         if (!isSaved && !password) return;
 
         const cmd = isSaved
@@ -90,6 +138,9 @@ function WifiItem({ ap, onUpdate }: WifiItemProps) {
             execAsync(`notify-send "Error al conectar a la red" "${e}"`).catch(console.error);
         }
     };
+
+
+
 
     const forgetNetwork = () => {
         nmcli("connection", "delete", "id", ap.ssid)
@@ -221,21 +272,76 @@ function WifiItem({ ap, onUpdate }: WifiItemProps) {
                 transitionType={Gtk.RevealerTransitionType.SLIDE_DOWN}
                 revealChild={expandedBinding(ssid => ssid === ap.ssid)}
             >
-                <box spacing={8} css="padding: 10px; background-color: rgba(0,0,0,0.2); border-radius: 0 0 8px 8px;">
-                    <Gtk.Entry
-                        placeholderText="Contraseña..."
-                        visibility={false}
-                        hexpand
-                        onActivate={(self: Gtk.Entry) => connect(self.text)}
-                        css={`background-color: rgba(9, 24, 51, 0.5); color: #ffffff; border: 1px solid #0ABDC6; border-radius: 8px; padding: 4px 8px; caret-color: #ffffff; margin-top: 4px;`}
-                    />
-                    <button class="scan-button" onClicked={(self: Gtk.Button) => {
-                        const parent = self.get_parent() as Gtk.Box;
-                        const entry = parent.get_first_child() as Gtk.Entry;
-                        if (entry) connect(entry.text).catch(console.error);
-                    }}>
-                        <label label={"\u{f00d9}"} css="font-size: 16px; font-family: 'JetBrainsMono Nerd Font', 'FiraCode Nerd Font';" />
-                    </button>
+                <box spacing={8} css="padding: 10px; background-color: rgba(0,0,0,0.2); border-radius: 0 0 8px 8px;" orientation={Gtk.Orientation.VERTICAL}>
+                    <box spacing={8}>
+                        <Gtk.Entry
+                            placeholderText="Contraseña..."
+                            visibility={false}
+                            hexpand
+                            onActivate={(self: Gtk.Entry) => connect(self.text)}
+                            css={`background-color: rgba(9, 24, 51, 0.5); color: #ffffff; border: 1px solid #0ABDC6; border-radius: 8px; padding: 4px 8px; caret-color: #ffffff; margin-top: 4px;`}
+                        />
+                        <button class="scan-button" onClicked={(self: Gtk.Button) => {
+                            const parent = self.get_parent() as Gtk.Box;
+                            const entry = parent.get_first_child() as Gtk.Entry;
+                            if (entry) connect(entry.text).catch(console.error);
+                        }}>
+                            <label label={"\u{f00d9}"} css="font-size: 16px; font-family: 'JetBrainsMono Nerd Font', 'FiraCode Nerd Font';" />
+                        </button>
+                    </box>
+
+                    <Gtk.Expander label="Opciones Avanzadas (Enterprise)" expanded={false}>
+                        <box orientation={Gtk.Orientation.VERTICAL} spacing={6} css="padding: 6px; margin-top: 6px;">
+                            
+                            <box spacing={8}>
+                                <label label="Método EAP" hexpand halign={Gtk.Align.START} css="font-size: 11px; opacity: 0.8;" />
+                                <button onClicked={(self: Gtk.Button) => {
+                                    const opts = ["peap", "tls", "ttls", "pwd", "sim", "aka", "aka'"];
+                                    advEap = opts[(opts.indexOf(advEap) + 1) % opts.length];
+                                    self.label = advEap.toUpperCase();
+                                }} label={advEap.toUpperCase()} css="font-size: 11px; padding: 2px 6px; border-radius: 4px; background-color: rgba(255,255,255,0.05);" />
+                            </box>
+
+                            <box spacing={8}>
+                                <label label="Fase 2" hexpand halign={Gtk.Align.START} css="font-size: 11px; opacity: 0.8;" />
+                                <button onClicked={(self: Gtk.Button) => {
+                                    const opts = ["mschapv2", "gtc", "sim", "aka", "aka'"];
+                                    advPhase2 = opts[(opts.indexOf(advPhase2) + 1) % opts.length];
+                                    self.label = advPhase2.toUpperCase();
+                                }} label={advPhase2.toUpperCase()} css="font-size: 11px; padding: 2px 6px; border-radius: 4px; background-color: rgba(255,255,255,0.05);" />
+                            </box>
+
+                            <box spacing={8}>
+                                <label label="Certificado CA" hexpand halign={Gtk.Align.START} css="font-size: 11px; opacity: 0.8;" />
+                                <button onClicked={(self: Gtk.Button) => {
+                                    advCert = advCert === "system" ? "none" : "system";
+                                    self.label = advCert === "system" ? "Usar sistema" : "No validar";
+                                }} label="Usar sistema" css="font-size: 11px; padding: 2px 6px; border-radius: 4px; background-color: rgba(255,255,255,0.05);" />
+                            </box>
+
+                            <box spacing={8}>
+                                <label label="Privacidad (MAC)" hexpand halign={Gtk.Align.START} css="font-size: 11px; opacity: 0.8;" />
+                                <button onClicked={(self: Gtk.Button) => {
+                                    advMac = advMac === "random" ? "permanent" : "random";
+                                    self.label = advMac === "random" ? "Aleatoria" : "Dispositivo";
+                                }} label="Aleatoria" css="font-size: 11px; padding: 2px 6px; border-radius: 4px; background-color: rgba(255,255,255,0.05);" />
+                            </box>
+
+                            <Gtk.Entry 
+                                placeholderText="Identidad (Usuario)" 
+                                onRealize={(self: Gtk.Entry) => { identityEntry = self; }}
+                                css={`background-color: rgba(9, 24, 51, 0.5); color: #ffffff; border: 1px solid #74c7ec; border-radius: 6px; padding: 2px 6px; font-size: 11px; margin-top: 4px;`} 
+                            />
+                            
+                            <Gtk.Entry 
+                                placeholderText="Identidad Anónima" 
+                                onRealize={(self: Gtk.Entry) => { anonIdentityEntry = self; }}
+                                css={`background-color: rgba(9, 24, 51, 0.5); color: #ffffff; border: 1px solid #74c7ec; border-radius: 6px; padding: 2px 6px; font-size: 11px;`} 
+                            />
+
+                        </box>
+                    </Gtk.Expander>
+
                 </box>
             </revealer>
         </box>
@@ -266,6 +372,8 @@ export default function WifiPanel() {
 
     const scanWifi = () => {
         if (wifiState.enabled) {
+            if (wifiState.expanded_ap !== "") return;
+
             nmcli("device", "wifi", "rescan").catch(() => {});
             savedService.update().catch(console.error);
             wifiState.scanDetails().catch(console.error);

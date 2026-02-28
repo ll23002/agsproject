@@ -290,7 +290,7 @@ function WifiItem({ ap, onUpdate }: WifiItemProps) {
                         </button>
                     </box>
 
-                    <Gtk.Expander label="Opciones Avanzadas (Enterprise)" expanded={false}>
+                    <Gtk.Expander label="Opciones Avanzadas" expanded={false}>
                         <box orientation={Gtk.Orientation.VERTICAL} spacing={6} css="padding: 6px; margin-top: 6px;">
                             
                             <box spacing={8}>

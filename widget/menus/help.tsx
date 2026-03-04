@@ -174,6 +174,10 @@ const COMMANDS: Command[] = [
     { categoria: "LazyVim", cmd: "+p", descripcion: "Pegar texto"},
     { categoria: "LazyVim", cmd: "yy", descripcion: "Copiar texto"},
 
+    { categoria: "Python", cmd: "python -m venv .venv", descripcion: "Crear entorno virtual"},
+    { categoria: "Python", cmd: "source .venv/bin/activate", descripcion: "Activar entorno virtual"},
+    { categoria: "Python", cmd: "python /home/ruta/clase1.py", descripcion: "Ejecutar script python"},
+
 
 ];
 

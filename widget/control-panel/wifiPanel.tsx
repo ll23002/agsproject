@@ -69,21 +69,42 @@ function WifiItem({ ap, onUpdate }: WifiItemProps) {
     
     const expandedBinding = createBinding(wifiState, "expanded_ap");
     const detailsBinding = createBinding(wifiState, "details");
-
     let advEap = "peap";
     let advPhase2 = "mschapv2";
     let advCert = "system";
     let advMac = "random";
-
+    
+    let isAdvExpanded = false;
     let identityEntry: Gtk.Entry | null = null;
     let anonIdentityEntry: Gtk.Entry | null = null;
+    let userCertEntry: Gtk.Entry | null = null;
+    let phase2Box: Gtk.Box | null = null;
+    let phase2Btn: Gtk.Button | null = null;
+    let caCertBox: Gtk.Box | null = null;
+
+    const updateVisibility = () => {
+        const isPeap = advEap === "peap";
+        const isTtls = advEap === "ttls";
+        const isTls = advEap === "tls";
+        const isPwd = advEap === "pwd";
+        // los metodos sim, aka, aka' están de más
+        const isSimAka = ["sim", "aka", "aka'"].includes(advEap);
+
+        if (phase2Box) phase2Box.visible = isPeap || isTtls;
+        if (caCertBox) caCertBox.visible = isPeap || isTtls || isTls;
+        if (userCertEntry) userCertEntry.visible = isTls;
+        if (identityEntry) identityEntry.visible = !isSimAka && !isPwd; 
+        if (anonIdentityEntry) anonIdentityEntry.visible = isPeap || isTtls || isTls;
+    };
 
     const connect = async (password = "") => {
         const isSaved = savedService.saved.includes(ap.ssid);
-        const advIdentity = identityEntry ? identityEntry.text : "";
-        const advAnonIdentity = anonIdentityEntry ? anonIdentityEntry.text : "";
 
-        if (advIdentity !== "") {
+        if (isAdvExpanded) {
+            const advIdentity = identityEntry ? identityEntry.text : "";
+            const advAnonIdentity = anonIdentityEntry ? anonIdentityEntry.text : "";
+            const advUserCert = userCertEntry ? userCertEntry.text : "";
+
             try {
                 if (isSaved) {
                     await nmcli("connection", "delete", "id", ap.ssid).catch(() => {});
@@ -92,18 +113,37 @@ function WifiItem({ ap, onUpdate }: WifiItemProps) {
                 const cmd = [
                     "connection", "add",
                     "type", "wifi",
-                    "ifname", "wlan0", 
+                    "ifname", "*", 
                     "con-name", ap.ssid,
                     "ssid", ap.ssid,
                     "wifi-sec.key-mgmt", "wpa-eap",
-                    "802-1x.eap", advEap,
-                    "802-1x.phase2-auth", advPhase2,
-                    "802-1x.identity", advIdentity,
+                    "802-1x.eap", advEap
                 ];
                 
-                if (password) cmd.push("802-1x.password", password);
-                if (advAnonIdentity) cmd.push("802-1x.anonymous-identity", advAnonIdentity);
-                cmd.push("802-1x.system-ca-certs", advCert === "system" ? "true" : "false");
+                if (["peap", "ttls"].includes(advEap)) {
+                    cmd.push("802-1x.phase2-auth", advPhase2);
+                }
+
+                if (["peap", "ttls", "tls", "pwd"].includes(advEap) && advIdentity) {
+                    cmd.push("802-1x.identity", advIdentity);
+                }
+                
+                if (password) {
+                    cmd.push("802-1x.password", password);
+                }
+                
+                if (["peap", "ttls", "tls"].includes(advEap) && advAnonIdentity) {
+                    cmd.push("802-1x.anonymous-identity", advAnonIdentity);
+                }
+
+                if (["peap", "ttls", "tls"].includes(advEap)) {
+                    cmd.push("802-1x.system-ca-certs", advCert === "system" ? "true" : "false");
+                }
+
+                if (advEap === "tls" && advUserCert) {
+                    cmd.push("802-1x.client-cert", advUserCert);
+                }
+
                 cmd.push("wifi.cloned-mac-address", advMac);
 
                 await nmcli(...cmd);
@@ -114,13 +154,12 @@ function WifiItem({ ap, onUpdate }: WifiItemProps) {
                 onUpdate();
                 wifiState.expanded_ap = "";
             } catch (e) {
-                console.error("Error conectando a la red enterprise:", e);
+                console.error("Error conectando a la red:", e);
                 execAsync(`notify-send "Error al conectar" "${e}"`).catch(console.error);
             }
             return;
         }
 
-        if (!isSaved && !password) return;
 
         const cmd = isSaved
             ? ["device", "wifi", "connect", ap.ssid]
@@ -290,28 +329,47 @@ function WifiItem({ ap, onUpdate }: WifiItemProps) {
                         </button>
                     </box>
 
-                    <Gtk.Expander label="Opciones Avanzadas" expanded={false}>
+                    <Gtk.Expander 
+                        label="Opciones Avanzadas"
+                        expanded={false}
+                        onRealize={(self: Gtk.Expander) => self.connect("notify::expanded", () => {
+                            isAdvExpanded = self.expanded;
+                        })}
+                    >
                         <box orientation={Gtk.Orientation.VERTICAL} spacing={6} css="padding: 6px; margin-top: 6px;">
                             
                             <box spacing={8}>
                                 <label label="Método EAP" hexpand halign={Gtk.Align.START} css="font-size: 11px; opacity: 0.8;" />
                                 <button onClicked={(self: Gtk.Button) => {
-                                    const opts = ["peap", "tls", "ttls", "pwd", "sim", "aka", "aka'"];
+                                    const opts = ["peap", "ttls", "tls", "pwd", "sim", "aka", "aka'"];
                                     advEap = opts[(opts.indexOf(advEap) + 1) % opts.length];
                                     self.label = advEap.toUpperCase();
+                                    
+                                    if (advEap === "peap") {
+                                        const p2opts = ["mschapv2", "gtc", "sim", "aka", "aka'"];
+                                        if (!p2opts.includes(advPhase2)) advPhase2 = "mschapv2";
+                                    } else if (advEap === "ttls") {
+                                        const p2opts = ["pap", "mschap", "mschapv2", "gtc"];
+                                        if (!p2opts.includes(advPhase2)) advPhase2 = "mschapv2";
+                                    }
+                                    if (phase2Btn) phase2Btn.label = advPhase2.toUpperCase();
+                                    
+                                    updateVisibility();
                                 }} label={advEap.toUpperCase()} css="font-size: 11px; padding: 2px 6px; border-radius: 4px; background-color: rgba(255,255,255,0.05);" />
                             </box>
 
-                            <box spacing={8}>
+                            <box spacing={8} onRealize={(self: Gtk.Box) => { phase2Box = self; updateVisibility(); }}>
                                 <label label="Fase 2" hexpand halign={Gtk.Align.START} css="font-size: 11px; opacity: 0.8;" />
-                                <button onClicked={(self: Gtk.Button) => {
-                                    const opts = ["mschapv2", "gtc", "sim", "aka", "aka'"];
-                                    advPhase2 = opts[(opts.indexOf(advPhase2) + 1) % opts.length];
+                                <button onRealize={(self: Gtk.Button) => { phase2Btn = self; }} onClicked={(self: Gtk.Button) => {
+                                    const p2opts = advEap === "ttls" 
+                                        ? ["pap", "mschap", "mschapv2", "gtc"]
+                                        : ["mschapv2", "gtc", "sim", "aka", "aka'"];
+                                    advPhase2 = p2opts[(p2opts.indexOf(advPhase2) + 1) % p2opts.length];
                                     self.label = advPhase2.toUpperCase();
                                 }} label={advPhase2.toUpperCase()} css="font-size: 11px; padding: 2px 6px; border-radius: 4px; background-color: rgba(255,255,255,0.05);" />
                             </box>
 
-                            <box spacing={8}>
+                            <box spacing={8} onRealize={(self: Gtk.Box) => { caCertBox = self; updateVisibility(); }}>
                                 <label label="Certificado CA" hexpand halign={Gtk.Align.START} css="font-size: 11px; opacity: 0.8;" />
                                 <button onClicked={(self: Gtk.Button) => {
                                     advCert = advCert === "system" ? "none" : "system";
@@ -328,15 +386,27 @@ function WifiItem({ ap, onUpdate }: WifiItemProps) {
                             </box>
 
                             <Gtk.Entry 
+                                placeholderText="Ruta del Certificado de Usuario (TLS)" 
+                                onRealize={(self: Gtk.Entry) => { userCertEntry = self; updateVisibility(); }}
+                                hexpand
+                                heightRequest={28}
+                                css={`background-color: rgba(9, 24, 51, 0.5); color: #ffffff; border: 1px solid #74c7ec; border-radius: 6px; padding: 0 6px; font-size: 11px; min-height: 24px;`}
+                            />
+
+                            <Gtk.Entry 
                                 placeholderText="Identidad (Usuario)" 
-                                onRealize={(self: Gtk.Entry) => { identityEntry = self; }}
-                                css={`background-color: rgba(9, 24, 51, 0.5); color: #ffffff; border: 1px solid #74c7ec; border-radius: 6px; padding: 2px 6px; font-size: 11px; margin-top: 4px;`} 
+                                onRealize={(self: Gtk.Entry) => { identityEntry = self; updateVisibility(); }}
+                                hexpand
+                                heightRequest={28}
+                                css={`background-color: rgba(9, 24, 51, 0.5); color: #ffffff; border: 1px solid #74c7ec; border-radius: 6px; padding: 0 6px; font-size: 11px; min-height: 24px;`}
                             />
                             
                             <Gtk.Entry 
                                 placeholderText="Identidad Anónima" 
-                                onRealize={(self: Gtk.Entry) => { anonIdentityEntry = self; }}
-                                css={`background-color: rgba(9, 24, 51, 0.5); color: #ffffff; border: 1px solid #74c7ec; border-radius: 6px; padding: 2px 6px; font-size: 11px;`} 
+                                onRealize={(self: Gtk.Entry) => { anonIdentityEntry = self; updateVisibility(); }}
+                                hexpand
+                                heightRequest={28}
+                                css={`background-color: rgba(9, 24, 51, 0.5); color: #ffffff; border: 1px solid #74c7ec; border-radius: 6px; padding: 0 6px; font-size: 11px; min-height: 24px;`}
                             />
 
                         </box>

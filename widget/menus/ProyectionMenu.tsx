@@ -35,25 +35,44 @@ class ProjectionService extends GObject.Object {
             console.log(`[hyprctl] ${args.slice(2).join(" ")} →`, out.trim() || "(sin salida)");
         };
 
+        const applyAntiFlickerSettings = async () => {
+            // Apagar VRR
+            await run(["hyprctl", "keyword", "misc:vrr", "0"]);
+            // Desactivar direct_scanout
+            await run(["hyprctl", "keyword", "render:direct_scanout", "false"]);
+        };
+
         try {
             switch (m) {
                 case 0: // Solo PC
-                    await run(["hyprctl", "keyword", "monitor", "eDP-1,preferred,auto,1"]);
-                    await run(["hyprctl", "keyword", "monitor", "HDMI-A-1,disable"]);
-                    break;
-                case 1: // Duplicar
-                    await run(["hyprctl", "keyword", "monitor", "eDP-1,preferred,auto,1"]);
-                    await run(["hyprctl", "keyword", "monitor", "HDMI-A-1,preferred,auto,1,mirror,eDP-1"]);
-                    break;
-                case 2: // Extender
                     await run(["hyprctl", "keyword", "monitor", "eDP-1,preferred,0x0,1"]);
-                    await run(["hyprctl", "keyword", "monitor", "HDMI-A-1,preferred,auto,1"]);
+                    await run(["hyprctl", "keyword", "monitor", "HDMI-A-1,disable"]);
+
+                    await run(["hyprctl", "keyword", "misc:vrr", "1"]);
+                    await run(["hyprctl", "keyword", "render:direct_scanout", "true"]);
                     break;
+
+                case 1: // Duplicar
+                    await applyAntiFlickerSettings();
+                    await run(["hyprctl", "keyword", "monitor", "eDP-1,preferred,0x0,1"]);
+                    await run(["hyprctl", "keyword", "monitor", "HDMI-A-1,preferred,auto,1,mirror,eDP-1,bitdepth,8"]);
+                    break;
+
+                case 2: // Extender
+                    await applyAntiFlickerSettings();
+                    await run(["hyprctl", "keyword", "monitor", "eDP-1,preferred,0x0,1"]);
+                    await run(["hyprctl", "keyword", "monitor", "HDMI-A-1,preferred,auto,1,bitdepth,8"]);
+                    break;
+
                 case 3: // Solo Proyector
-                    await run(["hyprctl", "keyword", "monitor", "HDMI-A-1,preferred,auto,1"]);
+                    await applyAntiFlickerSettings();
+                    await run(["hyprctl", "keyword", "monitor", "HDMI-A-1,preferred,0x0,1,bitdepth,8"]);
                     await run(["hyprctl", "keyword", "monitor", "eDP-1,disable"]);
                     break;
             }
+
+            await new Promise(resolve => setTimeout(resolve, 100));
+
         } catch (e) {
             const msg = e instanceof Error ? e.message : String(e);
             console.error(`[ProyectionMenu] Error en modo ${m}:`, msg);

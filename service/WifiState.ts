@@ -148,20 +148,18 @@ class WifiStateService extends GObject.Object {
         }
     }
 
+    // Espero que esto funcione
     async initialScan() {
-        // First, get the current state without forcing a rescan
         await this.scanDetails();
         
-        // If wifi is on but we are not connected, force one background rescan to populate the list
         if (this.enabled && (this.active_ssid === "<disconnected>" || this.active_ssid === "")) {
             nmcli("device", "wifi", "rescan").catch(() => {});
-            // Check results a few seconds later to give the driver time to find networks
             setTimeout(() => this.scanDetails().catch(() => {}), 4000);
         }
     }
 }
 
 const wifiState = new WifiStateService();
-wifiState.initialScan(); // Run an initial non-blocking check on AGS startup
+wifiState.initialScan();
 export { withTimeout};
 export default wifiState;

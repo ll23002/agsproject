@@ -133,6 +133,7 @@ const COMMANDS: Command[] = [
     { categoria: "Git", cmd: "git reset --hard HEAD", descripcion: "Borrar cambios no confirmados"},
     { categoria: "Git", cmd: "git remote -v", descripcion: "Ver remotos"},
     { categoria: "Git", cmd: "git remote set-url origin url", descripcion: "Cambiar url de remoto"},
+    { categoria: "Git", cmd: "git reset --soft HEAD~1", descripcion: "Deshacer commit anterior del arbol de commits conservando los cambios locales"},
 
     { categoria: "Docker", cmd: "docker ps", descripcion: "Listar contenedores corriendo"},
     { categoria: "Docker", cmd: "docker ps -a", descripcion: "Listar todos los contenedores"},
@@ -177,7 +178,11 @@ const COMMANDS: Command[] = [
     { categoria: "Python", cmd: "python -m venv .venv", descripcion: "Crear entorno virtual"},
     { categoria: "Python", cmd: "source .venv/bin/activate", descripcion: "Activar entorno virtual"},
     { categoria: "Python", cmd: "python /home/ruta/clase1.py", descripcion: "Ejecutar script python"},
-
+    { categoria: "Python", cmd: "pip install -r requirements.txt", descripcion: "Instalar dependencias"},
+    { categoria: "Python", cmd: "pip freeze > requirements.txt", descripcion: "Guardar dependencias"},
+    { categoria: "Python", cmd: "pip install --upgrade pip", descripcion: "Actualizar pip"},
+    { categoria: "Python", cmd: "pip show paquete", descripcion: "Buscar paquete instalado"},
+    { categoria: "Python", cmd: "python -m uvicorn backend.app:app --host 127.0.0.1 --port 8000 --reload", descripcion: "Ejecutar servidor web con uvicorn"},
 
 ];
 

@@ -4,7 +4,6 @@ import style from "./styles/main.scss"
 import NotificationPopups from "./widget/notifications/NotificationPopups"
 import "./service/BarState";
 import Bar from "./widget/bar/Bar";
-import ProyectionMenu from "./widget/menus/ProyectionMenu";
 import WorkspaceCarousel from "./widget/menus/WorkspaceCarousel";
 import ChargingOverlay from "./widget/osd/ChargingOverlay";
 import CheatSheet from "./widget/menus/help";
@@ -23,7 +22,6 @@ app.start({
     app.get_monitors().map(monitor => {
       Bar(monitor)
       NotificationPopups(monitor)
-      ProyectionMenu(monitor)
       WorkspaceCarousel(monitor)
       CheatSheet(monitor)
       OSD(monitor)

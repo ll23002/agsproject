@@ -75,6 +75,8 @@ const COMMANDS: Command[] = [
     { categoria: "Arch", cmd: "paccache -rk1", descripcion: "Limpiar cache de paquetes (dejar solo una version)"},
     { categoria: "Arch", cmd: "sudo pkgfile -u", descripcion: "Actualizar BD de pkgfile"},
     { categoria: "Arch", cmd: "pkgfile paquete", descripcion: "Buscar paquetes no instalados"},
+    { categoria: "Arch", cmd: "yay -Syu", descripcion: "Actualizar AUR"},
+    { categoria: "Arch", cmd: "hyprdynamicmonitors tui", descripcion: "Iniciar Hyprdynamic Monitors"},
 
     { categoria: "Sistema", cmd: "systemctl start servicio", descripcion: "Iniciar servicio"},
     { categoria: "Sistema", cmd: "systemctl enable --now servicio", descripcion: "Iniciar servicio y habilitar en boot"},
@@ -133,7 +135,9 @@ const COMMANDS: Command[] = [
     { categoria: "Git", cmd: "git reset --hard HEAD", descripcion: "Borrar cambios no confirmados"},
     { categoria: "Git", cmd: "git remote -v", descripcion: "Ver remotos"},
     { categoria: "Git", cmd: "git remote set-url origin url", descripcion: "Cambiar url de remoto"},
+    { categoria: "Git", cmd: "git remote add origin url", descripcion: "Agregar remoto"},
     { categoria: "Git", cmd: "git reset --soft HEAD~1", descripcion: "Deshacer commit anterior del arbol de commits conservando los cambios locales"},
+    { categoria: "Git", cmd: "git filter-repo --path ruta/archivo --invert-paths --force", descripcion: "Eliminar archivo del historial de git"},
 
     { categoria: "Docker", cmd: "docker ps", descripcion: "Listar contenedores corriendo"},
     { categoria: "Docker", cmd: "docker ps -a", descripcion: "Listar todos los contenedores"},

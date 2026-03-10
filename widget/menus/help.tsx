@@ -256,14 +256,13 @@ class CheatState extends GObject.Object {
     }
 }
 
-
 const state = new CheatState();
 
 export default function CheatSheet(gdkmonitor: Gdk.Monitor) {
     const queryBinding = createBinding(state, "query");
     const revision = createBinding(state, "revision");
     const hide = () => {
-        App.toggle_window("cheatsheet");
+        App.get_window("cheatsheet")?.hide();
         state.query = "";
         state.selectedIndex = 0;
     };
@@ -299,6 +298,7 @@ export default function CheatSheet(gdkmonitor: Gdk.Monitor) {
         if (keyval === Gdk.KEY_Up || keyval === Gdk.KEY_KP_Up) {
             if (filtered.length > 0) {
                 state.cycle(-1, maxIndex);
+                adjustScroll();
             }
             return true;
         }
@@ -306,6 +306,7 @@ export default function CheatSheet(gdkmonitor: Gdk.Monitor) {
         if (keyval === Gdk.KEY_Down || keyval === Gdk.KEY_KP_Down) {
             if (filtered.length > 0) {
                 state.cycle(1, maxIndex);
+                adjustScroll();
             }
             return true;
         }
@@ -322,6 +323,24 @@ export default function CheatSheet(gdkmonitor: Gdk.Monitor) {
 
         return false;
     });
+
+    let scrollWindow: Gtk.ScrolledWindow | null = null;
+
+    const adjustScroll = () => {
+        if (!scrollWindow) return;
+        const adj = scrollWindow.get_vadjustment();
+        if (!adj) return;
+        
+        const rowHeight = 70; // Altura estimada de cada fila (cheat-item)
+        const y = state.selectedIndex * rowHeight;
+        const page = adj.get_page_size();
+        
+        if (y < adj.get_value()) {
+            adj.set_value(y);
+        } else if (y + rowHeight > adj.get_value() + page) {
+            adj.set_value(y + rowHeight - page);
+        }
+    };
 
 
     const win = (
@@ -363,6 +382,7 @@ export default function CheatSheet(gdkmonitor: Gdk.Monitor) {
 
                 <Gtk.Separator />
 
+                {scrollWindow = (
                 <Gtk.ScrolledWindow
                     vexpand
                     minContentHeight={500}
@@ -437,6 +457,7 @@ export default function CheatSheet(gdkmonitor: Gdk.Monitor) {
                         }}
                     </With>
                 </Gtk.ScrolledWindow>
+                ) as Gtk.ScrolledWindow}
             </box>
 
         </window>
